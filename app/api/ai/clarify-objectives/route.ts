@@ -81,7 +81,7 @@ Return ONLY the questions, one per line, formatted as a simple list.`;
     }
 
     // Parse questions from response
-    const content = response.content || response;
+    const content = String(response.content || response);
     const questions = content
       .split('\n')
       .map((q: string) => q.replace(/^[-*•]\s*/, '').replace(/^\d+\.\s*/, '').trim())
