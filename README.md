@@ -11,7 +11,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-ISC-green?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](LICENSE)
 
 [Features](#features) · [Quick Start](#quick-start) · [AI Providers](#ai-providers) · [Templates](#templates) · [Architecture](#architecture) · [Contributing](#contributing)
 
@@ -392,7 +392,7 @@ We welcome contributions! Here's how to get started:
 
 ## License
 
-This project is licensed under the **ISC License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Apache License 2.0** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
