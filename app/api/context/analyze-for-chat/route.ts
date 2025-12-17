@@ -102,7 +102,7 @@ Let's discuss your course goals. What would you like learners to achieve by the 
 
     // Generate intelligent quick options based on content analysis
     // Try to extract topics and generate relevant questions
-    const contentLower = (response.content || response).toLowerCase();
+    const contentLower = String(response.content || response).toLowerCase();
     const quickOptions: string[] = [];
     
     // Generate context-aware questions
@@ -143,7 +143,7 @@ Let's discuss your course goals. What would you like learners to achieve by the 
     }
 
     return NextResponse.json({
-      analysis: response.content || response,
+      analysis: String(response.content || response),
       quickOptions,
       fileNames: fileNames || [],
     });
