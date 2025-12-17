@@ -426,7 +426,7 @@ const PODCAST_DIALOGUE = ${JSON.stringify((() => {
     // Introduction from host
     dialogue.push({
       speaker: 'host',
-      text: `Welcome to ${courseData.course.title}. ${courseData.course.description || 'Let's dive in!'}`,
+      text: `Welcome to ${courseData.course.title}. ${courseData.course.description || "Let's dive in!"}`,
       timestamp: 0,
     });
     
