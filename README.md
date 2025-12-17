@@ -198,10 +198,10 @@ flowchart TB
     end
     
     subgraph API["API Routes"]
-        Upload[/api/upload]
-        Generate[/api/generate]
-        Export[/api/export]
-        Studio[/api/studio]
+        Upload["Upload API"]
+        Generate["Generate API"]
+        Export["Export API"]
+        Studio["Studio API"]
     end
     
     subgraph Core["Core Libraries"]
