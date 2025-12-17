@@ -1,0 +1,20 @@
+{
+  "title": "Product Training",
+  "description": "Learn about our products and how to use them effectively",
+  "topic": "Product Education",
+  "objectives": [
+    "Understand product features and benefits",
+    "Learn how to use key functionalities",
+    "Know common use cases and best practices",
+    "Troubleshoot common issues"
+  ],
+  "targetAudience": "Product users",
+  "contentStyle": "conversational",
+  "stageCount": 6,
+  "estimatedDuration": "25-30 minutes",
+  "accentColor1": "#4a90e2",
+  "accentColor2": "#50c9c3",
+  "includeVideo": true,
+  "includePodcast": false
+}
+

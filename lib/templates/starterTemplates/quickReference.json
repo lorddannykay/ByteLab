@@ -1,0 +1,20 @@
+{
+  "title": "Quick Reference Guide",
+  "description": "Fast access to essential information and tips",
+  "topic": "Reference",
+  "objectives": [
+    "Quick access to key information",
+    "Learn essential shortcuts",
+    "Find common solutions",
+    "Remember important details"
+  ],
+  "targetAudience": "All users",
+  "contentStyle": "conversational",
+  "stageCount": 3,
+  "estimatedDuration": "10-15 minutes",
+  "accentColor1": "#50c9c3",
+  "accentColor2": "#4a90e2",
+  "includeVideo": false,
+  "includePodcast": false
+}
+

@@ -1,0 +1,20 @@
+{
+  "title": "Safety Training",
+  "description": "Workplace safety protocols and emergency procedures",
+  "topic": "Safety",
+  "objectives": [
+    "Understand safety protocols",
+    "Identify potential hazards",
+    "Learn emergency procedures",
+    "Know reporting requirements"
+  ],
+  "targetAudience": "All employees",
+  "contentStyle": "formal",
+  "stageCount": 4,
+  "estimatedDuration": "15-20 minutes",
+  "accentColor1": "#e24a4a",
+  "accentColor2": "#e2a84a",
+  "includeVideo": true,
+  "includePodcast": false
+}
+

@@ -1,0 +1,20 @@
+{
+  "title": "Soft Skills Development",
+  "description": "Build essential interpersonal and communication skills",
+  "topic": "Professional Development",
+  "objectives": [
+    "Improve communication skills",
+    "Develop leadership abilities",
+    "Enhance teamwork and collaboration",
+    "Build emotional intelligence"
+  ],
+  "targetAudience": "All employees",
+  "contentStyle": "conversational",
+  "stageCount": 5,
+  "estimatedDuration": "20-25 minutes",
+  "accentColor1": "#e2a84a",
+  "accentColor2": "#e24a4a",
+  "includeVideo": false,
+  "includePodcast": true
+}
+

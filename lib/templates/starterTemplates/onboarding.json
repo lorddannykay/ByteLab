@@ -1,0 +1,20 @@
+{
+  "title": "Employee Onboarding",
+  "description": "Welcome new employees and get them up to speed quickly",
+  "topic": "Human Resources",
+  "objectives": [
+    "Understand company culture and values",
+    "Learn about key policies and procedures",
+    "Get familiar with tools and systems",
+    "Meet the team and understand roles"
+  ],
+  "targetAudience": "New employees",
+  "contentStyle": "conversational",
+  "stageCount": 5,
+  "estimatedDuration": "20-25 minutes",
+  "accentColor1": "#4a90e2",
+  "accentColor2": "#50c9c3",
+  "includeVideo": false,
+  "includePodcast": false
+}
+

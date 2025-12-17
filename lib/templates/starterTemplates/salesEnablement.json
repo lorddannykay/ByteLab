@@ -1,0 +1,20 @@
+{
+  "title": "Sales Enablement",
+  "description": "Product knowledge and sales techniques for the sales team",
+  "topic": "Sales",
+  "objectives": [
+    "Master product knowledge",
+    "Understand customer pain points",
+    "Learn effective sales techniques",
+    "Practice objection handling"
+  ],
+  "targetAudience": "Sales team",
+  "contentStyle": "conversational",
+  "stageCount": 5,
+  "estimatedDuration": "20-25 minutes",
+  "accentColor1": "#50c9c3",
+  "accentColor2": "#4a90e2",
+  "includeVideo": false,
+  "includePodcast": false
+}
+

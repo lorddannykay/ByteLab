@@ -1,0 +1,20 @@
+{
+  "title": "Compliance 101",
+  "description": "Essential compliance training for workplace regulations",
+  "topic": "Compliance",
+  "objectives": [
+    "Understand key compliance requirements",
+    "Identify potential compliance risks",
+    "Learn reporting procedures",
+    "Know your responsibilities"
+  ],
+  "targetAudience": "All employees",
+  "contentStyle": "formal",
+  "stageCount": 4,
+  "estimatedDuration": "15-20 minutes",
+  "accentColor1": "#e24a4a",
+  "accentColor2": "#e2a84a",
+  "includeVideo": false,
+  "includePodcast": false
+}
+

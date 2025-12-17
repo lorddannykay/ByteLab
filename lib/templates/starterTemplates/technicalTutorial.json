@@ -1,0 +1,20 @@
+{
+  "title": "Technical Tutorial",
+  "description": "Step-by-step technical guide for developers",
+  "topic": "Technical Training",
+  "objectives": [
+    "Understand technical concepts",
+    "Learn implementation steps",
+    "See code examples",
+    "Practice with exercises"
+  ],
+  "targetAudience": "Developers",
+  "contentStyle": "technical",
+  "stageCount": 6,
+  "estimatedDuration": "30-35 minutes",
+  "accentColor1": "#50c9c3",
+  "accentColor2": "#4a90e2",
+  "includeVideo": false,
+  "includePodcast": false
+}
+

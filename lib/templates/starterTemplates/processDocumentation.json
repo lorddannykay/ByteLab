@@ -1,0 +1,20 @@
+{
+  "title": "Process Documentation",
+  "description": "Standard operating procedures and workflows",
+  "topic": "Operations",
+  "objectives": [
+    "Understand standard procedures",
+    "Learn workflow steps",
+    "Know when to escalate",
+    "Follow best practices"
+  ],
+  "targetAudience": "Operations team",
+  "contentStyle": "technical",
+  "stageCount": 5,
+  "estimatedDuration": "20-25 minutes",
+  "accentColor1": "#4a90e2",
+  "accentColor2": "#50c9c3",
+  "includeVideo": false,
+  "includePodcast": false
+}
+

@@ -1,0 +1,20 @@
+{
+  "title": "Customer Education",
+  "description": "Help customers get the most out of your product",
+  "topic": "Customer Success",
+  "objectives": [
+    "Get started with the product",
+    "Learn core features",
+    "Discover advanced tips and tricks",
+    "Find resources and support"
+  ],
+  "targetAudience": "Customers",
+  "contentStyle": "conversational",
+  "stageCount": 4,
+  "estimatedDuration": "15-20 minutes",
+  "accentColor1": "#4a90e2",
+  "accentColor2": "#50c9c3",
+  "includeVideo": true,
+  "includePodcast": false
+}
+
