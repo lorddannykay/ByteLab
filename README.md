@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="assets/logo/bytesquare_black.png" alt="ByteLab Logo" width="120" />
-
-# ByteLab
+# 🧪 ByteLab
 
 ### AI-Powered Microlearning Course Builder
 
@@ -13,19 +11,19 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-ISC-green?style=for-the-badge)](LICENSE)
 
-[Features](#features) · [Quick Start](#quick-start) · [AI Providers](#ai-providers) · [Templates](#templates) · [Architecture](#architecture) · [Contributing](#contributing)
+[Features](#-features) • [Quick Start](#-quick-start) • [AI Providers](#-ai-providers) • [Templates](#-templates) • [Architecture](#-architecture) • [Contributing](#-contributing)
 
 ---
 
 </div>
 
-## Features
+## ✨ Features
 
 <table>
 <tr>
 <td width="50%">
 
-### Course Generation
+### 📚 Course Generation
 - **AI-Powered Content** — Generate complete courses from source materials
 - **RAG Pipeline** — Context-aware generation using your uploaded documents
 - **Multi-Stage Courses** — Structured learning with progressive stages
@@ -34,7 +32,7 @@
 </td>
 <td width="50%">
 
-### 14 Visual Templates
+### 🎨 14 Visual Templates
 - Modern, Minimal, Classic, Magazine
 - Card-Based, Timeline, Storybook
 - Dashboard, Gaming, Dark Mode
@@ -45,7 +43,7 @@
 <tr>
 <td width="50%">
 
-### Multimodal Output
+### 🎙️ Multimodal Output
 - **Interactive HTML** — Self-contained courses that work offline
 - **Video Version** — Kinetic typography with scene-by-scene narration
 - **Podcast Mode** — Dialogue-based audio learning
@@ -54,7 +52,7 @@
 </td>
 <td width="50%">
 
-### Editor Blocks
+### 🛠️ Editor Blocks
 - Text & Headings
 - Lists & Code Blocks
 - Images & Videos
@@ -69,7 +67,7 @@
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -114,11 +112,11 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) 🎉
 
 ---
 
-## AI Providers
+## 🤖 AI Providers
 
 ByteLab supports **multiple AI providers** — use whichever fits your needs:
 
@@ -132,7 +130,7 @@ The system **automatically detects** available providers and lets you switch bet
 
 ```mermaid
 flowchart LR
-    subgraph Providers["AI Providers"]
+    subgraph Providers["🤖 AI Providers"]
         T[Together AI]
         O[OpenAI]
         A[Anthropic]
@@ -152,63 +150,66 @@ flowchart LR
 
 ---
 
-## Templates
+## 🎨 Templates
 
 ### Course Templates (14 Styles)
 
 Choose from professionally designed templates:
 
-| | | | |
-|:---:|:---:|:---:|:---:|
-| Modern | Minimal | Classic | Magazine |
-| Card-Based | Timeline | Storybook | Dashboard |
-| Gaming | Dark Mode | Corporate | Academic |
-| Creative | Print-Ready | | |
+```
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│   Modern    │   Minimal   │   Classic   │  Magazine   │
+├─────────────┼─────────────┼─────────────┼─────────────┤
+│ Card-Based  │  Timeline   │  Storybook  │  Dashboard  │
+├─────────────┼─────────────┼─────────────┼─────────────┤
+│   Gaming    │  Dark Mode  │  Corporate  │  Academic   │
+├─────────────┼─────────────┴─────────────┴─────────────┤
+│  Creative   │           Print-Ready                   │
+└─────────────┴─────────────────────────────────────────┘
+```
 
 ### Starter Templates (10 Use Cases)
 
 Pre-configured templates for common training scenarios:
 
-| Template | Use Case |
-|----------|----------|
-| **Compliance Training** | Policy & regulatory content |
-| **Product Training** | Feature walkthroughs |
-| **Onboarding** | New employee orientation |
-| **Sales Enablement** | Pitch decks & objection handling |
-| **Technical Tutorial** | Step-by-step guides |
-| **Safety Training** | Workplace safety modules |
-| **Process Documentation** | SOPs & workflows |
-| **Customer Education** | User guides & tutorials |
-| **Soft Skills** | Communication & leadership |
-| **Quick Reference** | Cheat sheets & job aids |
+- 📋 **Compliance Training** — Policy & regulatory content
+- 🎯 **Product Training** — Feature walkthroughs
+- 👋 **Onboarding** — New employee orientation
+- 💼 **Sales Enablement** — Pitch decks & objection handling
+- 🔧 **Technical Tutorial** — Step-by-step guides
+- 🛡️ **Safety Training** — Workplace safety modules
+- 📖 **Process Documentation** — SOPs & workflows
+- 🎓 **Customer Education** — User guides & tutorials
+- 🧠 **Soft Skills** — Communication & leadership
+- ⚡ **Quick Reference** — Cheat sheets & job aids
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart TB
-    subgraph Client["Frontend - Next.js 14"]
+    subgraph Client["🖥️ Frontend (Next.js 14)"]
         UI[React Components]
         Editor[Visual Editor]
         Preview[Live Preview]
     end
     
-    subgraph API["API Routes"]
-        Upload[/api/upload]
-        Generate[/api/generate]
-        Export[/api/export]
-        Studio[/api/studio]
+    subgraph API["⚡ API Routes"]
+        Upload["/api/upload"]
+        Generate["/api/generate/*"]
+        Export["/api/export"]
+        Studio["/api/studio/*"]
     end
     
-    subgraph Core["Core Libraries"]
+    subgraph Core["🧠 Core Libraries"]
         RAG[RAG Pipeline]
         Parsers[File Parsers]
         Templates[Template Engine]
         TTS[Text-to-Speech]
     end
     
-    subgraph Storage["Storage"]
+    subgraph Storage["💾 Storage"]
         VS[(Vector Store)]
         FS[(File System)]
     end
@@ -232,20 +233,20 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    subgraph Input["Input"]
+    subgraph Input["📄 Input"]
         PDF[PDF]
         DOCX[DOCX]
         TXT[TXT/MD]
         URL[URL]
     end
     
-    subgraph Process["Processing"]
+    subgraph Process["⚙️ Processing"]
         Parse[Parse] --> Chunk[Chunk]
         Chunk --> Embed[Embed]
         Embed --> Store[Store]
     end
     
-    subgraph Retrieve["Retrieval"]
+    subgraph Retrieve["🔍 Retrieval"]
         Query[Query] --> Search[Semantic Search]
         Search --> Rerank[Rerank]
         Rerank --> Context[Context]
@@ -258,41 +259,41 @@ flowchart LR
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ByteLab/
-├── app/                        # Next.js App Router
-│   ├── api/                    # API Routes
-│   │   ├── generate/           # Content generation endpoints
-│   │   ├── studio/             # Studio outputs (audio, video, etc.)
-│   │   ├── export/             # Export endpoints (ZIP, SCORM)
-│   │   └── upload/             # File upload handlers
-│   ├── course/                 # Course pages
-│   └── page.tsx                # Dashboard
+├── 📂 app/                     # Next.js App Router
+│   ├── 📂 api/                 # API Routes
+│   │   ├── 📂 generate/        # Content generation endpoints
+│   │   ├── 📂 studio/          # Studio outputs (audio, video, etc.)
+│   │   ├── 📂 export/          # Export endpoints (ZIP, SCORM)
+│   │   └── 📂 upload/          # File upload handlers
+│   ├── 📂 course/              # Course pages
+│   └── 📄 page.tsx             # Dashboard
 │
-├── components/                 # React Components
-│   ├── Editor/                 # Visual editor & blocks
-│   ├── Workspace/              # Main workspace panels
-│   ├── Dashboard/              # Dashboard components
-│   └── Templates/              # Template selectors
+├── 📂 components/              # React Components
+│   ├── 📂 Editor/              # Visual editor & blocks
+│   ├── 📂 Workspace/           # Main workspace panels
+│   ├── 📂 Dashboard/           # Dashboard components
+│   └── 📂 Templates/           # Template selectors
 │
-├── lib/                        # Core Libraries
-│   ├── ai/providers/           # AI provider integrations
-│   ├── rag/                    # RAG pipeline
-│   ├── parsers/                # File parsers
-│   ├── templates/              # Course templates
-│   ├── generators/             # HTML generators
-│   ├── tts/                    # Text-to-speech
-│   └── scorm/                  # SCORM packager
+├── 📂 lib/                     # Core Libraries
+│   ├── 📂 ai/providers/        # AI provider integrations
+│   ├── 📂 rag/                 # RAG pipeline
+│   ├── 📂 parsers/             # File parsers
+│   ├── 📂 templates/           # Course templates
+│   ├── 📂 generators/          # HTML generators
+│   ├── 📂 tts/                 # Text-to-speech
+│   └── 📂 scorm/               # SCORM packager
 │
-├── types/                      # TypeScript types
-└── assets/                     # Static assets & logos
+├── 📂 types/                   # TypeScript types
+└── 📂 assets/                  # Static assets & logos
 ```
 
 ---
 
-## Configuration
+## 🔧 Configuration
 
 ### Supported File Types
 
@@ -315,7 +316,7 @@ ByteLab/
 
 ---
 
-## Workflow
+## 🎯 Workflow
 
 ```mermaid
 sequenceDiagram
@@ -327,7 +328,7 @@ sequenceDiagram
     
     User->>UI: Upload sources (PDF, DOCX, etc.)
     UI->>RAG: Process & chunk documents
-    RAG-->>UI: Sources ready
+    RAG-->>UI: Sources ready ✓
     
     User->>UI: Configure course settings
     User->>UI: Generate course
@@ -344,7 +345,7 @@ sequenceDiagram
 
 ---
 
-## Roadmap
+## 🛣️ Roadmap
 
 - [x] Multi-provider AI support (Together, OpenAI, Anthropic)
 - [x] 14 course templates
@@ -359,7 +360,7 @@ sequenceDiagram
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions! Here's how to get started:
 
@@ -387,7 +388,7 @@ We welcome contributions! Here's how to get started:
 
 ---
 
-## License
+## 📄 License
 
 This project is licensed under the **ISC License** — see the [LICENSE](LICENSE) file for details.
 
@@ -395,10 +396,10 @@ This project is licensed under the **ISC License** — see the [LICENSE](LICENSE
 
 <div align="center">
 
-### Built with care as part of the ByteVerse ecosystem
+### Built with ❤️ as part of the ByteVerse ecosystem
 
 **One seed. Infinite ways to learn.**
 
-[Back to top](#bytelab)
+[⬆ Back to top](#-bytelab)
 
 </div>
