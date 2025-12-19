@@ -1,8 +1,126 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { ChatMessage } from '@/types/courseCreation';
 import { LightBulbIcon } from '@/components/Icons/AppleIcons';
+
+// Simple markdown-like renderer for chat messages
+function renderFormattedText(text: string): React.ReactNode {
+  // Split into lines first
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let listItems: string[] = [];
+  let listType: 'numbered' | 'bullet' | null = null;
+  
+  const flushList = () => {
+    if (listItems.length > 0) {
+      if (listType === 'numbered') {
+        elements.push(
+          <ol key={`list-${elements.length}`} className="list-decimal list-inside space-y-1 my-2 ml-2">
+            {listItems.map((item, i) => (
+              <li key={i} className="text-text-primary">{renderInlineFormatting(item)}</li>
+            ))}
+          </ol>
+        );
+      } else {
+        elements.push(
+          <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2 ml-2">
+            {listItems.map((item, i) => (
+              <li key={i} className="text-text-primary">{renderInlineFormatting(item)}</li>
+            ))}
+          </ul>
+        );
+      }
+      listItems = [];
+      listType = null;
+    }
+  };
+
+  lines.forEach((line, index) => {
+    // Check for numbered list (1. 2. etc)
+    const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/);
+    if (numberedMatch) {
+      if (listType !== 'numbered') {
+        flushList();
+        listType = 'numbered';
+      }
+      listItems.push(numberedMatch[2]);
+      return;
+    }
+    
+    // Check for bullet list (- item, * item, • item)
+    const bulletMatch = line.match(/^[-•*]\s+(.+)$/);
+    if (bulletMatch) {
+      if (listType !== 'bullet') {
+        flushList();
+        listType = 'bullet';
+      }
+      listItems.push(bulletMatch[1]);
+      return;
+    }
+    
+    // Flush any pending list
+    flushList();
+    
+    // Check for headers
+    if (line.startsWith('## ')) {
+      elements.push(
+        <h3 key={index} className="text-base font-bold text-text-primary mt-3 mb-1">
+          {renderInlineFormatting(line.slice(3))}
+        </h3>
+      );
+      return;
+    }
+    
+    // Empty line = paragraph break
+    if (line.trim() === '') {
+      elements.push(<div key={index} className="h-2" />);
+      return;
+    }
+    
+    // Regular paragraph with inline formatting
+    elements.push(
+      <p key={index} className="text-text-primary">
+        {renderInlineFormatting(line)}
+      </p>
+    );
+  });
+  
+  // Flush remaining list
+  flushList();
+  
+  return <div className="space-y-1">{elements}</div>;
+}
+
+// Handle inline formatting like **bold** and emojis
+function renderInlineFormatting(text: string): React.ReactNode {
+  // Replace **text** with bold spans
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  const boldRegex = /\*\*([^*]+)\*\*/g;
+  let match;
+  
+  while ((match = boldRegex.exec(text)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    // Add bold text
+    parts.push(
+      <strong key={match.index} className="font-semibold text-text-primary">
+        {match[1]}
+      </strong>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  
+  return parts.length > 0 ? parts : text;
+}
 
 interface ChatPanelProps {
   labTitle: string;
@@ -170,7 +288,11 @@ export default function ChatPanel({
                       : 'bg-bg2 text-text-primary'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'assistant' ? (
+                    renderFormattedText(message.content)
+                  ) : (
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  )}
                 </div>
               </div>
               
@@ -210,8 +332,8 @@ export default function ChatPanel({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Generate Course Button - Show when sources are uploaded */}
-      {sourceCount > 0 && onGenerateCourse && (
+      {/* Generate Course Button - Show when sources uploaded OR conversation has course outline */}
+      {onGenerateCourse && (sourceCount > 0 || messages.length >= 3) && (
         <div className="p-4 border-t border-border bg-gradient-to-r from-accent1/10 to-accent2/10">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
@@ -221,7 +343,9 @@ export default function ChatPanel({
               <p className="text-xs text-text-secondary">
                 {hasConfig 
                   ? 'Generate your interactive microlearning course with stages, quizzes, and more!'
-                  : 'I\'ll extract the configuration from our conversation and generate your course.'}
+                  : sourceCount > 0 
+                    ? 'I\'ll extract the configuration from our conversation and generate your course.'
+                    : 'I\'ll use our conversation to generate your course outline and content.'}
               </p>
             </div>
             <button

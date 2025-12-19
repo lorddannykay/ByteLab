@@ -3,75 +3,74 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from '@/components/ThemeProvider';
-import { useState } from 'react';
 
 interface DashboardHeaderProps {
-  activeTab?: 'all' | 'my' | 'featured';
+  activeTab?: 'all' | 'my' | 'featured' | 'library';
 }
 
 export default function DashboardHeader({ activeTab = 'all' }: DashboardHeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 liquid-glass-header">
+    <header className="sticky top-0 z-50 neu-header">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left: Logo and Navigation */}
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gradient-to-r from-accent1 to-accent2">
-                {/* Logo Image with gradient overlay effect */}
-                <div className="relative w-full h-full">
-                  <Image
-                    src="/assets/logo/ByteB_black.png"
-                    alt="ByteLab Logo"
-                    fill
-                    className="object-contain opacity-90"
-                    style={{ mixBlendMode: 'lighten' }}
-                    priority
-                  />
-                </div>
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 neu-float flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent1 to-accent2 opacity-90" />
+                <Image
+                  src="/assets/logo/ByteB_black.png"
+                  alt="ByteLab Logo"
+                  fill
+                  sizes="40px"
+                  className="object-contain opacity-90 p-1"
+                  style={{ mixBlendMode: 'lighten' }}
+                  priority
+                />
               </div>
-              <span className="text-xl font-bold text-text-primary">ByteLab</span>
-              <span className="text-sm text-text-secondary hidden md:inline">Microlearning Course Builder</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-text-primary group-hover:text-accent1 transition-colors">
+                  ByteLab
+                </span>
+                <span className="text-xs text-text-tertiary hidden md:inline">
+                  Microlearning Course Builder
+                </span>
+              </div>
             </Link>
-            <nav className="flex items-center gap-1">
-            <Link
-              href="/?tab=all"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'all'
-                  ? 'bg-bg3 text-text-primary underline decoration-2 underline-offset-4'
-                  : 'text-text-secondary hover:bg-bg2'
-              }`}
-            >
-              All
-            </Link>
-            <Link
-              href="/?tab=my"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'my'
-                  ? 'bg-bg3 text-text-primary underline decoration-2 underline-offset-4'
-                  : 'text-text-secondary hover:bg-bg2'
-              }`}
-            >
-              My Courses
-            </Link>
-            <Link
-              href="/?tab=featured"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'featured'
-                  ? 'bg-bg3 text-text-primary underline decoration-2 underline-offset-4'
-                  : 'text-text-secondary hover:bg-bg2'
-              }`}
-            >
-              Featured Courses
-            </Link>
-            <Link
-              href="/analytics"
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-text-secondary hover:bg-bg2"
-            >
-              Analytics
-            </Link>
+            
+            <nav className="flex items-center gap-2 bg-bg2 rounded-2xl p-1.5">
+              <Link
+                href="/?tab=all"
+                className={`neu-nav-pill text-sm ${activeTab === 'all' ? 'active' : ''}`}
+              >
+                All
+              </Link>
+              <Link
+                href="/?tab=my"
+                className={`neu-nav-pill text-sm ${activeTab === 'my' ? 'active' : ''}`}
+              >
+                My Courses
+              </Link>
+              <Link
+                href="/?tab=featured"
+                className={`neu-nav-pill text-sm ${activeTab === 'featured' ? 'active' : ''}`}
+              >
+                Featured Courses
+              </Link>
+              <Link
+                href="/?tab=library"
+                className={`neu-nav-pill text-sm ${activeTab === 'library' ? 'active' : ''}`}
+              >
+                Library
+              </Link>
+              <Link
+                href="/analytics"
+                className="neu-nav-pill text-sm"
+              >
+                Analytics
+              </Link>
             </nav>
           </div>
 
@@ -80,15 +79,18 @@ export default function DashboardHeader({ activeTab = 'all' }: DashboardHeaderPr
             {/* Create New Button */}
             <Link
               href="/course/new"
-              className="px-6 py-2 bg-gradient-to-r from-accent1 to-accent2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+              className="neu-accent-button px-6 py-2.5 text-white font-semibold flex items-center gap-2"
             >
-              + Create Course
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create Course
             </Link>
 
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-bg2 transition-colors"
+              className="neu-icon-button"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (

@@ -501,14 +501,15 @@ class PodcastPlayer {
       return;
     }
 
-    // Create audio elements from audio files (scene-XXXX.mp3 or podcast-segment-XXXX.mp3)
+    // Create audio elements from audio files (podcast-segment-XXXX.mp3)
     PODCAST_DIALOGUE.forEach((segment, index) => {
-      // Try to load from audio file path
+      // Try to load from audio file path first, then fall back to audioDataURL
       const audioPath = \`audio/podcast-segment-\${index.toString().padStart(4, '0')}.mp3\`;
-        const audio = document.createElement('audio');
-        audio.preload = 'auto';
-        audio.src = segment.audioDataURL;
-        audio.id = \`podcast-audio-\${index}\`;
+      const audio = document.createElement('audio');
+      audio.preload = 'auto';
+      // Use audio file path if available, otherwise use embedded audioDataURL
+      audio.src = segment.audioDataURL || audioPath;
+      audio.id = \`podcast-audio-\${index}\`;
         
         // Store duration when loaded
         audio.addEventListener('loadedmetadata', () => {

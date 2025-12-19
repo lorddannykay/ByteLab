@@ -69,9 +69,21 @@ export default function ConfigExtractionModal({
             </button>
           </div>
 
-          <p className="text-sm text-text-secondary mb-6">
-            I've extracted course configuration from our conversation. Review and edit as needed before generating your course.
-          </p>
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <h3 className="text-sm font-semibold text-yellow-500 mb-1">Review Required</h3>
+                <p className="text-sm text-text-secondary">
+                  The AI has extracted configuration from your conversation, but some values may need adjustment. 
+                  <strong className="text-text-primary"> Please review all fields carefully</strong> and edit as needed before generating your course. 
+                  Confidence scores indicate how certain the AI is about each value.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-4">
             {/* Title */}
@@ -212,6 +224,48 @@ export default function ConfigExtractionModal({
                 onChange={(e) => setEditedConfig({ ...editedConfig, stageCount: parseInt(e.target.value) || 5 })}
                 className="w-full p-3 border border-border rounded-lg bg-bg2 text-text-primary focus:outline-none focus:ring-2 focus:ring-accent1"
               />
+            </div>
+
+            {/* Media Generation Options */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-sm font-semibold text-text-primary mb-3">Additional Content</h3>
+              <p className="text-xs text-text-secondary mb-4">
+                Generate additional multimedia versions of your course content.
+              </p>
+              
+              <div className="space-y-3">
+                {/* Include Video */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editedConfig.includeVideo || false}
+                    onChange={(e) => setEditedConfig({ ...editedConfig, includeVideo: e.target.checked })}
+                    className="mt-1 w-4 h-4 rounded border-border text-accent1 focus:ring-accent1"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-text-primary">Generate Video Lesson</span>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Create a typography-based animated video with narration for each stage
+                    </p>
+                  </div>
+                </label>
+
+                {/* Include Podcast */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editedConfig.includePodcast || false}
+                    onChange={(e) => setEditedConfig({ ...editedConfig, includePodcast: e.target.checked })}
+                    className="mt-1 w-4 h-4 rounded border-border text-accent1 focus:ring-accent1"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-text-primary">Generate Podcast</span>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Create a conversational podcast with two speakers discussing the course content
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
 

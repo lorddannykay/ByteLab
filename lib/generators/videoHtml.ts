@@ -535,7 +535,7 @@ body::before {
   
   <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
   
-  <div class="scene-indicator" id="sceneIndicator">Scene 1 / ${courseData.videoScenes.length}</div>
+  <div class="scene-indicator" id="sceneIndicator">Scene 1 / 0</div>
   
   <button class="control-btn" id="prevBtn" aria-label="Previous Scene">◀ Prev</button>
   <button class="control-btn" id="nextBtn" aria-label="Next Scene">Next ▶</button>
@@ -546,7 +546,59 @@ body::before {
 </div>
 
   <script>
-    const VIDEO_SCENES = ${JSON.stringify(courseData.videoScenes)};
+    const VIDEO_SCENES = ${JSON.stringify((() => {
+      // If videoScenes are empty, generate from course stages
+      if (!courseData.videoScenes || courseData.videoScenes.length === 0) {
+        const scenes: any[] = [];
+        
+        // Title scene
+        scenes.push({
+          id: 0,
+          text: courseData.course.title,
+          duration: 4000,
+        });
+        
+        // Generate scenes from stages
+        courseData.course.stages?.forEach((stage, stageIdx) => {
+          // Stage title scene
+          scenes.push({
+            id: scenes.length,
+            text: stage.title,
+            duration: 4000,
+          });
+          
+          // Stage objective scene
+          if (stage.objective) {
+            scenes.push({
+              id: scenes.length,
+              text: stage.objective,
+              duration: 5000,
+            });
+          }
+          
+          // Key points scenes
+          stage.keyPoints?.forEach((point) => {
+            scenes.push({
+              id: scenes.length,
+              text: point,
+              duration: 4000,
+            });
+          });
+          
+          // Content summary scene
+          if (stage.content?.summary) {
+            scenes.push({
+              id: scenes.length,
+              text: stage.content.summary,
+              duration: 5000,
+            });
+          }
+        });
+        
+        return scenes;
+      }
+      return courseData.videoScenes;
+    })())};
 
     // AudioManager class
     class AudioManager {

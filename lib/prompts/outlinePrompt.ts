@@ -1,16 +1,21 @@
 import { CourseConfig } from '@/types/course';
 
 export function buildOutlinePrompt(config: CourseConfig, context?: string): string {
+  // Safely handle potentially undefined or null values
+  const objectives = config.objectives && Array.isArray(config.objectives) && config.objectives.length > 0 
+    ? config.objectives.join(', ') 
+    : 'Learn the key concepts of the topic';
+  
   return `You are an expert instructional designer creating a microlearning course.
 
 Course Details:
-- Title: ${config.title}
-- Topic: ${config.topic}
-- Description: ${config.description}
-- Learning Objectives: ${config.objectives.join(', ')}
-- Target Audience: ${config.targetAudience}
-- Content Style: ${config.contentStyle}
-- Number of Stages: ${config.stageCount}
+- Title: ${config.title || 'Untitled Course'}
+- Topic: ${config.topic || 'General'}
+- Description: ${config.description || 'A microlearning course'}
+- Learning Objectives: ${objectives}
+- Target Audience: ${config.targetAudience || 'General audience'}
+- Content Style: ${config.contentStyle || 'conversational'}
+- Number of Stages: ${config.stageCount || 5}
 
 ${context ? `\nRelevant Context from Uploaded Files:\n${context}\n` : ''}
 

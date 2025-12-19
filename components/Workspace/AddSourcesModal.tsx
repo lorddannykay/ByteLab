@@ -129,48 +129,52 @@ export default function AddSourcesModal({
         {/* Tabs */}
         <div className="px-6 pt-4 border-b border-border flex gap-2">
           <button
+            type="button"
             onClick={() => setActiveTab('files')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeTab === 'files'
                 ? 'bg-bg2 text-text-primary border-b-2 border-accent1'
                 : 'text-text-secondary hover:text-text-primary'
             }`}
           >
-            <DocumentTextIcon className="w-4 h-4 inline mr-2" />
-            Files
+            <DocumentTextIcon className="w-4 h-4" />
+            <span>File</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('url')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeTab === 'url'
                 ? 'bg-bg2 text-text-primary border-b-2 border-accent1'
                 : 'text-text-secondary hover:text-text-primary'
             }`}
           >
-            <LinkIcon className="w-4 h-4 inline mr-2" />
-            URL
+            <LinkIcon className="w-4 h-4" />
+            <span>URL</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('text')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeTab === 'text'
                 ? 'bg-bg2 text-text-primary border-b-2 border-accent1'
                 : 'text-text-secondary hover:text-text-primary'
             }`}
           >
-            <DocumentTextIcon className="w-4 h-4 inline mr-2" />
-            Paste Text
+            <DocumentTextIcon className="w-4 h-4" />
+            <span>Paste Text</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('drive')}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeTab === 'drive'
                 ? 'bg-bg2 text-text-primary border-b-2 border-accent1'
                 : 'text-text-secondary hover:text-text-primary'
             }`}
           >
-            <CloudIcon className="w-4 h-4 inline mr-2" />
-            Drive
+            <CloudIcon className="w-4 h-4" />
+            <span>Drive</span>
           </button>
         </div>
 

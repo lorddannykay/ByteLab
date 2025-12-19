@@ -85,10 +85,57 @@ export async function saveCourseToOutput(
     const audioDir = join(courseFolderPath, 'audio');
     await fs.mkdir(audioDir, { recursive: true });
     
+    // Generate video scenes from course stages if empty
+    let videoScenes = courseData.videoScenes || [];
+    if (videoScenes.length === 0 && config?.includeVideo !== false) {
+      // Generate from course stages
+      videoScenes = [{
+        id: 0,
+        text: courseData.course.title,
+        duration: 4000,
+      }];
+      
+      courseData.course.stages?.forEach((stage) => {
+        // Stage title scene
+        videoScenes.push({
+          id: videoScenes.length,
+          text: stage.title,
+          duration: 4000,
+        });
+        
+        // Stage objective scene
+        if (stage.objective) {
+          videoScenes.push({
+            id: videoScenes.length,
+            text: stage.objective,
+            duration: 5000,
+          });
+        }
+        
+        // Key points scenes
+        stage.keyPoints?.forEach((point) => {
+          videoScenes.push({
+            id: videoScenes.length,
+            text: point,
+            duration: 4000,
+          });
+        });
+        
+        // Content summary scene
+        if (stage.content?.summary) {
+          videoScenes.push({
+            id: videoScenes.length,
+            text: stage.content.summary,
+            duration: 5000,
+          });
+        }
+      });
+    }
+    
     // Generate and save audio files for video scenes
-    if (courseData.videoScenes && courseData.videoScenes.length > 0) {
-      for (let i = 0; i < courseData.videoScenes.length; i++) {
-        const scene = courseData.videoScenes[i];
+    if (videoScenes.length > 0) {
+      for (let i = 0; i < videoScenes.length; i++) {
+        const scene = videoScenes[i];
         if (scene.text && scene.text.trim()) {
           try {
             const audioBuffer = await ttsProvider.generateAudio(scene.text, voices.video);
@@ -101,10 +148,51 @@ export async function saveCourseToOutput(
       }
     }
     
+    // Generate podcast dialogue from course stages if empty
+    let podcastDialogue = courseData.podcastDialogue || [];
+    if (podcastDialogue.length === 0 && config?.includePodcast !== false) {
+      // Introduction from host
+      podcastDialogue.push({
+        speaker: 'host' as const,
+        text: `Welcome to ${courseData.course.title}. ${courseData.course.description || "Let's dive in!"}`,
+      });
+      
+      // Dialogue from stages
+      courseData.course.stages?.forEach((stage) => {
+        // Host introduces the stage
+        podcastDialogue.push({
+          speaker: 'host' as const,
+          text: `In this stage, we'll explore: ${stage.title}. ${stage.objective || ''}`,
+        });
+        
+        // Expert explains key points
+        stage.keyPoints?.forEach((point) => {
+          podcastDialogue.push({
+            speaker: 'expert' as const,
+            text: point,
+          });
+        });
+        
+        // Host summarizes
+        if (stage.content?.summary) {
+          podcastDialogue.push({
+            speaker: 'host' as const,
+            text: `To summarize: ${stage.content.summary}`,
+          });
+        }
+      });
+      
+      // Closing from host
+      podcastDialogue.push({
+        speaker: 'host' as const,
+        text: 'That concludes our course. Thank you for listening!',
+      });
+    }
+    
     // Generate and save audio files for podcast dialogue
-    if (courseData.podcastDialogue && courseData.podcastDialogue.length > 0) {
-      for (let i = 0; i < courseData.podcastDialogue.length; i++) {
-        const segment = courseData.podcastDialogue[i];
+    if (podcastDialogue.length > 0) {
+      for (let i = 0; i < podcastDialogue.length; i++) {
+        const segment = podcastDialogue[i];
         if (segment.text && segment.text.trim()) {
           try {
             const voice = segment.speaker === 'host' ? voices.podcastHost : voices.podcastExpert;

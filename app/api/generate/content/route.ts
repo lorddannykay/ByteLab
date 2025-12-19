@@ -7,6 +7,8 @@ import { providerManager } from '@/lib/ai/providers';
 import { validateJSONCompleteness, retryWithBackoff } from '@/lib/ai/qualityGuardrails';
 import { AIProvider } from '@/lib/ai/providers/types';
 import { MODELS } from '@/lib/together/client';
+import { validateContent } from '@/lib/validation/contentValidator';
+import { fetchImageForContent } from '@/lib/media/imageFetcher';
 
 export async function POST(request: NextRequest) {
   try {
@@ -186,7 +188,97 @@ export async function POST(request: NextRequest) {
       return result;
     }, 3, 1000);
 
-    return NextResponse.json(content);
+    // Content validation (if enabled)
+    let validationResult = null;
+    const enableValidation = config.enableContentValidation !== false; // Default to true
+    if (enableValidation) {
+      try {
+        validationResult = await validateContent(
+          {
+            introduction: content.introduction,
+            sections: content.sections,
+            summary: content.summary,
+          },
+          config.topic,
+          enableValidation
+        );
+
+        // Log validation issues but don't fail generation
+        if (!validationResult.isValid && validationResult.issues.length > 0) {
+          console.warn('Content validation found issues:', validationResult.issues);
+        }
+      } catch (error) {
+        console.error('Content validation error (non-blocking):', error);
+        // Continue without validation if it fails
+      }
+    }
+
+    // Image fetching (if enabled)
+    const enableAutoImages = config.enableAutoImages !== false; // Default to true
+    const imageProvider = config.imageProvider || 'both';
+    
+    if (enableAutoImages && content.sections) {
+      try {
+        // Fetch images sequentially with delays to avoid rate limits
+        const imageResults: Array<{ heading: string; image: any } | null> = [];
+        
+        for (const section of content.sections) {
+          try {
+            // Add delay between image fetches to respect API rate limits
+            if (imageResults.length > 0) {
+              await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+            }
+            
+            const image = await fetchImageForContent(
+              section.content,
+              section.heading,
+              imageProvider
+            );
+            
+            if (image) {
+              imageResults.push({
+                heading: section.heading,
+                image: {
+                  url: image.url,
+                  thumbnailUrl: image.thumbnailUrl,
+                  attribution: image.attribution,
+                  photographer: image.photographer,
+                  photographerUrl: image.photographerUrl,
+                  width: image.width,
+                  height: image.height,
+                  provider: image.provider,
+                },
+              });
+            } else {
+              imageResults.push(null);
+            }
+          } catch (error) {
+            console.error(`Error fetching image for section "${section.heading}":`, error);
+            imageResults.push(null);
+          }
+        }
+        
+        // Add images to sections
+        imageResults.forEach((result) => {
+          if (result) {
+            const section = content.sections.find((s: any) => s.heading === result.heading);
+            if (section && result.image) {
+              section.image = result.image;
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Image fetching error (non-blocking):', error);
+        // Continue without images if fetching fails
+      }
+    }
+
+    // Return content with validation and images
+    return NextResponse.json({
+      ...content,
+      validated: validationResult?.isValid ?? true,
+      validationResult: validationResult,
+    });
   } catch (error) {
     console.error('Content generation error:', error);
     return NextResponse.json(

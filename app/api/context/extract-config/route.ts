@@ -229,14 +229,14 @@ Return ONLY the JSON object, no additional text.`;
       stageCount: extractedData.confidence?.stageCount ?? 0.3,
     };
 
-    // Build CourseConfig with defaults
+    // Build CourseConfig with defaults - ensure all required fields are present
     const config: Partial<CourseConfig> = {
       title: extractedData.title || 'Untitled Course',
       topic: extractedData.topic || 'General',
       description: extractedData.description || 'A microlearning course',
-      objectives: extractedData.objectives && extractedData.objectives.length > 0 
+      objectives: Array.isArray(extractedData.objectives) && extractedData.objectives.length > 0 
         ? extractedData.objectives 
-        : ['Learn key concepts'],
+        : ['Understand the key concepts', 'Apply learned skills', 'Build foundational knowledge'],
       targetAudience: extractedData.targetAudience || 'General audience',
       organizationalGoals: '',
       contentStyle: extractedData.contentStyle || 'conversational',

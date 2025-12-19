@@ -12,8 +12,10 @@
     "fix-env": "node fix-env-file.js"
   },
   "dependencies": {
+    "@types/fabric": "^5.3.10",
     "archiver": "^7.0.1",
     "edge-tts": "^1.0.1",
+    "fabric": "^6.9.1",
     "mammoth": "^1.6.0",
     "marked": "^12.0.0",
     "next": "^14.2.33",

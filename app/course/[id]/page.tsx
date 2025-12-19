@@ -8,6 +8,8 @@ import { useCourseCreation } from '@/contexts/CourseCreationContext';
 import SourcesPanel from '@/components/Workspace/SourcesPanel';
 import ChatPanel from '@/components/Workspace/ChatPanel';
 import StudioPanel from '@/components/Workspace/StudioPanel';
+import ResizablePanel from '@/components/Workspace/ResizablePanel';
+import WorkflowProgress from '@/components/Workspace/WorkflowProgress';
 import ConfigExtractionModal from '@/components/Workspace/ConfigExtractionModal';
 import OutlineReviewModal from '@/components/Workspace/OutlineReviewModal';
 import GenerationProgress from '@/components/Workspace/GenerationProgress';
@@ -22,7 +24,7 @@ export default function CourseWorkspacePage() {
   const router = useRouter();
   const courseId = params.id as string;
   const { getCourse, updateCourse, deleteCourse } = useCourses();
-  const { state, updateState, addChatMessage, addUploadedFiles } = useCourseCreation();
+  const { state, updateState, addChatMessage, addUploadedFiles, loadStateForCourse } = useCourseCreation();
 
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,7 @@ export default function CourseWorkspacePage() {
         if (!hasWelcome && (!stateToLoad.chatHistory || stateToLoad.chatHistory.length === 0)) {
           const welcomeMessage: ChatMessage = {
             role: 'assistant',
-            content: '👋 Welcome to ByteLab! I\'m here to help you create an amazing microlearning course.\n\n**Quick Start Guide:**\n1. **Upload Sources**: Click "+ Add Source" to upload PDFs, text files, URLs, or paste text directly\n2. **Content Analysis**: I\'ll automatically analyze your content and provide insights\n3. **Course Generation**: Click "Generate Course" to create your interactive microlearning course\n4. **Customization**: Review and edit the course outline, then generate full content\n\n**Tips for Best Results:**\n- Provide clear learning objectives in your conversation\n- Specify your target audience (e.g., "for beginners", "for developers")\n- Mention desired number of stages (e.g., "6-8 stages")\n- Describe the content style (conversational, formal, or technical)\n\n**Need Help?**\n- Ask me questions about your content\n- Request course generation when ready\n- I\'ll guide you through each step\n\nLet\'s create something great together! 🚀',
+            content: '👋 Welcome to ByteLab! I\'m here to help you create an amazing microlearning course.\n\nTo get started, click "+ Add Source" to upload PDFs, text files, URLs, or paste text directly. I\'ll automatically analyze your content and provide insights.\n\nOr just tell me what topic you\'d like to create a course about and I\'ll help you plan it out!\n\nWhat would you like to teach today? 🚀',
             timestamp: Date.now(),
           };
           
@@ -89,8 +91,9 @@ export default function CourseWorkspacePage() {
         }
       }
       
-      // Load course state into context
-      updateState(stateToLoad);
+      // Load course state into context using the new course-scoped method
+      // This ensures state is isolated per course
+      loadStateForCourse(courseId, stateToLoad);
       
       // Load course data into outputs if it exists and has actual content
       // Only load if the course data matches the current context (has sources)
@@ -174,19 +177,46 @@ export default function CourseWorkspacePage() {
     }
   }, [state, courseId]);
 
+  // Keyboard shortcuts for panel toggling
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Only handle if not typing in an input/textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Cmd/Ctrl + 1: Toggle Sources Panel
+      if ((e.metaKey || e.ctrlKey) && e.key === '1') {
+        e.preventDefault();
+        setSourcesCollapsed(!sourcesCollapsed);
+      }
+      // Cmd/Ctrl + 2: Toggle Chat Panel
+      if ((e.metaKey || e.ctrlKey) && e.key === '2') {
+        e.preventDefault();
+        setChatCollapsed(!chatCollapsed);
+      }
+      // Cmd/Ctrl + 3: Toggle Studio Panel
+      if ((e.metaKey || e.ctrlKey) && e.key === '3') {
+        e.preventDefault();
+        setStudioCollapsed(!studioCollapsed);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [sourcesCollapsed, chatCollapsed, studioCollapsed]);
+
   const loadContentSummary = async (sourceCount?: number) => {
     try {
       const hasSources = (sourceCount !== undefined ? sourceCount : state.uploadedFiles.length) > 0;
       
-      // If no sources, set default questions immediately
+      // If no sources, set default questions immediately - focus on course building
       if (!hasSources) {
         setSuggestedQuestions([
-          'How do I upload source materials?',
-          'What types of files can I upload?',
+          'Create a course about JavaScript basics',
+          'Help me build a leadership training course',
+          'I want to teach data science fundamentals',
           'How do I create a course from my content?',
-          'What is a microlearning course?',
-          'Can I customize the course style?',
-          'How many stages should my course have?',
         ]);
         return; // Don't call API if no sources
       }
@@ -203,12 +233,10 @@ export default function CourseWorkspacePage() {
       const currentSourceCount = sourceCount !== undefined ? sourceCount : state.uploadedFiles.length;
       if (currentSourceCount === 0) {
         setSuggestedQuestions([
-          'How do I upload source materials?',
-          'What types of files can I upload?',
+          'Create a course about JavaScript basics',
+          'Help me build a leadership training course',
+          'I want to teach data science fundamentals',
           'How do I create a course from my content?',
-          'What is a microlearning course?',
-          'Can I customize the course style?',
-          'How many stages should my course have?',
         ]);
       }
     }
@@ -510,15 +538,105 @@ export default function CourseWorkspacePage() {
   };
 
   const handleUrlUpload = async (url: string) => {
-    // Create a dummy file object for the loader
-    const dummyFile = new File([url], url.split('/').pop() || 'webpage.html', { type: 'text/html' });
-    setUploadingFiles([dummyFile]);
-    setShowUploadLoader(true);
     setShowAddSourcesModal(false);
     
-    // Store URL for later processing
-    (dummyFile as any).isUrl = true;
-    (dummyFile as any).url = url;
+    // Show loading message in chat
+    const loadingMessage: ChatMessage = {
+      role: 'assistant',
+      content: `🔗 Fetching content from URL: ${url}\n\nPlease wait while I extract and analyze the content...`,
+      timestamp: Date.now(),
+    };
+    addChatMessage(loadingMessage);
+    
+    try {
+      // Directly call the URL upload API
+      const response = await fetch('/api/upload/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch URL content');
+      }
+
+      const data = await response.json();
+      
+      // Add to uploaded files
+      const urlFile: UploadedFile = {
+        id: `url-${Date.now()}`,
+        name: data.filename || url.split('/').pop() || 'webpage',
+        type: 'text/html',
+        size: data.size || 0,
+        uploadedAt: Date.now(),
+        chunks: [],
+      };
+      addUploadedFiles([urlFile]);
+      
+      // Remove loading message and add success message
+      const currentHistory = state.chatHistory.filter(
+        msg => !msg.content.includes('Fetching content from URL')
+      );
+      updateState({ chatHistory: currentHistory });
+      
+      // Add success message with content summary
+      const successMessage: ChatMessage = {
+        role: 'assistant',
+        content: `✅ **Successfully extracted content from URL!**
+
+**Source:** ${url}
+**Content size:** ${(data.size / 1024).toFixed(1)} KB
+**Chunks created:** ${data.chunks} text chunks indexed for search
+
+The content has been added to your sources and is ready to use. I can now help you create a course based on this content!
+
+**What would you like to do next?**`,
+        timestamp: Date.now(),
+      };
+      addChatMessage(successMessage);
+      
+      // Update suggested questions
+      setSuggestedQuestions([
+        'Analyze this content for course creation',
+        'Create a course outline from this content',
+        'What are the main topics covered?',
+        'How many stages should this course have?',
+      ]);
+      
+      // Also run the full analysis
+      await analyzeAndAddToChat([urlFile.name]);
+      loadContentSummary(state.uploadedFiles.length + 1);
+      
+    } catch (error) {
+      console.error('URL upload error:', error);
+      
+      // Remove loading message
+      const currentHistory = state.chatHistory.filter(
+        msg => !msg.content.includes('Fetching content from URL')
+      );
+      updateState({ chatHistory: currentHistory });
+      
+      // Add error message
+      const errorMessage: ChatMessage = {
+        role: 'assistant',
+        content: `❌ **Failed to fetch content from URL**
+
+I couldn't extract content from: ${url}
+
+**Possible reasons:**
+- The URL might be blocked or require authentication
+- The website might be using JavaScript to load content
+- The URL might not be accessible from this server
+
+**Try these alternatives:**
+1. Copy the text from the webpage and use "Paste Text" option
+2. Download the page as PDF and upload it
+3. Use a different URL that's publicly accessible`,
+        timestamp: Date.now(),
+      };
+      addChatMessage(errorMessage);
+    }
   };
 
   const handleTextUpload = async (text: string) => {
@@ -631,9 +749,14 @@ export default function CourseWorkspacePage() {
 
   const handleProgressiveCourseGeneration = async () => {
     try {
-      // Step 1: Check prerequisites
-      if (state.uploadedFiles.length === 0) {
-        throw new Error('Please upload sources first before generating a course');
+      // Step 1: Check prerequisites - Allow generation if either:
+      // - Sources are uploaded, OR
+      // - User has had a conversation discussing the course (3+ messages)
+      const hasSources = state.uploadedFiles.length > 0;
+      const hasConversation = state.chatHistory.length >= 3;
+      
+      if (!hasSources && !hasConversation) {
+        throw new Error('Please upload sources or describe your course topic in the chat first');
       }
 
       // Clear any old course data from outputs to prevent showing stale data
@@ -1151,6 +1274,7 @@ export default function CourseWorkspacePage() {
       updateState(updatedState);
       
       // Save course to output folder via API (async, non-blocking)
+      // This will also generate video and podcast audio files
       fetch('/api/course/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1159,8 +1283,75 @@ export default function CourseWorkspacePage() {
           config: config,
           courseId: courseId,
         }),
-      }).catch((error) => {
+      })
+      .then(async (response) => {
+        if (response.ok) {
+          const result = await response.json();
+          // Update status after save completes (which includes audio generation)
+          if (config.includeVideo) {
+            updateState({
+              videoGenerationStatus: {
+                status: 'complete',
+                progress: 100,
+                message: 'Video generated successfully',
+              },
+            });
+          }
+          if (config.includePodcast) {
+            updateState({
+              audioGenerationStatus: {
+                status: 'complete',
+                progress: 100,
+                message: 'Podcast audio generated successfully',
+              },
+            });
+          }
+        } else {
+          // Handle errors
+          if (config.includeVideo) {
+            updateState({
+              videoGenerationStatus: {
+                status: 'failed',
+                progress: 0,
+                message: 'Video generation failed',
+                error: 'Failed to save course',
+              },
+            });
+          }
+          if (config.includePodcast) {
+            updateState({
+              audioGenerationStatus: {
+                status: 'failed',
+                progress: 0,
+                message: 'Podcast generation failed',
+                error: 'Failed to save course',
+              },
+            });
+          }
+        }
+      })
+      .catch((error) => {
         console.error('Failed to save course to output folder:', error);
+        if (config.includeVideo) {
+          updateState({
+            videoGenerationStatus: {
+              status: 'failed',
+              progress: 0,
+              message: 'Video generation failed',
+              error: error.message || 'Unknown error',
+            },
+          });
+        }
+        if (config.includePodcast) {
+          updateState({
+            audioGenerationStatus: {
+              status: 'failed',
+              progress: 0,
+              message: 'Podcast generation failed',
+              error: error.message || 'Unknown error',
+            },
+          });
+        }
       });
 
       // Show success message and auto-open preview
@@ -1220,6 +1411,57 @@ export default function CourseWorkspacePage() {
     }
   };
 
+  const handleDeleteSource = (id: string) => {
+    const updatedFiles = state.uploadedFiles.filter(f => f.id !== id);
+    updateState({ uploadedFiles: updatedFiles });
+    setSelectedSources(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const handleRenameFile = (id: string, newName: string) => {
+    const updatedFiles = state.uploadedFiles.map(f => 
+      f.id === id ? { ...f, name: newName } : f
+    );
+    updateState({ uploadedFiles: updatedFiles });
+  };
+
+  const handleDuplicateFile = (id: string) => {
+    const file = state.uploadedFiles.find(f => f.id === id);
+    if (file) {
+      const duplicated: UploadedFile = {
+        ...file,
+        id: `${file.id}-copy-${Date.now()}`,
+        name: `${file.name} (copy)`,
+        uploadedAt: Date.now(),
+      };
+      addUploadedFiles([duplicated]);
+    }
+  };
+
+  const handleCreateFolder = (name: string) => {
+    // Folder management will be handled in context
+    // For now, just show a toast
+    setToast({ message: `Folder "${name}" created`, type: 'success' });
+  };
+
+  const handleRenameFolder = (folderId: string, newName: string) => {
+    // Folder management will be handled in context
+    setToast({ message: `Folder renamed to "${newName}"`, type: 'success' });
+  };
+
+  const handleDeleteFolder = (folderId: string) => {
+    // Folder management will be handled in context
+    setToast({ message: 'Folder deleted', type: 'success' });
+  };
+
+  const handleMoveToFolder = (fileId: string, folderId: string | null) => {
+    // Folder management will be handled in context
+    setToast({ message: 'File moved', type: 'success' });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-bg1 flex items-center justify-center">
@@ -1273,67 +1515,142 @@ export default function CourseWorkspacePage() {
         </div>
       </header>
 
-      {/* Three Panel Layout */}
+      {/* Workflow Progress Indicator */}
+      <WorkflowProgress state={state} />
+
+      {/* Three Panel Layout with Resizable Panels */}
       <div className="flex-1 flex overflow-hidden relative">
-        <SourcesPanel
-          sources={state.uploadedFiles}
-          isCollapsed={sourcesCollapsed}
-          onToggleCollapse={() => setSourcesCollapsed(!sourcesCollapsed)}
-          onAddSources={handleAddSources}
-          onSelectSource={handleSelectSource}
-          selectedSources={selectedSources}
-          onSelectAll={handleSelectAll}
-        />
+        {!sourcesCollapsed && (
+          <ResizablePanel
+            defaultWidth={320}
+            minWidth={200}
+            maxWidth={500}
+            side="left"
+            className="bg-bg2 border-r border-border"
+          >
+            <SourcesPanel
+              sources={state.uploadedFiles}
+              isCollapsed={false}
+              onToggleCollapse={() => setSourcesCollapsed(!sourcesCollapsed)}
+              onAddSources={handleAddSources}
+              onSelectSource={handleSelectSource}
+              selectedSources={selectedSources}
+              onSelectAll={handleSelectAll}
+              onDeleteSource={handleDeleteSource}
+              onRenameFile={handleRenameFile}
+              onDuplicateFile={handleDuplicateFile}
+              onCreateFolder={handleCreateFolder}
+              onRenameFolder={handleRenameFolder}
+              onDeleteFolder={handleDeleteFolder}
+              onMoveToFolder={handleMoveToFolder}
+            />
+          </ResizablePanel>
+        )}
+        {sourcesCollapsed && (
+          <div className="w-12 bg-bg2 border-r border-border flex flex-col items-center py-4">
+            <button
+              onClick={() => setSourcesCollapsed(false)}
+              className="p-2 hover:bg-bg3 rounded transition-colors"
+              aria-label="Expand sources panel"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+              </svg>
+            </button>
+          </div>
+        )}
 
-        <ChatPanel
-          courseTitle={course.title}
-          sourceCount={state.uploadedFiles.length}
-          messages={state.chatHistory}
-          onSendMessage={handleSendMessage}
-          isLoading={chatLoading}
-          contentSummary={contentSummary}
-          suggestedQuestions={suggestedQuestions}
-          isCollapsed={chatCollapsed}
-          onToggleCollapse={() => setChatCollapsed(!chatCollapsed)}
-          onExtractConfig={handleExtractConfigFromChat}
-          hasConfig={!!state.courseConfig}
-          onGenerateCourse={handleProgressiveCourseGeneration}
-          isGenerating={generating === 'course' || generationProgress?.status !== 'idle'}
-        />
+        <div className="flex-1 flex overflow-hidden">
+          {!chatCollapsed && (
+            <div className="flex-1 flex flex-col min-w-0">
+              <ChatPanel
+                courseTitle={course.title}
+                sourceCount={state.uploadedFiles.length}
+                messages={state.chatHistory}
+                onSendMessage={handleSendMessage}
+                isLoading={chatLoading}
+                contentSummary={contentSummary}
+                suggestedQuestions={suggestedQuestions}
+                isCollapsed={false}
+                onToggleCollapse={() => setChatCollapsed(!chatCollapsed)}
+                onExtractConfig={handleExtractConfigFromChat}
+                hasConfig={!!state.courseConfig}
+                onGenerateCourse={handleProgressiveCourseGeneration}
+                isGenerating={generating === 'course' || generationProgress?.status !== 'idle'}
+              />
+            </div>
+          )}
+          {chatCollapsed && (
+            <div className="w-12 bg-bg1 border-r border-border flex flex-col items-center py-4">
+              <button
+                onClick={() => setChatCollapsed(false)}
+                className="p-2 hover:bg-bg3 rounded transition-colors"
+                aria-label="Expand chat panel"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          )}
 
-        <StudioPanel
-          isCollapsed={studioCollapsed}
-          onToggleCollapse={() => setStudioCollapsed(!studioCollapsed)}
-          onGenerateOutput={handleGenerateOutput}
-          outputs={studioOutputs}
-          generating={generating}
-          generationProgress={generationProgress}
-          hasSources={state.uploadedFiles.length > 0}
-          onViewCourse={(courseData) => {
-            // Ensure course data is saved to state
-            const fullCourseData: CourseData = {
-              course: courseData.course,
-              videoScenes: courseData.videoScenes || [],
-              podcastDialogue: courseData.podcastDialogue || [],
-            };
-            updateState({ courseData: fullCourseData });
-            updateCourse(courseId, { 
-              state: {
-                ...state,
-                courseData: fullCourseData,
-              },
-            });
-            setShowCoursePreview(true);
-          }}
-          onRemoveOutput={(type) => {
-            setStudioOutputs((prev) => {
-              const next = { ...prev };
-              delete next[type];
-              return next;
-            });
-          }}
-        />
-        
+          {!studioCollapsed && (
+            <ResizablePanel
+              defaultWidth={320}
+              minWidth={250}
+              maxWidth={500}
+              side="right"
+              className="bg-bg2 border-l border-border"
+            >
+              <StudioPanel
+                isCollapsed={false}
+                onToggleCollapse={() => setStudioCollapsed(!studioCollapsed)}
+                onGenerateOutput={handleGenerateOutput}
+                outputs={studioOutputs}
+                generating={generating}
+                generationProgress={generationProgress}
+                hasSources={state.uploadedFiles.length > 0 || state.chatHistory.length >= 3}
+                onViewCourse={(courseData) => {
+                  // Ensure course data is saved to state
+                  const fullCourseData: CourseData = {
+                    course: courseData.course,
+                    videoScenes: courseData.videoScenes || [],
+                    podcastDialogue: courseData.podcastDialogue || [],
+                  };
+                  updateState({ courseData: fullCourseData });
+                  updateCourse(courseId, { 
+                    state: {
+                      ...state,
+                      courseData: fullCourseData,
+                    },
+                  });
+                  setShowCoursePreview(true);
+                }}
+                onRemoveOutput={(type) => {
+                  setStudioOutputs((prev) => {
+                    const next = { ...prev };
+                    delete next[type];
+                    return next;
+                  });
+                }}
+              />
+            </ResizablePanel>
+          )}
+          {studioCollapsed && (
+            <div className="w-12 bg-bg2 border-l border-border flex flex-col items-center py-4">
+              <button
+                onClick={() => setStudioCollapsed(false)}
+                className="p-2 hover:bg-bg3 rounded transition-colors"
+                aria-label="Expand studio panel"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Generation Progress Display */}
         {generationProgress.status !== 'idle' && (
           <div className="absolute bottom-4 right-4 w-80 z-40">

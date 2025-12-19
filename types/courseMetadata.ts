@@ -15,6 +15,14 @@ export interface Course {
   state: CourseCreationState; // Full state of the course
 }
 
+export interface CourseFolder {
+  id: string;
+  name: string;
+  color?: string;
+  createdAt: number;
+  lastModified: number;
+}
+
 export interface CourseMetadata {
   id: string;
   title: string;
@@ -27,4 +35,5 @@ export interface CourseMetadata {
   sourceCount: number;
   stageCount?: number;
   isFeatured?: boolean;
+  folderId?: string; // ID of folder this course belongs to
 }

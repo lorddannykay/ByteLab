@@ -27,6 +27,9 @@ export interface CourseConfig {
   includePodcast: boolean;
   templateId?: string; // Design template ID (e.g., 'minimal', 'modern', 'magazine')
   tts?: TTSConfig; // TTS provider configuration
+  enableContentValidation?: boolean; // Toggle content validation via web search
+  enableAutoImages?: boolean; // Toggle automatic image fetching
+  imageProvider?: 'pexels' | 'unsplash' | 'both'; // Image source preference
 }
 
 // Course Content Structure
@@ -45,10 +48,14 @@ export interface CourseStage {
   id: number;
   title: string;
   objective: string;
+  keyPoints?: string[]; // Key learning points for the stage
+  estimatedDuration?: string; // Estimated time to complete
   content: StageContent;
   interactiveElements: InteractiveElement[];
   quizQuestions: QuizQuestion[];
   sideCard: SideCardContent;
+  subStages?: CourseStage[]; // Nested sub-stages
+  parentStageId?: number; // ID of parent stage if this is a sub-stage
 }
 
 export interface StageContent {
@@ -57,11 +64,26 @@ export interface StageContent {
   summary: string;
 }
 
+export interface ImageMetadata {
+  url: string;
+  thumbnailUrl: string;
+  attribution: string;
+  photographer: string;
+  photographerUrl?: string;
+  width: number;
+  height: number;
+  provider: 'pexels' | 'unsplash' | 'google' | 'duckduckgo' | 'giphy' | 'upload';
+  mediaType?: 'image' | 'gif' | 'video-loop';
+  loop?: boolean; // For video loops
+  autoplay?: boolean; // For video loops
+}
+
 export interface ContentSection {
   heading: string;
   content: string;
   type?: 'text' | 'list' | 'code' | 'diagram';
   items?: string[];
+  image?: ImageMetadata; // Optional image for the section
 }
 
 export interface InteractiveElement {

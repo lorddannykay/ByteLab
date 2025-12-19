@@ -1,49 +1,66 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Course, CourseMetadata } from '@/types/courseMetadata';
+import { Course, CourseMetadata, CourseFolder } from '@/types/courseMetadata';
 import { CourseCreationState } from '@/types/courseCreation';
 
 const COURSES_STORAGE_KEY = 'bytelab_courses';
+const FOLDERS_STORAGE_KEY = 'bytelab_folders';
 const MAX_COURSES = 100;
 
 interface CourseContextValue {
   courses: CourseMetadata[];
   featuredCourses: CourseMetadata[];
   recentCourses: CourseMetadata[];
+  folders: CourseFolder[];
   createCourse: (title: string, state: CourseCreationState, metadata?: Partial<CourseMetadata>) => string;
   updateCourse: (id: string, updates: Partial<CourseMetadata> | { state: CourseCreationState }) => void;
   deleteCourse: (id: string) => void;
   getCourse: (id: string) => Course | null;
   getCourseState: (id: string) => CourseCreationState | null;
+  // Folder management
+  createFolder: (name: string, color?: string) => string;
+  updateFolder: (id: string, updates: Partial<CourseFolder>) => void;
+  deleteFolder: (id: string) => void;
+  moveCourseToFolder: (courseId: string, folderId: string | null) => void;
+  getCoursesByFolder: (folderId: string | null) => CourseMetadata[];
 }
 
 const CourseContext = createContext<CourseContextValue | undefined>(undefined);
 
 export function CourseProvider({ children }: { children: React.ReactNode }) {
   const [courses, setCourses] = useState<CourseMetadata[]>([]);
+  const [folders, setFolders] = useState<CourseFolder[]>([]);
   const [mounted, setMounted] = useState(false);
 
-  // Load courses from localStorage
+  // Load courses and folders from localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     try {
-      const saved = localStorage.getItem(COURSES_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
+      const savedCourses = localStorage.getItem(COURSES_STORAGE_KEY);
+      if (savedCourses) {
+        const parsed = JSON.parse(savedCourses);
         if (Array.isArray(parsed)) {
           setCourses(parsed);
         }
       }
+
+      const savedFolders = localStorage.getItem(FOLDERS_STORAGE_KEY);
+      if (savedFolders) {
+        const parsed = JSON.parse(savedFolders);
+        if (Array.isArray(parsed)) {
+          setFolders(parsed);
+        }
+      }
     } catch (error) {
-      console.error('Error loading courses:', error);
+      console.error('Error loading courses/folders:', error);
     } finally {
       setMounted(true);
     }
   }, []);
 
-  // Save courses to localStorage
+  // Save courses and folders to localStorage
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
 
@@ -61,12 +78,14 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
         sourceCount: course.sourceCount,
         stageCount: course.stageCount,
         isFeatured: course.isFeatured,
+        folderId: course.folderId,
       }));
       localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(metadata));
+      localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(folders));
     } catch (error) {
-      console.error('Error saving courses:', error);
+      console.error('Error saving courses/folders:', error);
     }
-  }, [courses, mounted]);
+  }, [courses, folders, mounted]);
 
   const createCourse = useCallback((
     title: string,
@@ -182,6 +201,62 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const createFolder = useCallback((name: string, color?: string): string => {
+    const id = `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const now = Date.now();
+
+    const newFolder: CourseFolder = {
+      id,
+      name,
+      color: color || '#6366f1',
+      createdAt: now,
+      lastModified: now,
+    };
+
+    setFolders((prev) => [...prev, newFolder]);
+    return id;
+  }, []);
+
+  const updateFolder = useCallback((id: string, updates: Partial<CourseFolder>) => {
+    setFolders((prev) =>
+      prev.map((folder) =>
+        folder.id === id
+          ? { ...folder, ...updates, lastModified: Date.now() }
+          : folder
+      )
+    );
+  }, []);
+
+  const deleteFolder = useCallback((id: string) => {
+    setFolders((prev) => prev.filter((f) => f.id !== id));
+    // Move courses in this folder to root (no folder)
+    setCourses((prev) =>
+      prev.map((course) =>
+        course.folderId === id ? { ...course, folderId: undefined } : course
+      )
+    );
+  }, []);
+
+  const moveCourseToFolder = useCallback((courseId: string, folderId: string | null) => {
+    setCourses((prev) =>
+      prev.map((course) =>
+        course.id === courseId
+          ? { ...course, folderId: folderId || undefined, lastModified: Date.now() }
+          : course
+      )
+    );
+  }, []);
+
+  const getCoursesByFolder = useCallback(
+    (folderId: string | null): CourseMetadata[] => {
+      if (folderId === null) {
+        return courses.filter((c) => !c.folderId && !c.isFeatured);
+      }
+      return courses.filter((c) => c.folderId === folderId);
+    },
+    [courses]
+  );
+
   const featuredCourses = courses.filter(c => c.isFeatured).slice(0, 10);
   const recentCourses = courses
     .filter(c => !c.isFeatured)
@@ -192,11 +267,17 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     courses,
     featuredCourses,
     recentCourses,
+    folders,
     createCourse,
     updateCourse,
     deleteCourse,
     getCourse,
     getCourseState,
+    createFolder,
+    updateFolder,
+    deleteFolder,
+    moveCourseToFolder,
+    getCoursesByFolder,
   };
 
   return <CourseContext.Provider value={value}>{children}</CourseContext.Provider>;

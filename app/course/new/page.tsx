@@ -10,39 +10,71 @@ import { TemplateId } from '@/lib/templates/templateSelector';
 export default function NewCoursePage() {
   const router = useRouter();
   const { createCourse } = useCourses();
-  const { state, resetState, updateState } = useCourseCreation();
+  const { state, resetState, updateState, clearState } = useCourseCreation();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(null);
 
   const handleTemplateSelect = (templateId: TemplateId) => {
-    // Update state with template ID in course config
-    updateState({
-      courseConfig: {
-        ...state.courseConfig,
-        templateId,
-      } as any,
-    });
+    // Clear any existing state first to ensure fresh start
+    clearState();
     
-    // Create course with template ID stored in config
-    const courseId = createCourse('Untitled course', {
-      ...state,
-      courseConfig: {
-        ...state.courseConfig,
-        templateId,
-      } as any,
-    });
-    
-    // Reset state for new course
-    resetState();
-    
-    // Navigate to the new course workspace
-    router.push(`/course/${courseId}`);
+    // Wait a tick for state to clear, then create course with fresh state
+    setTimeout(() => {
+      // Get fresh state after clearing
+      const freshState = {
+        uploadedFiles: [],
+        totalChunks: 0,
+        chatHistory: [],
+        chatSessions: [],
+        currentChatSessionId: null,
+        aiInsights: null,
+        courseConfig: { templateId } as any,
+        courseData: null,
+        generationProgress: null,
+        mediaAssets: [],
+        createdAt: Date.now(),
+        lastUpdated: Date.now(),
+        currentStage: 1,
+        contextSessionId: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      };
+      
+      // Create course with fresh state
+      const courseId = createCourse('Untitled course', freshState);
+      
+      // Navigate to the new course workspace
+      router.push(`/course/${courseId}`);
+    }, 0);
   };
 
   const handleSkipTemplate = () => {
-    // Create a new course without template
-    const courseId = createCourse('Untitled course', state);
-    resetState();
-    router.push(`/course/${courseId}`);
+    // Clear any existing state first to ensure fresh start
+    clearState();
+    
+    // Wait a tick for state to clear, then create course with fresh state
+    setTimeout(() => {
+      // Get fresh state after clearing
+      const freshState = {
+        uploadedFiles: [],
+        totalChunks: 0,
+        chatHistory: [],
+        chatSessions: [],
+        currentChatSessionId: null,
+        aiInsights: null,
+        courseConfig: null,
+        courseData: null,
+        generationProgress: null,
+        mediaAssets: [],
+        createdAt: Date.now(),
+        lastUpdated: Date.now(),
+        currentStage: 1,
+        contextSessionId: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      };
+      
+      // Create course with fresh state
+      const courseId = createCourse('Untitled course', freshState);
+      
+      // Navigate to the new course workspace
+      router.push(`/course/${courseId}`);
+    }, 0);
   };
 
   return (

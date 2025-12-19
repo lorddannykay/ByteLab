@@ -177,15 +177,49 @@ export function generateFullCourseHTML(
 
                 ${sections
                   .map((section: any) => {
+                    const imageHtml = section.image
+                      ? (() => {
+                          const mediaType = section.image.mediaType || 'image';
+                          const isVideoLoop = mediaType === 'video-loop' || (section.image.loop && section.image.autoplay);
+                          const isGif = mediaType === 'gif';
+                          
+                          if (isVideoLoop) {
+                            return `<div style="margin:20px 0;text-align:center;">
+                              <video src="${escapeHtml(section.image.url)}" 
+                                     alt="${escapeHtml(section.heading || '')}" 
+                                     style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
+                                     loop autoplay muted playsinline />
+                              <p style="font-size:11px;color:var(--bgInverse);opacity:0.7;margin-top:8px;">
+                                ${escapeHtml(section.image.attribution)}
+                                ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent1);">View profile</a>` : ''}
+                              </p>
+                            </div>`;
+                          } else {
+                            return `<div style="margin:20px 0;text-align:center;">
+                              <img src="${escapeHtml(section.image.url)}" 
+                                   alt="${escapeHtml(section.heading || '')}" 
+                                   style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
+                                   loading="lazy" />
+                              <p style="font-size:11px;color:var(--bgInverse);opacity:0.7;margin-top:8px;">
+                                ${escapeHtml(section.image.attribution)}
+                                ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent1);">View profile</a>` : ''}
+                              </p>
+                            </div>`;
+                          }
+                        })()
+                      : '';
+
                     if (section.type === 'list' && section.items) {
                       return `
                     <h4>${escapeHtml(section.heading || '')}</h4>
+                    ${imageHtml}
                     <ul>
                       ${section.items.map((item: string) => `<li>${escapeHtml(item)}</li>`).join('')}
                     </ul>`;
                     }
                     return `
                     <h4>${escapeHtml(section.heading || '')}</h4>
+                    ${imageHtml}
                     <p>${escapeHtml(section.content || '')}</p>`;
                   })
                   .join('\n                ')}

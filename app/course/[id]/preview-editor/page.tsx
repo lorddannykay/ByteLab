@@ -7,6 +7,7 @@ import { useCourses } from '@/contexts/CourseContext';
 import { CourseData, CourseConfig } from '@/types/course';
 import VisualHTMLEditor from '@/components/Editor/VisualHTMLEditor';
 import LivePreviewPanel from '@/components/Editor/LivePreviewPanel';
+import HTMLPreview from '@/components/Editor/HTMLPreview';
 
 export default function PreviewEditorPage() {
   const params = useParams();
@@ -18,7 +19,8 @@ export default function PreviewEditorPage() {
   const [loading, setLoading] = useState(true);
   const [courseData, setCourseData] = useState<CourseData | null>(null);
   const [courseConfig, setCourseConfig] = useState<CourseConfig | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'editor' | 'html' | 'live'>('editor');
+  const [previewKey, setPreviewKey] = useState(0); // Force refresh key
 
   // Load course data
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function PreviewEditorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
-  // Auto-save
+  // Auto-save and refresh preview
   useEffect(() => {
     if (!courseData || !courseId || loading) return;
 
@@ -49,10 +51,19 @@ export default function PreviewEditorPage() {
           courseConfig,
         },
       });
+      // Force preview refresh after save
+      setPreviewKey(prev => prev + 1);
     }, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [courseData, courseConfig, courseId]);
+  }, [courseData, courseConfig, courseId, loading, course]);
+
+  // Refresh preview when course data changes
+  useEffect(() => {
+    if (previewMode !== 'editor' && courseData) {
+      setPreviewKey(prev => prev + 1);
+    }
+  }, [courseData, courseConfig, previewMode]);
 
   const handleUpdateCourseData = (updated: CourseData) => {
     setCourseData(updated);
@@ -61,6 +72,46 @@ export default function PreviewEditorPage() {
   const handleUpdateConfig = (updated: CourseConfig) => {
     setCourseConfig(updated);
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Only handle if not typing in an input/textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Ctrl/Cmd + P: Toggle preview
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        e.preventDefault();
+        if (previewMode === 'editor') {
+          setPreviewMode('live');
+        } else {
+          setPreviewMode('editor');
+        }
+      }
+      // Ctrl/Cmd + R: Refresh preview
+      if ((e.metaKey || e.ctrlKey) && e.key === 'r' && previewMode !== 'editor') {
+        e.preventDefault();
+        setPreviewKey(prev => prev + 1);
+      }
+      // Ctrl/Cmd + S: Save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        updateCourse(courseId, {
+          state: {
+            ...course?.state,
+            courseData,
+            courseConfig,
+          },
+        });
+        setPreviewKey(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [previewMode, courseId, course, courseData, courseConfig]);
 
   if (loading) {
     return (
@@ -97,16 +148,51 @@ export default function PreviewEditorPage() {
           <h1 className="text-xl font-semibold text-text-primary">Visual Editor: {course.title}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowPreview(!showPreview)}
-            className="px-4 py-2 text-sm bg-bg2 border border-border rounded-lg font-semibold hover:bg-bg3 transition-colors flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            {showPreview ? 'Hide Preview' : 'Show Preview'}
-          </button>
+          {/* Preview Mode Selector */}
+          <div className="flex items-center gap-1 bg-bg2 rounded-lg p-1 border border-border">
+            <button
+              onClick={() => setPreviewMode('editor')}
+              className={`px-3 py-1.5 text-sm rounded transition-colors ${
+                previewMode === 'editor'
+                  ? 'bg-accent1 text-white'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              Visual Editor
+            </button>
+            <button
+              onClick={() => setPreviewMode('html')}
+              className={`px-3 py-1.5 text-sm rounded transition-colors ${
+                previewMode === 'html'
+                  ? 'bg-accent1 text-white'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              HTML Preview
+            </button>
+            <button
+              onClick={() => setPreviewMode('live')}
+              className={`px-3 py-1.5 text-sm rounded transition-colors ${
+                previewMode === 'live'
+                  ? 'bg-accent1 text-white'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              Live Preview
+            </button>
+          </div>
+          {previewMode !== 'editor' && (
+            <button
+              onClick={() => setPreviewKey(prev => prev + 1)}
+              className="px-3 py-1.5 text-sm bg-bg2 border border-border rounded-lg hover:bg-bg3 transition-colors flex items-center gap-2"
+              title="Refresh preview (Ctrl/Cmd + R)"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </button>
+          )}
           <button
             onClick={() => {
               updateCourse(courseId, {
@@ -116,7 +202,7 @@ export default function PreviewEditorPage() {
                   courseConfig,
                 },
               });
-              alert('Changes saved!');
+              setPreviewKey(prev => prev + 1);
             }}
             className="px-4 py-2 text-sm bg-gradient-to-r from-accent1 to-accent2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
           >
@@ -125,23 +211,45 @@ export default function PreviewEditorPage() {
         </div>
       </header>
 
-      {/* Visual Editor */}
+      {/* Main Content Area */}
       <div className="flex-1 overflow-hidden flex">
-        <div className={showPreview ? 'flex-1' : 'flex-1'}>
-          <VisualHTMLEditor
-            courseData={courseData}
-            courseConfig={courseConfig}
-            onUpdate={handleUpdateCourseData}
-            onUpdateConfig={handleUpdateConfig}
-          />
-        </div>
-        {showPreview && courseData && courseConfig && (
-          <LivePreviewPanel
-            courseData={courseData}
-            config={courseConfig}
-            templateId={courseConfig.templateId as any}
-            onClose={() => setShowPreview(false)}
-          />
+        {previewMode === 'editor' && (
+          <div className="flex-1">
+            <VisualHTMLEditor
+              courseData={courseData}
+              courseConfig={courseConfig}
+              onUpdate={handleUpdateCourseData}
+              onUpdateConfig={handleUpdateConfig}
+            />
+          </div>
+        )}
+        {previewMode === 'html' && courseData && courseConfig && (
+          <div className="flex-1 overflow-hidden">
+            <HTMLPreview
+              courseData={courseData}
+              config={courseConfig}
+              key={previewKey}
+            />
+          </div>
+        )}
+        {previewMode === 'live' && courseData && courseConfig && (
+          <div className="flex-1 overflow-hidden flex">
+            <div className="flex-1">
+              <VisualHTMLEditor
+                courseData={courseData}
+                courseConfig={courseConfig}
+                onUpdate={handleUpdateCourseData}
+                onUpdateConfig={handleUpdateConfig}
+              />
+            </div>
+            <LivePreviewPanel
+              courseData={courseData}
+              config={courseConfig}
+              templateId={courseConfig.templateId as any}
+              onClose={() => setPreviewMode('editor')}
+              key={previewKey}
+            />
+          </div>
         )}
       </div>
     </div>

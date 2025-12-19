@@ -1,10 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { CourseCreationState, CourseCreationContextValue, ChatMessage, AIInsights, UploadedFile, ChatSession } from '@/types/courseCreation';
+import { CourseCreationState, CourseCreationContextValue, ChatMessage, AIInsights, UploadedFile, ChatSession, MediaAsset } from '@/types/courseCreation';
 import { CourseConfig, CourseData } from '@/types/course';
 
-const STORAGE_KEY = 'bytelab_course_creation_state';
+const STORAGE_KEY_PREFIX = 'bytelab_course_creation_state';
+const GLOBAL_STORAGE_KEY = 'bytelab_course_creation_state'; // For backward compatibility
 const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB limit
 
 // Create initial state function to avoid Date.now() during SSR
@@ -18,6 +19,7 @@ const createInitialState = (): CourseCreationState => ({
   courseConfig: null,
   courseData: null,
   generationProgress: null,
+  mediaAssets: [],
   createdAt: typeof window !== 'undefined' ? Date.now() : 0,
   lastUpdated: typeof window !== 'undefined' ? Date.now() : 0,
   currentStage: 1,
@@ -30,11 +32,22 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
   // Start with initial state to avoid hydration mismatch
   const [state, setState] = useState<CourseCreationState>(() => createInitialState());
   const [isHydrated, setIsHydrated] = useState(false);
+  const [currentCourseId, setCurrentCourseId] = useState<string | null>(null);
+
+  // Get storage key for current course
+  const getStorageKey = useCallback((courseId: string | null): string => {
+    if (courseId) {
+      return `${STORAGE_KEY_PREFIX}_${courseId}`;
+    }
+    return GLOBAL_STORAGE_KEY;
+  }, []);
 
   // Define saveToStorage BEFORE useEffect that uses it
   const saveToStorage = useCallback(() => {
     // Only save on client and after hydration
     if (typeof window === 'undefined' || !isHydrated) return;
+
+    const storageKey = getStorageKey(currentCourseId);
 
     try {
       const serialized = JSON.stringify(state);
@@ -51,9 +64,9 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
             chunks: [], // Remove chunk data to save space
           })),
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(minimalState));
+        localStorage.setItem(storageKey, JSON.stringify(minimalState));
       } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(storageKey, JSON.stringify(state));
       }
     } catch (error) {
       console.error('Error saving course creation state:', error);
@@ -64,20 +77,26 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
           chatHistory: state.chatHistory.slice(-10),
           uploadedFiles: [],
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(minimalState));
+        localStorage.setItem(storageKey, JSON.stringify(minimalState));
       } catch (e) {
         console.error('Failed to save minimal state:', e);
       }
     }
-  }, [state, isHydrated]);
+  }, [state, isHydrated, currentCourseId, getStorageKey]);
 
-  // Load from localStorage on mount (client-side only)
+  // Load from localStorage on mount (client-side only) - only load global state if no course ID
   useEffect(() => {
     // Only run on client
     if (typeof window === 'undefined') return;
 
+    // Don't auto-load if we have a course ID - let the workspace page load it
+    if (currentCourseId) {
+      setIsHydrated(true);
+      return;
+    }
+
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(GLOBAL_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         // Validate and merge with initial state
@@ -88,6 +107,7 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
           // Ensure arrays are arrays
           uploadedFiles: Array.isArray(parsed.uploadedFiles) ? parsed.uploadedFiles : [],
           chatHistory: Array.isArray(parsed.chatHistory) ? parsed.chatHistory : [],
+          mediaAssets: Array.isArray(parsed.mediaAssets) ? parsed.mediaAssets : [],
           // Ensure contextSessionId exists, generate if missing
           contextSessionId: parsed.contextSessionId || `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           // Update timestamps on load
@@ -105,7 +125,7 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
       // Mark as hydrated after attempting to load
       setIsHydrated(true);
     }
-  }, []);
+  }, [currentCourseId]);
 
   // Save to localStorage whenever state changes (debounced)
   useEffect(() => {
@@ -121,8 +141,10 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
   const loadFromStorage = useCallback(() => {
     if (typeof window === 'undefined' || !isHydrated) return;
 
+    const storageKey = getStorageKey(currentCourseId);
+
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
         setState({
@@ -130,12 +152,65 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
           ...parsed,
           uploadedFiles: Array.isArray(parsed.uploadedFiles) ? parsed.uploadedFiles : [],
           chatHistory: Array.isArray(parsed.chatHistory) ? parsed.chatHistory : [],
+          mediaAssets: Array.isArray(parsed.mediaAssets) ? parsed.mediaAssets : [],
         });
       }
     } catch (error) {
       console.error('Error loading from storage:', error);
     }
-  }, [isHydrated]);
+  }, [isHydrated, currentCourseId, getStorageKey]);
+
+  // Load state for a specific course
+  const loadStateForCourse = useCallback((courseId: string | null, courseState?: CourseCreationState) => {
+    if (typeof window === 'undefined' || !isHydrated) return;
+
+    // Update current course ID
+    setCurrentCourseId(courseId);
+
+    if (courseState) {
+      // Load from provided course state (from CourseContext)
+      setState({
+        ...createInitialState(),
+        ...courseState,
+        uploadedFiles: Array.isArray(courseState.uploadedFiles) ? courseState.uploadedFiles : [],
+        chatHistory: Array.isArray(courseState.chatHistory) ? courseState.chatHistory : [],
+        mediaAssets: Array.isArray(courseState.mediaAssets) ? courseState.mediaAssets : [],
+        lastUpdated: Date.now(),
+      });
+    } else if (courseId) {
+      // Try to load from localStorage for this course
+      const storageKey = getStorageKey(courseId);
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setState({
+            ...createInitialState(),
+            ...parsed,
+            uploadedFiles: Array.isArray(parsed.uploadedFiles) ? parsed.uploadedFiles : [],
+            chatHistory: Array.isArray(parsed.chatHistory) ? parsed.chatHistory : [],
+            mediaAssets: Array.isArray(parsed.mediaAssets) ? parsed.mediaAssets : [],
+            lastUpdated: Date.now(),
+          });
+        } else {
+          // No saved state for this course, start fresh
+          const newState = createInitialState();
+          newState.contextSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          setState(newState);
+        }
+      } catch (error) {
+        console.error('Error loading course state:', error);
+        const newState = createInitialState();
+        newState.contextSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        setState(newState);
+      }
+    } else {
+      // No course ID, reset to initial state
+      const newState = createInitialState();
+      newState.contextSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      setState(newState);
+    }
+  }, [isHydrated, getStorageKey]);
 
   const updateState = useCallback((updates: Partial<CourseCreationState>) => {
     setState((prev) => ({
@@ -151,9 +226,10 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
     newState.contextSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setState(newState);
     if (typeof window !== 'undefined' && isHydrated) {
-      localStorage.removeItem(STORAGE_KEY);
+      const storageKey = getStorageKey(currentCourseId);
+      localStorage.removeItem(storageKey);
     }
-  }, [isHydrated]);
+  }, [isHydrated, currentCourseId, getStorageKey]);
 
   const clearState = useCallback(() => {
     // Clear all context-related state but keep metadata
@@ -162,13 +238,14 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
     newState.contextSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setState(newState);
     if (typeof window !== 'undefined' && isHydrated) {
-      localStorage.removeItem(STORAGE_KEY);
+      const storageKey = getStorageKey(currentCourseId);
+      localStorage.removeItem(storageKey);
     }
     // Also clear vector store via API
     if (typeof window !== 'undefined') {
       fetch('/api/upload', { method: 'DELETE' }).catch(console.error);
     }
-  }, [isHydrated]);
+  }, [isHydrated, currentCourseId, getStorageKey]);
 
   const addUploadedFiles = useCallback((files: UploadedFile[]) => {
     setState((prev) => {
@@ -373,6 +450,23 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
     return state.chatSessions.find(s => s.id === state.currentChatSessionId) || null;
   }, [state.chatSessions, state.currentChatSessionId]);
 
+  // Media asset management
+  const addMediaAsset = useCallback((asset: MediaAsset) => {
+    setState((prev) => ({
+      ...prev,
+      mediaAssets: [...prev.mediaAssets, asset],
+      lastUpdated: Date.now(),
+    }));
+  }, []);
+
+  const removeMediaAsset = useCallback((assetId: string) => {
+    setState((prev) => ({
+      ...prev,
+      mediaAssets: prev.mediaAssets.filter(a => a.id !== assetId),
+      lastUpdated: Date.now(),
+    }));
+  }, []);
+
   // Update addChatMessage to also update the current session
   const addChatMessageToSession = useCallback((message: ChatMessage) => {
     setState((prev) => {
@@ -435,12 +529,15 @@ export function CourseCreationProvider({ children }: { children: React.ReactNode
     clearState,
     saveToStorage,
     loadFromStorage,
+    loadStateForCourse,
     addUploadedFiles,
     addChatMessage: addChatMessageToSession,
     extractAIInsights,
     updateConfig,
     setCourseData,
     setGenerationProgress,
+    addMediaAsset,
+    removeMediaAsset,
     createNewChatSession,
     switchChatSession,
     deleteChatSession,
