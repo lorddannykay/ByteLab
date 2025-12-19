@@ -31,6 +31,9 @@
 - 🎨 **UI Enhancements** — Resizable preview panels, hideable sidebars, media type badges
 - ⚡ **Performance** — 60% reduction in API calls through smart validation
 - 🛡️ **Rate Limiting** — Sophisticated cost management and API usage protection
+- 🔒 **Quality Guardrails** — JSON validation, content moderation, completeness checks
+- 🔄 **Retry Logic** — Exponential backoff and multi-model fallback for reliability
+- ✅ **Sanity Checks** — Quiz validation, section quality checks, auto-repair
 
 [View Full Changelog](CHANGELOG.md) | [Deployment Guide](docs/DEPLOYMENT_SUMMARY.md)
 

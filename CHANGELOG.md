@@ -33,12 +33,23 @@ This release introduces significant improvements to media handling, content vali
 - **Rate Limiting** - Sophisticated rate limiting to prevent API quota exhaustion
 
 ### UI/UX Enhancements
-- **Resizable Live Preview** - Drag-to-resize preview panel with width indicators
-- **Hideable Stages Sidebar** - Collapsible sidebar for more editing space
-- **Media Type Badges** - Visual indicators (Image/GIF/Video) on all media items
-- **Provider Icons** - Source identification icons for all search results
-- **Tabbed Search Interface** - Separate tabs for Search and Upload functionality
-- **Enhanced Image Block** - Improved image editing with GIF and video loop support
+- **Resizable Live Preview** — Drag-to-resize preview panel with width indicators
+- **Hideable Stages Sidebar** — Collapsible sidebar for more editing space
+- **Media Type Badges** — Visual indicators (Image/GIF/Video) on all media items
+- **Provider Icons** — Source identification icons for all search results
+- **Tabbed Search Interface** — Separate tabs for Search and Upload functionality
+- **Enhanced Image Block** — Improved image editing with GIF and video loop support
+
+### Quality Guardrails & Sanity Checks
+- **JSON Structure Validation** — Ensures AI responses are properly formatted and complete
+- **Content Quality Checks** — Validates minimum length requirements (introduction: 100+ chars, sections: 50+ chars)
+- **Quiz Validation** — Comprehensive validation for quiz questions and options
+- **Content Moderation** — Llama Guard integration for safety checks (violence, hate, harassment, etc.)
+- **Retry Logic** — Exponential backoff for failed requests (3 retries with increasing delays)
+- **Multi-Model Fallback** — Automatic fallback to alternative models if primary fails
+- **Truncation Detection** — Identifies and flags incomplete content
+- **Completeness Scoring** — 0-100 score for course quality assessment
+- **Auto-Repair** — Attempts to fix incomplete JSON structures
 
 ---
 
@@ -90,6 +101,10 @@ This release introduces significant improvements to media handling, content vali
 - `lib/validation/contentValidator.ts` - Content validation service
 - `lib/validation/factChecker.ts` - Fact-checking logic
 
+### Quality Assurance
+- `lib/ai/qualityGuardrails.ts` - JSON validation, completeness checks, retry logic
+- `lib/together/moderation.ts` - Content moderation with Llama Guard
+
 ### UI Components
 - `components/Editor/ImageSearchModal.tsx` - Enhanced image search modal
 - `components/Editor/LivePreviewPanel.tsx` - Resizable preview panel
@@ -98,6 +113,7 @@ This release introduces significant improvements to media handling, content vali
 ### Documentation
 - `docs/API_LIMITS_AND_FIXES.md` - Comprehensive API limits and troubleshooting guide
 - `docs/SEARCH_API_SETUP.md` - Search API setup instructions
+- `docs/QUALITY_GUARDRAILS.md` - Complete guide to quality guardrails and sanity checks
 
 ---
 
