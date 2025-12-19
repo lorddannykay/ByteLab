@@ -106,6 +106,28 @@
 
 </td>
 </tr>
+<tr>
+<td width="50%">
+
+### 🛡️ Quality Guardrails
+- **JSON Validation** — Structure completeness checking
+- **Content Moderation** — Llama Guard safety checks
+- **Retry Logic** — Exponential backoff for failed requests
+- **Truncation Detection** — Identifies incomplete content
+- **Completeness Scoring** — 0-100 score for course quality
+
+</td>
+<td width="50%">
+
+### ✅ Sanity Checks
+- **Quiz Validation** — Minimum length, meaningful options
+- **Section Validation** — Content quality requirements
+- **Introduction Checks** — Minimum 100 characters
+- **Stage Count Validation** — Matches requested count
+- **Auto-Fix** — Incomplete JSON repair
+
+</td>
+</tr>
 </table>
 
 ---
@@ -231,6 +253,39 @@ Ensure your generated content is accurate with built-in fact-checking:
 - **Issue Flagging** — Highlights potential inaccuracies
 - **Cost Optimized** — 60% reduction in API calls through intelligent validation
 
+### Quality Guardrails & Sanity Checks
+
+ByteLab includes comprehensive quality assurance to ensure generated content meets high standards:
+
+#### JSON Structure Validation
+- **Required Field Checking** — Validates all required fields are present
+- **Nested Structure Validation** — Checks arrays and nested objects
+- **Truncation Detection** — Identifies incomplete or cut-off content
+- **Auto-Repair** — Attempts to fix incomplete JSON structures
+
+#### Content Quality Checks
+- **Introduction Validation** — Minimum 100 characters required
+- **Section Validation** — Each section must have heading (5+ chars) and content (50+ chars)
+- **Minimum Section Count** — At least 2 sections required per stage
+- **Completeness Scoring** — 0-100 score based on missing fields
+
+#### Quiz Validation
+- **Question Length** — Minimum 10 characters
+- **Option Validation** — At least 3 options, each 10+ characters
+- **Meaningful Options** — Rejects single-letter options (A, B, C, D)
+- **Correct Answer** — Validates correct answer is provided
+
+#### Content Moderation
+- **Llama Guard Integration** — Safety checks for inappropriate content
+- **Category Detection** — Violence, hate, harassment, self-harm, sexual, spam, illegal activity
+- **Safe Default** — Defaults to safe if moderation fails
+
+#### Retry & Recovery
+- **Exponential Backoff** — Smart retry logic with increasing delays
+- **Multi-Model Fallback** — Tries alternative models if one fails
+- **Error Recovery** — Graceful handling of API failures
+- **Max Retries** — Configurable retry attempts (default: 3)
+
 ### Rate Limiting & Cost Management
 
 - **Token Bucket Algorithm** — Sophisticated rate limiting
@@ -323,6 +378,8 @@ flowchart TB
         TTS[Text-to-Speech]
         MediaSearch[Media Search]
         Validator[Content Validator]
+        Guardrails[Quality Guardrails]
+        Moderation[Content Moderation]
     end
     
     subgraph Storage["Storage"]
@@ -345,6 +402,10 @@ flowchart TB
     Media --> MediaSearch
     Search --> Validator
     Validation --> Validator
+    
+    Generate --> Guardrails
+    Generate --> Moderation
+    Guardrails --> Core
     
     MediaSearch --> FS
     Templates --> FS
@@ -403,6 +464,7 @@ ByteLab/
 │
 ├── lib/                        # Core Libraries
 │   ├── ai/providers/           # AI provider integrations
+│   │   └── qualityGuardrails.ts # Quality checks & validation
 │   ├── rag/                    # RAG pipeline
 │   ├── parsers/                # File parsers
 │   ├── templates/              # Course templates
@@ -411,7 +473,9 @@ ByteLab/
 │   ├── scorm/                  # SCORM packager
 │   ├── media/                   # Media search providers
 │   ├── search/                  # Web search & validation
-│   └── validation/              # Content validation
+│   ├── validation/              # Content validation
+│   └── together/               # Together AI integrations
+│       └── moderation.ts       # Content moderation (Llama Guard)
 │
 ├── types/                      # TypeScript types
 └── assets/                     # Static assets & logos
@@ -494,6 +558,10 @@ sequenceDiagram
 - [x] **Rate limiting and cost management**
 - [x] **Resizable Live Preview panel**
 - [x] **Hideable Stages sidebar**
+- [x] **Quality guardrails and sanity checks**
+- [x] **Content moderation with Llama Guard**
+- [x] **JSON validation and auto-repair**
+- [x] **Retry logic with exponential backoff**
 
 ### 🚧 In Progress / Planned
 
