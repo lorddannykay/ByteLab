@@ -139,5 +139,6 @@ export function getRateLimiter(): RateLimiter {
   return rateLimiterInstance;
 }
 
-export { RateLimiter, RateLimitConfig };
+export type { RateLimitConfig };
+export { RateLimiter };
 

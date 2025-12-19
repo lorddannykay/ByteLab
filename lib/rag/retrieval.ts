@@ -1,7 +1,7 @@
 import { embedText } from '../together/embeddings';
 import { rerankResults } from '../together/rerank';
 import { VectorStore, StoredChunk } from './vectorStore';
-import { RetrievalResult } from '../types/course';
+import { RetrievalResult } from '@/types/course';
 
 export async function retrieveContext(
   query: string,
