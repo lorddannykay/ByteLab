@@ -13,7 +13,26 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](LICENSE)
 
-[Features](#features) · [Quick Start](#quick-start) · [AI Providers](#ai-providers) · [Templates](#templates) · [Architecture](#architecture) · [Contributing](#contributing)
+[Features](#features) · [Quick Start](#quick-start) · [AI Providers](#ai-providers) · [Media Search](#-media-search--content-validation) · [Templates](#templates) · [Architecture](#architecture) · [Contributing](#contributing)
+
+---
+
+## 🆕 What's New (December 2025)
+
+### Major Feature Release
+
+**Multi-Source Media Search & Content Validation**
+
+- ✨ **6 Image Sources** — Google, DuckDuckGo, Pexels, Unsplash, Giphy, and Video Loops
+- 🎬 **GIF Support** — Search and display animated GIFs from Giphy
+- 🎥 **Video Loops** — Short autoplaying videos for engaging content
+- 📤 **Custom Upload** — Drag-and-drop file upload for all media types
+- ✅ **Content Validation** — Web search integration for fact-checking generated content
+- 🎨 **UI Enhancements** — Resizable preview panels, hideable sidebars, media type badges
+- ⚡ **Performance** — 60% reduction in API calls through smart validation
+- 🛡️ **Rate Limiting** — Sophisticated cost management and API usage protection
+
+[View Full Changelog](CHANGELOG.md) | [Deployment Guide](docs/DEPLOYMENT_SUMMARY.md)
 
 ---
 
@@ -65,6 +84,28 @@
 
 </td>
 </tr>
+<tr>
+<td width="50%">
+
+### 🆕 Multi-Source Media Search
+- **6 Image Sources** — Google, DuckDuckGo, Pexels, Unsplash, Giphy, Video Loops
+- **GIF Support** — Search and display animated GIFs
+- **Video Loops** — Short autoplaying videos (< 30 seconds)
+- **Custom Upload** — Drag-and-drop file upload
+- **Smart Search** — Unified search across all sources
+
+</td>
+<td width="50%">
+
+### 🆕 Content Validation
+- **Fact-Checking** — Web search integration for accuracy
+- **Multi-Provider** — Google Search + DuckDuckGo fallback
+- **Rate Limiting** — Smart API usage management
+- **Confidence Scoring** — Validation results with confidence levels
+- **Cost Optimization** — 60% reduction in API calls
+
+</td>
+</tr>
 </table>
 
 ---
@@ -93,10 +134,10 @@ cp .env.example .env.local
 
 ### Environment Setup
 
-Create a `.env.local` file with your preferred AI provider(s):
+Create a `.env.local` file with your preferred AI provider(s) and media APIs:
 
 ```env
-# Choose one or more providers:
+# AI Providers (choose one or more):
 
 # Together AI (recommended for cost-effective generation)
 TOGETHER_API_KEY=your_together_api_key
@@ -106,6 +147,29 @@ OPENAI_API_KEY=your_openai_api_key
 
 # Anthropic (Claude)
 ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# Media Search APIs (required for image search features):
+
+# Google Custom Search (for images and content validation)
+GOOGLE_SEARCH_API_KEY=your_google_api_key
+GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id
+
+# Pexels (for images and video loops)
+PEXELS_API_KEY=your_pexels_api_key
+
+# Optional Media APIs:
+
+# Unsplash (additional image source)
+UNSPLASH_ACCESS_KEY=your_unsplash_key
+
+# Giphy (for GIF search)
+GIPHY_API_KEY=your_giphy_api_key
+
+# Rate Limiting (optional - defaults provided)
+GOOGLE_SEARCH_MAX_QUERIES_PER_DAY=100
+GOOGLE_SEARCH_MAX_QUERIES_PER_HOUR=30
+GOOGLE_SEARCH_MAX_QUERIES_PER_MINUTE=10
+MAX_SEARCHES_PER_VALIDATION=5
 ```
 
 ### Run
@@ -129,6 +193,51 @@ ByteLab supports **multiple AI providers** — use whichever fits your needs:
 | **Anthropic** | Claude 3.5 Sonnet, Claude 3 | Long context, nuanced content |
 
 The system **automatically detects** available providers and lets you switch between them in the UI.
+
+---
+
+## 🆕 Media Search & Content Validation
+
+### Multi-Source Image Search
+
+ByteLab now supports **6 different media sources** for finding the perfect images, GIFs, and videos:
+
+| Source | Type | API Key Required | Best For |
+|--------|------|------------------|----------|
+| **Google** | Images | ✅ Yes | Web images, diverse content |
+| **DuckDuckGo** | Images | ❌ No | Privacy-focused, fallback option |
+| **Pexels** | Images & Videos | ✅ Yes | High-quality stock photos & video loops |
+| **Unsplash** | Images | ✅ Yes | Professional photography |
+| **Giphy** | GIFs | ✅ Yes | Animated GIFs |
+| **Custom Upload** | All | ❌ No | Your own media files |
+
+### Features
+
+- **Unified Search Interface** — Search across all sources simultaneously
+- **Smart Deduplication** — Automatically removes duplicate results
+- **Media Type Filtering** — Filter by Images, GIFs, or Video Loops
+- **Provider Icons** — Visual indicators showing the source
+- **Type Badges** — Clear labels for Image/GIF/Video content
+- **Drag-and-Drop Upload** — Easy custom file uploads
+
+### Content Validation System
+
+Ensure your generated content is accurate with built-in fact-checking:
+
+- **Web Search Integration** — Validates claims against real-time web sources
+- **Multi-Provider Fallback** — Google Search with DuckDuckGo backup
+- **Smart Claim Extraction** — Identifies verifiable facts in content
+- **Confidence Scoring** — Provides validation confidence levels
+- **Issue Flagging** — Highlights potential inaccuracies
+- **Cost Optimized** — 60% reduction in API calls through intelligent validation
+
+### Rate Limiting & Cost Management
+
+- **Token Bucket Algorithm** — Sophisticated rate limiting
+- **Configurable Limits** — Environment variable-based configuration
+- **Usage Monitoring** — Track API consumption in real-time
+- **Graceful Fallbacks** — Automatic provider switching when limits hit
+- **Cost Guardrails** — Built-in protections against over-usage
 
 ```mermaid
 flowchart LR
@@ -202,6 +311,9 @@ flowchart TB
         Generate["Generate API"]
         Export["Export API"]
         Studio["Studio API"]
+        Media["Media Search API"]
+        Search["Search API"]
+        Validation["Validation API"]
     end
     
     subgraph Core["Core Libraries"]
@@ -209,6 +321,8 @@ flowchart TB
         Parsers[File Parsers]
         Templates[Template Engine]
         TTS[Text-to-Speech]
+        MediaSearch[Media Search]
+        Validator[Content Validator]
     end
     
     subgraph Storage["Storage"]
@@ -228,6 +342,11 @@ flowchart TB
     Export --> Templates
     Export --> TTS
     
+    Media --> MediaSearch
+    Search --> Validator
+    Validation --> Validator
+    
+    MediaSearch --> FS
     Templates --> FS
 ```
 
@@ -270,7 +389,9 @@ ByteLab/
 │   │   ├── generate/           # Content generation endpoints
 │   │   ├── studio/             # Studio outputs (audio, video, etc.)
 │   │   ├── export/             # Export endpoints (ZIP, SCORM)
-│   │   └── upload/             # File upload handlers
+│   │   ├── upload/             # File upload handlers
+│   │   ├── media/              # Media search endpoints
+│   │   └── search/             # Web search & validation
 │   ├── course/                 # Course pages
 │   └── page.tsx                # Dashboard
 │
@@ -287,7 +408,10 @@ ByteLab/
 │   ├── templates/              # Course templates
 │   ├── generators/             # HTML generators
 │   ├── tts/                    # Text-to-speech
-│   └── scorm/                  # SCORM packager
+│   ├── scorm/                  # SCORM packager
+│   ├── media/                   # Media search providers
+│   ├── search/                  # Web search & validation
+│   └── validation/              # Content validation
 │
 ├── types/                      # TypeScript types
 └── assets/                     # Static assets & logos
@@ -305,6 +429,14 @@ ByteLab/
 | Word | `.docx` | mammoth |
 | Text | `.txt`, `.md` | Native |
 | URL | Web pages | Fetch + parse |
+
+### Supported Media Types
+
+| Type | Formats | Sources |
+|------|---------|---------|
+| **Images** | `.jpg`, `.jpeg`, `.png`, `.webp` | Google, DuckDuckGo, Pexels, Unsplash, Upload |
+| **GIFs** | `.gif` | Giphy, Upload |
+| **Videos** | `.mp4`, `.webm` | Pexels (video loops), Upload |
 
 ### Export Formats
 
@@ -349,16 +481,31 @@ sequenceDiagram
 
 ## Roadmap
 
+### ✅ Completed
+
 - [x] Multi-provider AI support (Together, OpenAI, Anthropic)
 - [x] 14 course templates
 - [x] RAG-powered content generation
 - [x] SCORM export
+- [x] **Multi-source media search** (Google, DuckDuckGo, Pexels, Unsplash, Giphy)
+- [x] **GIF and video loop support**
+- [x] **Content validation with web search**
+- [x] **Custom file upload with drag-and-drop**
+- [x] **Rate limiting and cost management**
+- [x] **Resizable Live Preview panel**
+- [x] **Hideable Stages sidebar**
+
+### 🚧 In Progress / Planned
+
 - [ ] Persistent vector store (Pinecone/Chroma)
 - [ ] Real-time collaboration
 - [ ] Course analytics dashboard
 - [ ] Custom template builder
 - [ ] Video rendering with AI avatars
 - [ ] Multi-language support
+- [ ] Additional image sources (Pixabay, Flickr)
+- [ ] Advanced media library organization
+- [ ] Batch media operations
 
 ---
 
