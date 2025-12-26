@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Minimalist Design Principles — Podcast</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg1: #ffffff;
+  --bg2: #fafafa;
+  --bg3: #f5f5f5;
+  --bg4: #eeeeee;
+  --bgInverse: #000000;
+  --accent1: #000000;
+  --accent2: #000000;
+  --inter: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --poppins: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --border: #000000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--inter);
+  background: var(--bg1);
+  color: var(--bgInverse);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px;
+  min-height: 100%;
+  overflow: auto;
+}
+
+.podcast-container {
+  max-width: 800px;
+  width: 100%;
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.podcast-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.podcast-header h1 {
+  font-family: var(--poppins);
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--bgInverse);
+  margin-bottom: 10px;
+}
+
+.podcast-header h2 {
+  font-family: var(--inter);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--bgInverse);
+  opacity: 0.8;
+}
+
+.podcast-info {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.podcast-info p {
+  font-size: 0.9rem;
+  color: var(--bgInverse);
+  opacity: 0.8;
+  margin: 5px 0;
+}
+
+.audio-player {
+  background: var(--bg1);
+  border: 2px solid var(--border);
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.play-pause-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--bgInverse);
+  border: 2px solid var(--border);
+  color: var(--bg1);
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.play-pause-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.play-pause-btn:active {
+  transform: scale(0.95);
+}
+
+.progress-container {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--bgInverse);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.time-display {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--inter);
+  font-size: 0.9rem;
+  color: var(--bgInverse);
+  opacity: 0.8;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.volume-control label {
+  font-size: 0.9rem;
+  color: var(--bgInverse);
+}
+
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--bgInverse);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--bgInverse);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.podcast-description {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.podcast-description h3 {
+  font-family: var(--poppins);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--bgInverse);
+}
+
+.podcast-description p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--bgInverse);
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.podcast-description ul {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+.podcast-description li {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--bgInverse);
+  opacity: 0.8;
+  margin: 8px 0;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .podcast-container {
+    padding: 25px;
+  }
+  
+  .podcast-header h1 {
+    font-size: 2rem;
+  }
+  
+  .play-pause-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="podcast-container">
+  <div class="podcast-header">
+    <h1>Minimalist Design Principles</h1>
+    <h2>Podcast Episode</h2>
+  </div>
+
+  <div class="podcast-info">
+    <p><strong>Duration:</strong> ~15-20 minutes</p>
+    <p><strong>Format:</strong> Conversational two-speaker dialogue</p>
+    <p><strong>Host & Expert:</strong> Learn Minimalist Design Principles through engaging conversation</p>
+  </div>
+
+  <div class="audio-player">
+    <audio id="podcast-audio" preload="auto">
+      <source src="./audio/podcast.mp3" type="audio/mpeg">
+      <source src="audio/podcast.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
+    <div class="audio-controls">
+      <button class="play-pause-btn" id="playPauseBtn" aria-label="Play/Pause">
+        <span id="playIcon">▶</span>
+      </button>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="time-display">
+      <span id="currentTime">0:00</span>
+      <span id="totalTime">0:00</span>
+    </div>
+
+    <div class="volume-control">
+      <label for="volumeSlider">Volume:</label>
+      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100">
+    </div>
+  </div>
+
+  <div class="podcast-description">
+    <h3>About This Podcast</h3>
+    <p>Join our host and design expert as they explore the fundamentals of minimalist design through an engaging conversation. This podcast covers:</p>
+    <ul>
+      <li>What minimalist design is and why it's effective</li>
+      <li>Core principles of minimalist design (whitespace, typography, color)</li>
+      <li>How to apply minimalist principles in practice</li>
+      <li>Real-world examples and use cases</li>
+      <li>Best practices for minimalist web design</li>
+    </ul>
+    <p>Perfect for learning on the go! Listen while commuting, exercising, or whenever you prefer audio learning.</p>
+  </div>
+</div>
+
+<script>
+class PodcastPlayer {
+  constructor() {
+    this.audio = document.getElementById('podcast-audio');
+    this.playPauseBtn = document.getElementById('playPauseBtn');
+    this.playIcon = document.getElementById('playIcon');
+    this.progressBar = document.getElementById('progressBar');
+    this.progressContainer = document.getElementById('progressContainer');
+    this.currentTimeDisplay = document.getElementById('currentTime');
+    this.totalTimeDisplay = document.getElementById('totalTime');
+    this.volumeSlider = document.getElementById('volumeSlider');
+    
+    this.isPlaying = false;
+    this.init();
+  }
+
+  init() {
+    // Check if audio element exists
+    if (!this.audio) {
+      console.error('Audio element not found');
+      this.showError('Audio player not found');
+      return;
+    }
+
+    // Check if audio source exists
+    const audioSrc = this.audio.querySelector('source');
+    if (!audioSrc || !audioSrc.src) {
+      console.error('Audio source not found');
+      this.showError('Audio source not configured');
+      return;
+    }
+    
+    // Log the audio source path for debugging
+    console.log('Audio source path:', audioSrc.src);
+    console.log('Audio element src:', this.audio.src);
+
+    // Audio event listeners
+    this.audio.addEventListener('loadedmetadata', () => {
+      this.updateTotalTime();
+    });
+
+    this.audio.addEventListener('timeupdate', () => {
+      this.updateProgress();
+      this.updateCurrentTime();
+    });
+
+    this.audio.addEventListener('ended', () => {
+      this.isPlaying = false;
+      this.updatePlayIcon();
+    });
+
+    this.audio.addEventListener('error', (e) => {
+      console.error('Audio error:', e);
+      console.error('Audio element src:', this.audio.src);
+      console.error('Audio currentSrc:', this.audio.currentSrc);
+      const errorCode = this.audio.error;
+      let errorMessage = 'Error loading podcast audio.';
+      if (errorCode) {
+        switch(errorCode.code) {
+          case MediaError.MEDIA_ERR_ABORTED:
+            errorMessage = 'Audio loading was aborted.';
+            break;
+          case MediaError.MEDIA_ERR_NETWORK:
+            errorMessage = 'Network error while loading audio.';
+            break;
+          case MediaError.MEDIA_ERR_DECODE:
+            errorMessage = 'Audio decoding error.';
+            break;
+          case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMessage = 'Audio format not supported or file not found.';
+            break;
+        }
+      }
+      const audioPath = this.audio.currentSrc || this.audio.src || 'audio/podcast.mp3';
+      this.showError(errorMessage + '<br><br>Trying to load: <code>' + audioPath + '</code><br><br>The podcast audio file (audio/podcast.mp3) should exist in the same directory as this HTML file.<br>If it doesn\'t exist, run <code>node concatenate-audio.js</code> to create it from existing scene audio files.');
+    });
+
+    // Try to load the audio
+    this.audio.load();
+    
+    // Check if audio loads successfully after a short delay
+    setTimeout(() => {
+      if (this.audio.readyState === 0 && this.audio.error) {
+        console.error('Audio failed to load after initialization');
+        console.error('Attempted path:', this.audio.currentSrc || audioSrc.src);
+        // Try to verify the file exists by checking the network state
+        if (this.audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+          console.error('No audio source found');
+        }
+      } else if (this.audio.readyState >= 2) {
+        console.log('Audio loaded successfully:', this.audio.currentSrc);
+        console.log('Duration:', this.audio.duration);
+      }
+    }, 1000);
+
+    // Control event listeners
+    this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+    
+    this.progressContainer.addEventListener('click', (e) => {
+      const rect = this.progressContainer.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      this.seekTo(percent);
+    });
+
+    this.volumeSlider.addEventListener('input', (e) => {
+      this.audio.volume = e.target.value / 100;
+    });
+
+    // Set initial volume
+    this.audio.volume = 1.0;
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        this.togglePlayPause();
+      }
+    });
+  }
+
+  togglePlayPause() {
+    if (this.isPlaying) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+
+  play() {
+    // Check if audio element exists
+    if (!this.audio) {
+      this.showError('Audio element not found.');
+      return;
+    }
+    
+    // Check if audio has a source (either direct src or source element)
+    const audioSrc = this.audio.src || (this.audio.querySelector('source') && this.audio.querySelector('source').src);
+    if (!audioSrc) {
+      this.showError('Audio source not available. Please generate the podcast audio file first.');
+      return;
+    }
+    
+    // If audio hasn't loaded yet, try loading it first
+    if (this.audio.readyState === 0) {
+      this.audio.load();
+    }
+    
+    this.audio.play().then(() => {
+      this.isPlaying = true;
+      this.updatePlayIcon();
+    }).catch(e => {
+      console.error('Play failed:', e);
+      console.error('Audio src:', this.audio.src);
+      console.error('Audio error:', this.audio.error);
+      this.showError('Unable to play audio. Please check your browser settings and ensure the audio file exists at: ' + audioSrc);
+    });
+  }
+
+  pause() {
+    this.audio.pause();
+    this.isPlaying = false;
+    this.updatePlayIcon();
+  }
+
+  updatePlayIcon() {
+    this.playIcon.textContent = this.isPlaying ? '⏸' : '▶';
+  }
+
+  seekTo(percent) {
+    if (this.audio.duration) {
+      this.audio.currentTime = this.audio.duration * percent;
+    }
+  }
+
+  updateProgress() {
+    if (this.audio.duration) {
+      const percent = (this.audio.currentTime / this.audio.duration) * 100;
+      this.progressBar.style.width = percent + '%';
+    }
+  }
+
+  updateCurrentTime() {
+    const minutes = Math.floor(this.audio.currentTime / 60);
+    const seconds = Math.floor(this.audio.currentTime % 60);
+    this.currentTimeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  updateTotalTime() {
+    const minutes = Math.floor(this.audio.duration / 60);
+    const seconds = Math.floor(this.audio.duration % 60);
+    this.totalTimeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  showError(message) {
+    // Remove any existing error messages
+    const existingError = document.querySelector('.podcast-error');
+    if (existingError) {
+      existingError.remove();
+    }
+
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'podcast-error';
+    errorMsg.style.cssText = 'background: var(--bg2); border: 2px solid var(--bgInverse); border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;';
+    errorMsg.innerHTML = '<p style="color: var(--bgInverse); margin: 0 0 10px 0; font-weight: 600;"><strong>⚠️ Podcast Audio Not Available</strong></p><p style="color: var(--bgInverse); opacity: 0.8; font-size: 0.9rem; margin: 0; line-height: 1.6;">' + message + '</p>';
+    const player = document.querySelector('.audio-player');
+    if (player && player.parentNode) {
+      player.parentNode.insertBefore(errorMsg, player.nextSibling);
+    } else {
+      const container = document.querySelector('.podcast-container');
+      if (container) {
+        container.appendChild(errorMsg);
+      }
+    }
+    
+    // Disable play button
+    if (this.playPauseBtn) {
+      this.playPauseBtn.disabled = true;
+      this.playPauseBtn.style.opacity = '0.5';
+      this.playPauseBtn.style.cursor = 'not-allowed';
+    }
+  }
+}
+
+// Initialize player when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  window.podcastPlayer = new PodcastPlayer();
+  
+  // Listen for pause messages from parent window (when modal closes)
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.action === 'pause') {
+      if (window.podcastPlayer) {
+        window.podcastPlayer.pause();
+      }
+    }
+  });
+});
+</script>
+
+</body>
+</html>
+

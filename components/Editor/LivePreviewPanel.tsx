@@ -10,9 +10,12 @@ interface LivePreviewPanelProps {
   config: CourseConfig;
   onClose: () => void;
   templateId?: TemplateId;
+  key?: number;
 }
 
-export default function LivePreviewPanel({ courseData, config, onClose, templateId = 'modern', key }: LivePreviewPanelProps & { key?: number }) {
+export default function LivePreviewPanel({ courseData, config, onClose, templateId, key }: LivePreviewPanelProps) {
+  // Use templateId from props, or from config, or default to 'birb-classic'
+  const effectiveTemplateId = templateId || (config.templateId as TemplateId) || 'birb-classic';
   const [html, setHtml] = useState<string>('');
   const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewHeight, setPreviewHeight] = useState(600);
@@ -22,9 +25,9 @@ export default function LivePreviewPanel({ courseData, config, onClose, template
   const resizeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const generatedHtml = generateCourseHTMLWithTemplate(courseData, config, templateId);
+    const generatedHtml = generateCourseHTMLWithTemplate(courseData, config, effectiveTemplateId);
     setHtml(generatedHtml);
-  }, [courseData, config, templateId, key]);
+  }, [courseData, config, effectiveTemplateId, key]);
 
   const previewWidths = {
     desktop: '100%',
@@ -104,9 +107,23 @@ export default function LivePreviewPanel({ courseData, config, onClose, template
             Reset
           </button>
           <button
-            onClick={onClose}
-            className="p-1 hover:bg-bg3 rounded transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // Send close message to iframe if it exists
+              const iframe = document.querySelector('iframe[title="Course Preview"]') as HTMLIFrameElement;
+              if (iframe?.contentWindow) {
+                try {
+                  iframe.contentWindow.postMessage({ action: 'closeModal' }, '*');
+                } catch (err) {
+                  console.log('Could not send message to iframe:', err);
+                }
+              }
+              onClose();
+            }}
+            className="p-1.5 hover:bg-bg3 rounded-lg transition-colors z-50 relative hover:scale-110 active:scale-95"
             aria-label="Close preview"
+            style={{ pointerEvents: 'auto' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -167,27 +184,64 @@ export default function LivePreviewPanel({ courseData, config, onClose, template
             <span className="text-xs text-text-secondary w-16">{previewHeight}px</span>
           </div>
 
-          {/* Preview Frame */}
+          {/* Preview Frame with Device Mockup */}
           <div
-            className="mx-auto bg-white shadow-lg rounded-lg overflow-hidden transition-all border-2 border-border"
+            className="mx-auto relative"
             style={{
-              width: previewWidths[previewMode],
+              width: previewMode === 'desktop' ? previewWidths[previewMode] : 
+                     previewMode === 'tablet' ? '768px' : '375px',
               maxWidth: '100%',
             }}
           >
             {html ? (
-              <iframe
-                srcDoc={html}
-                className="w-full border-0"
-                style={{
-                  height: `${previewHeight}px`,
-                  minHeight: `${previewHeight}px`,
-                }}
-                title="Course Preview"
-                sandbox="allow-scripts allow-same-origin allow-forms"
-              />
+              <>
+                {/* Device Frame (for mobile/tablet) */}
+                {(previewMode === 'mobile' || previewMode === 'tablet') && (
+                  <div className="absolute inset-0 pointer-events-none z-10">
+                    <div 
+                      className="absolute inset-0 rounded-[2.5rem] border-[8px] border-sf-gray-800 shadow-2xl"
+                      style={{ 
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.1)'
+                      }}
+                    >
+                      {/* Notch (for mobile) */}
+                      {previewMode === 'mobile' && (
+                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-sf-gray-800 rounded-b-2xl z-20" />
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Preview Content */}
+                <div 
+                  className={`mx-auto bg-white shadow-2xl overflow-hidden transition-all border-2 border-border ${
+                    previewMode === 'mobile' ? 'rounded-[2rem]' : 
+                    previewMode === 'tablet' ? 'rounded-[1.5rem]' : 
+                    'rounded-lg'
+                  }`}
+                  style={{
+                    width: previewWidths[previewMode],
+                    maxWidth: '100%',
+                    marginTop: previewMode === 'mobile' || previewMode === 'tablet' ? '8px' : '0',
+                    marginLeft: previewMode === 'mobile' || previewMode === 'tablet' ? '8px' : '0',
+                    marginRight: previewMode === 'mobile' || previewMode === 'tablet' ? '8px' : '0',
+                    marginBottom: previewMode === 'mobile' || previewMode === 'tablet' ? '8px' : '0',
+                  }}
+                >
+                  <iframe
+                    srcDoc={html}
+                    className="w-full border-0"
+                    style={{
+                      height: `${previewHeight}px`,
+                      minHeight: `${previewHeight}px`,
+                    }}
+                    title="Course Preview"
+                    sandbox="allow-scripts allow-same-origin allow-forms"
+                  />
+                </div>
+              </>
             ) : (
-              <div className="flex items-center justify-center text-text-secondary" style={{ height: `${previewHeight}px` }}>
+              <div className="flex items-center justify-center text-text-secondary bg-bg2 rounded-lg" style={{ height: `${previewHeight}px` }}>
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent1 mx-auto mb-2"></div>
                   <p className="text-sm">Generating preview...</p>

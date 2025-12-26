@@ -100,8 +100,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate HTML files with config for colors
-    // Use template from config if available, otherwise use default generateCourseHTML
-    const templateId = (config?.templateId as TemplateId) || 'modern';
+    // Use template from config if available, otherwise use default birb-classic template
+    const templateId = (config?.templateId as TemplateId) || 'birb-classic';
     const courseHTML = generateCourseHTMLWithTemplate(courseData, config || {}, templateId);
     const videoHTML = generateVideoHTML(courseData, config || {});
     const podcastHTML = generatePodcastHTML(courseData, config || {});

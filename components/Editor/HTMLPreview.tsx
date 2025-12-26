@@ -14,7 +14,8 @@ export default function HTMLPreview({ courseData, config, key }: HTMLPreviewProp
   const [html, setHtml] = useState<string>('');
 
   useEffect(() => {
-    const template = (config.templateId as TemplateId) || 'modern';
+    // Use templateId from config, or default to 'birb-classic' (not 'modern')
+    const template = (config.templateId as TemplateId) || 'birb-classic';
     const generatedHtml = generateCourseHTMLWithTemplate(courseData, config, template);
     setHtml(generatedHtml);
   }, [courseData, config, key]);

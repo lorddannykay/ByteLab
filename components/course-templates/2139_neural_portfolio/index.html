@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Microlearning: Neural Networks Fundamentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Exo+2:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+<!--
+Tooplate 2139 Neural Portfolio
+https://www.tooplate.com/view/2139-neural-portfolio
+Free HTML CSS Template
+-->
+</head>
+<body>
+    <canvas id="neural-bg"></canvas>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-container">
+                <img src="../../assets/ByteB_white.png" alt="ByteAI Logo" class="logo-img">
+                <span class="logo-text">BYTEAI</span>
+                <span class="course-title">Neural Networks Fundamentals</span>
+            </a>
+            
+            <div class="mobile-menu-toggle" id="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul>
+                    <li><a href="#home" class="nav-link">COURSE</a></li>
+                    <li><a href="video.html" class="nav-link" target="_blank">VIDEO</a></li>
+                    <li><a href="podcast.html" class="nav-link" target="_blank">PODCAST</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Navigation -->
+    <div class="course-navigation">
+        <div class="course-nav-container">
+            <button type="button" id="prev-step" class="course-nav-btn" disabled>Previous</button>
+            <div class="course-nav-center">
+                <div class="course-progress-wrapper">
+                    <div class="course-progress-bar">
+                        <div class="course-progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <span class="course-stage-indicator" id="stage-indicator">1/5</span>
+            </div>
+            <button type="button" id="next-step" class="course-nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- Section 1: Hero - Stage 1 -->
+    <section id="home" class="hero course-stage active" data-stage="1">
+        <div class="hero-content">
+            <h1 class="glitch" data-text="NEURAL NETWORKS">NEURAL NETWORKS</h1>
+            <p class="subtitle">Stage 1: Introduction to Neural Networks</p>
+            <p style="max-width: 600px; margin: 30px auto; font-size: 16px; line-height: 1.8; color: var(--text-secondary);">Welcome to this microlearning course on neural networks. Discover how artificial intelligence mimics the human brain, learn the fundamentals of machine learning, and understand how neural networks power modern AI applications.</p>
+        </div>
+        <a href="#about" class="scroll-btn" style="display: none;">
+            <div class="scroll-btn-inner">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+                </svg>
+            </div>
+        </a>
+    </section>
+
+    <!-- Section 2: About - Stage 2 -->
+    <section id="about" class="fade-in course-stage" data-stage="2">
+        <h2 class="section-title">Stage 2: Neural Network Foundations</h2>
+        <div class="about-container">
+            <div class="about-image">
+                <div class="profile-img-wrapper">
+                    <div class="profile-img">
+                        <span>AI</span>
+                    </div>
+                </div>
+            </div>
+            <div class="about-content">
+                <h3>Understanding Neural Networks</h3>
+                <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 20px;">
+                    Neural networks are computing systems inspired by biological neural networks that constitute animal brains. 
+                    They learn to perform tasks by considering examples, generally without being programmed with task-specific rules. 
+                    This stage introduces the core concepts of how neural networks work.
+                </p>
+                <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary);">
+                    Neural networks consist of interconnected nodes (neurons) organized in layers. Information flows through 
+                    these networks, with each connection having an associated weight that adjusts during learning. This allows 
+                    the network to recognize patterns and make predictions.
+                </p>
+                <div class="about-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">1940s</div>
+                        <div class="stat-label">Origin</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3+</div>
+                        <div class="stat-label">Layers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Neurons</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Projects - Stage 3 -->
+    <section id="projects" class="fade-in course-stage" data-stage="3">
+        <h2 class="section-title">Stage 3: Neural Network Applications</h2>
+        <div class="projects-grid">
+            <div class="glass-card project-card">
+                <h3 style="color: var(--primary);">Image Recognition</h3>
+                <p style="color: var(--text-secondary);">Neural networks excel at identifying objects, faces, and patterns in images, powering everything from photo tagging to medical diagnosis.</p>
+            </div>
+            <div class="glass-card project-card">
+                <h3 style="color: var(--secondary);">Natural Language Processing</h3>
+                <p style="color: var(--text-secondary);">Language models use neural networks to understand, generate, and translate human language with remarkable accuracy.</p>
+            </div>
+            <div class="glass-card project-card">
+                <h3 style="color: var(--accent);">Predictive Analytics</h3>
+                <p style="color: var(--text-secondary);">Neural networks analyze complex data patterns to make predictions about future trends, behaviors, and outcomes.</p>
+            </div>
+            <div class="glass-card project-card">
+                <h3 style="color: var(--primary);">Autonomous Systems</h3>
+                <p style="color: var(--text-secondary);">Self-driving cars and robots use neural networks to perceive their environment and make real-time decisions.</p>
+            </div>
+            <div class="glass-card project-card">
+                <h3 style="color: var(--secondary);">Recommendation Systems</h3>
+                <p style="color: var(--text-secondary);">Neural networks power personalized recommendations on streaming platforms, e-commerce sites, and social media.</p>
+            </div>
+            <div class="glass-card project-card">
+                <h3 style="color: var(--accent);">Game AI</h3>
+                <p style="color: var(--text-secondary);">Neural networks have achieved superhuman performance in complex games like chess, Go, and video games.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Skills - Stage 4 -->
+    <section id="skills" class="fade-in course-stage" data-stage="4">
+        <h2 class="section-title">Stage 4: Key Concepts & Components</h2>
+        <div class="skills-container">
+            <div class="skill-node">
+                <span>Neurons</span>
+            </div>
+            <div class="skill-node">
+                <span>Layers</span>
+            </div>
+            <div class="skill-node">
+                <span>Weights</span>
+            </div>
+            <div class="skill-node">
+                <span>Activation</span>
+            </div>
+            <div class="skill-node">
+                <span>Backpropagation</span>
+            </div>
+            <div class="skill-node">
+                <span>Training</span>
+            </div>
+        </div>
+        <div style="max-width: 1000px; margin: 40px auto; padding: 30px; background: var(--bg-glass); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(0, 255, 255, 0.2);">
+            <h3 style="color: var(--primary); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">Core Components Explained</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                    <h4 style="color: var(--secondary); margin-bottom: 10px;">Neurons</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Basic processing units that receive inputs, apply weights, and produce outputs through activation functions.</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent); margin-bottom: 10px;">Layers</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Organized groups of neurons: input layer receives data, hidden layers process it, output layer produces results.</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Backpropagation</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Learning algorithm that adjusts weights by calculating gradients and propagating errors backward through the network.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Quiz - Stage 5 -->
+    <section id="contact" class="fade-in course-stage" data-stage="5">
+        <h2 class="section-title">Stage 5: Quiz</h2>
+        <form class="contact-form glass-card" style="max-width: 800px; margin: 0 auto;">
+            <div style="margin-bottom: 30px;">
+                <p style="color: var(--text-secondary); font-size: 1rem; line-height: 1.8; margin-bottom: 30px;">Test your understanding of neural networks. Answer all questions to complete the course.</p>
+            </div>
+            
+            <div class="quiz-container">
+                <div class="quiz-question" data-qid="q1" style="margin-bottom: 30px;">
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 15px;">1) What is the primary function of neurons in a neural network?</strong>
+                    <div class="quiz-choices">
+                        <div class="choice" data-value="A">Store data permanently</div>
+                        <div class="choice" data-value="B">Process inputs and produce outputs</div>
+                        <div class="choice" data-value="C">Display visualizations</div>
+                        <div class="choice" data-value="D">Connect to the internet</div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-qid="q2" style="margin-bottom: 30px;">
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 15px;">2) What is backpropagation used for in neural networks?</strong>
+                    <div class="quiz-choices">
+                        <div class="choice" data-value="A">Forward data processing</div>
+                        <div class="choice" data-value="B">Adjusting weights during training</div>
+                        <div class="choice" data-value="C">Displaying network structure</div>
+                        <div class="choice" data-value="D">Storing network data</div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question" data-qid="q3" style="margin-bottom: 30px;">
+                    <strong style="color: var(--text-primary); display: block; margin-bottom: 15px;">3) Which layer in a neural network produces the final output?</strong>
+                    <div class="quiz-choices">
+                        <div class="choice" data-value="A">Input layer</div>
+                        <div class="choice" data-value="B">Hidden layer</div>
+                        <div class="choice" data-value="C">Output layer</div>
+                        <div class="choice" data-value="D">Processing layer</div>
+                    </div>
+                </div>
+                
+                <button type="button" class="neural-btn" id="submit-quiz" style="width: 100%; margin-top: 20px;">Submit Quiz</button>
+                <div id="quiz-result" style="margin-top: 20px; display: none; color: var(--text-primary);"></div>
+            </div>
+            
+            <div id="certificate-section" style="margin-top: 30px; padding: 30px; border: 2px solid var(--primary); border-radius: 15px; text-align: center; display: none; background: var(--bg-glass);">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">🎉 Course Complete!</h3>
+                <p style="margin-bottom: 15px; color: var(--text-secondary);">Congratulations! You have successfully completed the Neural Networks Fundamentals course.</p>
+                <p id="cert-name" style="margin-bottom: 20px; font-weight: 600; color: var(--text-primary);">Learner</p>
+                <button type="button" class="neural-btn" id="download-cert">Download Certificate</button>
+            </div>
+        </form>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Course Navigation</h3>
+                <ul>
+                    <li><a href="#home">Introduction</a></li>
+                    <li><a href="#about">Foundations</a></li>
+                    <li><a href="#projects">Applications</a></li>
+                    <li><a href="#skills">Key Concepts</a></li>
+                    <li><a href="#contact">Quiz</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="video.html">Video Course</a></li>
+                    <li><a href="podcast.html">Audio Podcast</a></li>
+                    <li><a href="index.html">Main Course</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 ByteAI — Neural Networks Fundamentals Course. All rights reserved.</p>
+        </div>
+    </footer>
+<script src="script.js"></script>
+</body>
+</html>
+

@@ -69,18 +69,93 @@ body {
   background: var(--text-tertiary);
 }
 
+/* Visible scrollbar utility - always show scrollbar */
+.scrollbar-visible {
+  scrollbar-width: auto !important;
+  scrollbar-color: var(--text-tertiary) var(--bg2) !important;
+  /* Force scrollbar to always be visible */
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  /* Reserve space for scrollbar even when content doesn't overflow */
+  scrollbar-gutter: stable !important;
+}
+
+/* Override global scrollbar styles with higher specificity */
+.scrollbar-visible::-webkit-scrollbar {
+  width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+  -webkit-appearance: none !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.scrollbar-visible::-webkit-scrollbar-track {
+  background: var(--bg2) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border) !important;
+  margin: 2px !important;
+  -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.15) !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary) !important;
+  border-radius: 8px !important;
+  border: 2px solid var(--bg2) !important;
+  min-height: 50px !important;
+  background-clip: padding-box !important;
+  -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.2) !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary) !important;
+  border-color: var(--bg3) !important;
+  -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,0.3) !important;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb:active {
+  background: var(--text-primary) !important;
+}
+
 /* Smooth transitions for theme changes */
 * {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Focus styles for accessibility */
+/* Enhanced focus styles for accessibility */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+select:focus-visible {
   outline: 2px solid var(--accent1);
   outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Focus utility class for custom components */
+.focus-visible:focus-visible {
+  outline: 2px solid var(--accent1);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default outline for mouse users, keep for keyboard */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -105,26 +180,77 @@ textarea:focus-visible {
     overflow: hidden;
   }
 
-  /* Glassmorphism utilities */
-  .glass {
-    background-color: color-mix(in srgb, var(--bg2) 60%, transparent);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  /* Typography Scale - Apple-inspired hierarchy */
+  .text-display {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
 
-  .glass-light {
-    background-color: color-mix(in srgb, var(--bg2) 40%, transparent);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  .text-headline {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  .text-title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  .text-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.4;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.5;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  .text-caption {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    font-weight: 400;
+  }
+
+  .text-label {
+    font-size: 0.75rem;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  /* Glassmorphism utilities - Apple Signature Style */
+  .glass {
+    background-color: color-mix(in srgb, var(--bg2) 65%, transparent);
+    backdrop-filter: blur(25px) saturate(190%);
+    -webkit-backdrop-filter: blur(25px) saturate(190%);
     border: 1px solid color-mix(in srgb, var(--border) 15%, transparent);
   }
 
+  .glass-light {
+    background-color: color-mix(in srgb, var(--bg2) 35%, transparent);
+    backdrop-filter: blur(15px) saturate(160%);
+    -webkit-backdrop-filter: blur(15px) saturate(160%);
+    border: 1px solid color-mix(in srgb, var(--border) 10%, transparent);
+  }
+
   .glass-strong {
-    background-color: color-mix(in srgb, var(--bg2) 80%, transparent);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+    background-color: color-mix(in srgb, var(--bg2) 85%, transparent);
+    backdrop-filter: blur(30px) saturate(210%);
+    -webkit-backdrop-filter: blur(30px) saturate(210%);
+    border: 1px solid color-mix(in srgb, var(--border) 25%, transparent);
   }
 
   .glass-shadow {
@@ -165,16 +291,82 @@ textarea:focus-visible {
   }
 
   .glass-panel {
-    background-color: color-mix(in srgb, var(--bg2) 70%, transparent);
+    background-color: color-mix(in srgb, var(--bg2) 75%, transparent);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid color-mix(in srgb, var(--border) 25%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
     box-shadow: 
-      inset 0 0 0 1px color-mix(in srgb, var(--bgInverse) 10%, transparent),
-      inset 0 1px 3px 0 color-mix(in srgb, var(--bgInverse) 12%, transparent),
-      inset 0 -1px 2px 0 color-mix(in srgb, var(--bgInverse) 6%, transparent),
-      0 4px 12px 0 color-mix(in srgb, var(--bgInverse) 10%, transparent),
-      0 8px 24px 0 color-mix(in srgb, var(--bgInverse) 6%, transparent);
+      inset 0 0 0 1px color-mix(in srgb, var(--bgInverse) 5%, transparent),
+      0 4px 12px 0 rgba(0, 0, 0, 0.08),
+      0 12px 32px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  /* Transition utilities for Apple-style feel */
+  .sheet-transition {
+    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .drawer-mask {
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /* Animation utilities for smooth micro-interactions */
+  .animate-bubble-in {
+    animation: bubbleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes bubbleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-bubble-in,
+    .animate-slide-up,
+    .animate-fade-in {
+      animation: none;
+    }
+    
+    * {
+      transition-duration: 0.01ms !important;
+    }
   }
 
   /* Liquid Glass Header Effect */
@@ -577,6 +769,236 @@ textarea:focus-visible {
 
   .neu-scroll::-webkit-scrollbar-thumb:hover {
     background: var(--text-tertiary);
+  }
+}
+
+/* ===== ANIMATED CARD LAYOUT ===== */
+/* Scroll-driven animation keyframes */
+@keyframes slide-in {
+  from {
+    scale: .85;
+    rotate: calc((var(--side, 1) * (5deg * var(--amp, 1))));
+  }
+}
+
+/* Card animation layer with scroll-driven animations */
+.card-animation-layer {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: slide-in linear both;
+      animation-timeline: view();
+      animation-range: cover 0% contain 15%;
+    }
+  }
+}
+
+/* Animated card layout styles */
+.animated-cards-container {
+  --cols: 2;
+  --content-size: minmax(0, 360px);
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--content-size));
+  gap: 1.5rem;
+  padding-inline: 0;
+  padding-block: 2rem 4rem;
+  place-items: start;
+  width: 100%;
+  position: relative;
+}
+
+@media (min-width: 720px) {
+  .animated-cards-container {
+    --cols: 4;
+  }
+}
+
+@media (min-width: 1200px) {
+  .animated-cards-container {
+    --cols: 6;
+  }
+}
+
+@media (min-width: 1920px) {
+  .animated-cards-container {
+    --cols: 8;
+  }
+}
+
+.animated-cards-container > .card-animation-layer {
+  display: grid;
+  gap: 0.5rem;
+  overflow: visible;
+  position: relative;
+  isolation: isolate;
+}
+
+.animated-cards-container > .card-animation-layer:nth-of-type(2n + 1) {
+  transform-origin: 25vw 100%;
+  --side: -1;
+}
+
+.animated-cards-container > .card-animation-layer:nth-of-type(2n) {
+  transform-origin: -25vw 100%;
+  --side: 1;
+}
+
+@media (min-width: 720px) {
+  .animated-cards-container > .card-animation-layer:nth-of-type(4n + 1) {
+    transform-origin: 50vw 100%;
+    --side: -1;
+    --amp: 2;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(4n + 2) {
+    transform-origin: 25vw 100%;
+    --side: -1;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(4n + 3) {
+    transform-origin: -25vw 100%;
+    --side: 1;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(4n) {
+    transform-origin: -50vw 100%;
+    --side: 1;
+    --amp: 2;
+  }
+}
+
+@media (min-width: 1200px) {
+  .animated-cards-container > .card-animation-layer:nth-of-type(6n + 1) {
+    transform-origin: 75vw 100%;
+    --side: -1;
+    --amp: 3;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(6n + 2) {
+    transform-origin: 50vw 100%;
+    --side: -1;
+    --amp: 2;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(6n + 3) {
+    transform-origin: 25vw 100%;
+    --side: -1;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(6n + 4) {
+    transform-origin: -25vw 100%;
+    --side: 1;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(6n + 5) {
+    transform-origin: -50vw 100%;
+    --side: 1;
+    --amp: 2;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(6n) {
+    transform-origin: -75vw 100%;
+    --side: 1;
+    --amp: 3;
+  }
+}
+
+@media (min-width: 1920px) {
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 1) {
+    transform-origin: 100vw 100%;
+    --side: -1;
+    --amp: 4;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 2) {
+    transform-origin: 75vw 100%;
+    --side: -1;
+    --amp: 3;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 3) {
+    transform-origin: 50vw 100%;
+    --side: -1;
+    --amp: 2;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 4) {
+    transform-origin: 25vw 100%;
+    --side: -1;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 5) {
+    transform-origin: -25vw 100%;
+    --side: 1;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 6) {
+    transform-origin: -50vw 100%;
+    --side: 1;
+    --amp: 2;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n + 7) {
+    transform-origin: -75vw 100%;
+    --side: 1;
+    --amp: 3;
+  }
+  
+  .animated-cards-container > .card-animation-layer:nth-of-type(8n) {
+    transform-origin: -100vw 100%;
+    --side: 1;
+    --amp: 4;
+  }
+}
+
+.animated-card {
+  background: var(--bg2);
+  border: 1px solid color-mix(in srgb, var(--bg4) 50%, transparent);
+  padding: 1rem 1rem 0.5rem 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.animated-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.animated-card > p {
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.animated-card > :is(a, p) {
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+
+.animated-card img,
+.animated-card .card-img {
+  background-color: var(--bg3);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+[data-theme="dark"] .animated-card {
+  background: var(--bg2);
+  border-color: color-mix(in srgb, var(--bg4) 50%, transparent);
+}
+
+@media (prefers-color-scheme: light) {
+  .animated-card {
+    background: white;
   }
 }
 

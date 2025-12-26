@@ -19,12 +19,14 @@ export default function TemplateSelector({
   onApply,
 }: TemplateSelectorProps) {
   const [previewTemplate, setPreviewTemplate] = useState<TemplateId | null>(selectedTemplate);
-  
+  const [isApplying, setIsApplying] = useState(false);
+
   // Create a sample course data for preview
   const sampleCourseData: CourseData = {
     course: {
       title: 'Sample Course',
       description: 'This is a preview of how your course will look with this template.',
+      duration: '10-15 minutes',
       stages: [
         {
           id: 1,
@@ -42,15 +44,41 @@ export default function TemplateSelector({
             summary: 'This template provides a great learning experience.',
           },
           interactiveElements: [],
+          quizQuestions: [],
+          sideCard: {
+            title: 'Pro Tip',
+            content: 'This is a sample side card showing additional information.',
+            tips: []
+          },
         },
       ],
     },
+    videoScenes: [],
+    podcastDialogue: [],
   };
-  
+
   const sampleConfig: Partial<CourseConfig> = {
     title: 'Sample Course',
     accentColor1: '#4a90e2',
     accentColor2: '#50c9c3',
+  };
+
+  const handleApplyTemplate = async () => {
+    if (!selectedTemplate) return;
+
+    setIsApplying(true);
+
+    try {
+      if (onApply) {
+        await onApply(selectedTemplate);
+      } else {
+        onSelectTemplate(selectedTemplate);
+      }
+      onClose?.();
+    } catch (error) {
+      console.error('Error applying template:', error);
+      setIsApplying(false);
+    }
   };
 
   return (
@@ -67,7 +95,8 @@ export default function TemplateSelector({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 hover:bg-bg2 rounded transition-colors"
+              disabled={isApplying}
+              className="p-2 hover:bg-bg2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Close"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,8 +115,8 @@ export default function TemplateSelector({
                 template={template}
                 isSelected={selectedTemplate === template.id}
                 isPreviewing={previewTemplate === template.id}
-                onSelect={() => onSelectTemplate(template.id)}
-                onPreview={() => setPreviewTemplate(template.id === previewTemplate ? null : template.id)}
+                onSelect={() => !isApplying && onSelectTemplate(template.id)}
+                onPreview={() => !isApplying && setPreviewTemplate(template.id === previewTemplate ? null : template.id)}
               />
             ))}
           </div>
@@ -103,7 +132,8 @@ export default function TemplateSelector({
                 </h3>
                 <button
                   onClick={() => setPreviewTemplate(null)}
-                  className="p-2 hover:bg-bg2 rounded transition-colors"
+                  disabled={isApplying}
+                  className="p-2 hover:bg-bg2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Close preview"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,26 +166,25 @@ export default function TemplateSelector({
             {onClose && (
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-bg2 border border-border rounded-lg hover:bg-bg3 transition-colors"
+                disabled={isApplying}
+                className="px-4 py-2 bg-bg2 border border-border rounded-lg hover:bg-bg3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
             )}
             <button
-              onClick={() => {
-                if (selectedTemplate) {
-                  if (onApply) {
-                    onApply(selectedTemplate);
-                  } else {
-                    onSelectTemplate(selectedTemplate);
-                  }
-                  onClose?.();
-                }
-              }}
-              disabled={!selectedTemplate}
-              className="px-6 py-2 bg-gradient-to-r from-accent1 to-accent2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleApplyTemplate}
+              disabled={!selectedTemplate || isApplying}
+              className="px-6 py-2 bg-gradient-to-r from-accent1 to-accent2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Apply Template
+              {isApplying ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  <span>Applying...</span>
+                </>
+              ) : (
+                'Apply Template'
+              )}
             </button>
           </div>
         </div>

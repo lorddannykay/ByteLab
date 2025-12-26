@@ -66,7 +66,9 @@ export async function POST(request: NextRequest) {
         content: `You are an expert instructional designer helping users create microlearning courses. 
 ${fileListText}${contextText ? `\n\nHere is relevant context extracted from the uploaded files:\n${contextText}\n\n` : uploadedFiles.length > 0 ? '\n\nYou have access to the content from these files and can reference them in your responses.\n\n' : ''}
 Provide helpful, specific advice about course structure, learning objectives, content organization, and best practices for microlearning.
-Be conversational and engaging. When the user mentions "the file" or "uploaded file", they are referring to the files listed above.`,
+Be conversational and engaging. When the user mentions "the file" or "uploaded file", they are referring to the files listed above.
+
+IMPORTANT: If the user provides information that doesn't directly answer a question you asked, acknowledge their input naturally and continue the conversation. Don't force them back to a specific question - adapt to their needs and extract relevant information from their responses.`,
       },
       ...(history || []).slice(-10).map((msg: any) => ({
         role: msg.role as 'user' | 'assistant',
@@ -118,7 +120,73 @@ Be conversational and engaging. When the user mentions "the file" or "uploaded f
       });
     }
 
-    return NextResponse.json({ response: response.content });
+    // Generate dynamic quick response options based on the conversation
+    let quickOptions: string[] = [];
+    try {
+      // Build conversation summary for context
+      const conversationSummary = (history || [])
+        .slice(-6) // Last 6 messages for context
+        .map((msg: any) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content.substring(0, 100)}`)
+        .join('\n');
+
+      const quickOptionsPrompt = `You are helping a user create a microlearning course. Based on the conversation history and the AI's latest response, generate 3-4 short, actionable follow-up suggestions that will help the user progress in creating their course.
+
+Conversation History:
+${conversationSummary}
+
+Latest AI Response:
+${response.content}
+
+Current User Message:
+${message}
+
+Analyze the conversation to determine:
+1. What stage is the user at? (discovering topic, planning structure, generating content, or refining)
+2. What information is missing? (topic, audience, objectives, etc.)
+3. What is the logical next step?
+
+Generate suggestions that are:
+- Actionable (user can click to proceed)
+- Contextual (relevant to current conversation)
+- Progressive (guide user through workflow)
+- Varied (mix of questions, actions, and clarifications)
+
+Return ONLY a JSON array of 3-4 short strings (each 5-15 words). No explanations, no markdown.
+Example: ["What are the learning objectives?", "Generate course outline", "Who is your target audience?", "Create course content"]`;
+
+      const quickOptionsResponse = await aiProvider.generateJSON<string[]>(
+        [
+          {
+            role: 'system',
+            content: 'You are an expert at generating contextual, actionable follow-up suggestions for course creation. Analyze the conversation to determine the user\'s current stage and generate the most relevant next steps. Return only valid JSON arrays of strings.',
+          },
+          {
+            role: 'user',
+            content: quickOptionsPrompt,
+          },
+        ],
+        {
+          temperature: 0.6,
+          maxTokens: 300,
+          retries: 2,
+        }
+      );
+
+      if (Array.isArray(quickOptionsResponse) && quickOptionsResponse.length > 0) {
+        quickOptions = quickOptionsResponse
+          .filter((opt): opt is string => typeof opt === 'string' && opt.trim().length > 0)
+          .map(opt => opt.trim())
+          .slice(0, 4);
+      }
+    } catch (error) {
+      console.error('Error generating quick options:', error);
+      // Fallback to empty array - client will generate contextual options using smartSuggestions
+    }
+
+    return NextResponse.json({ 
+      response: response.content,
+      quickOptions: quickOptions.length > 0 ? quickOptions : undefined,
+    });
   } catch (error) {
     console.error('Chat error:', error);
     return NextResponse.json(

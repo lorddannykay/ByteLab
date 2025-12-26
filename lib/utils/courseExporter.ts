@@ -71,7 +71,8 @@ export async function saveCourseToOutput(
     const voices = ttsConfig.voices || defaultVoices;
     
     // Generate HTML files
-    const templateId = (config?.templateId as TemplateId) || 'birb';
+    // Default to 'birb-classic' template if no templateId is specified
+    const templateId = (config?.templateId as TemplateId) || 'birb-classic';
     const courseHTML = generateCourseHTMLWithTemplate(courseData, config || {}, templateId);
     const videoHTML = generateVideoHTML(courseData, config || {});
     const podcastHTML = generatePodcastHTML(courseData, config || {});
@@ -213,11 +214,15 @@ export async function saveCourseToOutput(
       'utf-8'
     );
     
-    // Save config JSON
+    // Save config JSON (ensure templateId is included)
     if (config) {
+      const configToSave = {
+        ...config,
+        templateId: templateId, // Ensure templateId is saved
+      };
       await fs.writeFile(
         join(courseFolderPath, 'course-config.json'),
-        JSON.stringify(config, null, 2),
+        JSON.stringify(configToSave, null, 2),
         'utf-8'
       );
     }

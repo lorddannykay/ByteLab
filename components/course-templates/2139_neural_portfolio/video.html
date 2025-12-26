@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Neural Networks Fundamentals — Video</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Exo+2:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+<!--
+Tooplate 2139 Neural Portfolio
+https://www.tooplate.com/view/2139-neural-portfolio
+Free HTML CSS Template
+-->
+</head>
+<body>
+    <canvas id="neural-bg"></canvas>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-container">
+                <img src="../../assets/ByteB_white.png" alt="ByteAI Logo" class="logo-img">
+                <span class="logo-text">BYTEAI</span>
+                <span class="course-title">Neural Networks Fundamentals</span>
+            </a>
+            
+            <div class="mobile-menu-toggle" id="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul>
+                    <li><a href="index.html" class="nav-link">COURSE</a></li>
+                    <li><a href="video.html" class="nav-link active">VIDEO</a></li>
+                    <li><a href="podcast.html" class="nav-link">PODCAST</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Video Player Section -->
+    <section class="hero" style="margin-top: 80px; min-height: calc(100vh - 80px);">
+        <div class="hero-content" style="max-width: 1200px; width: 100%; padding: 40px;">
+            <h1 class="glitch" data-text="NEURAL NETWORKS" style="font-size: 3rem; margin-bottom: 30px;">NEURAL NETWORKS</h1>
+            <p class="subtitle" style="margin-bottom: 40px;">Video Course</p>
+            
+            <div style="background: var(--bg-glass); backdrop-filter: blur(10px); border-radius: 15px; padding: 40px; border: 2px solid rgba(0, 255, 255, 0.3); margin-bottom: 30px;">
+                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 15px; background: rgba(10, 10, 10, 0.5);">
+                    <video id="course-video" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 15px;">
+                        <source src="../../api-course/audio/podcast.mp3" type="audio/mpeg">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            
+            <div style="background: var(--bg-glass); backdrop-filter: blur(10px); border-radius: 15px; padding: 30px; border: 1px solid rgba(0, 255, 255, 0.2);">
+                <h3 style="color: var(--primary); font-family: 'Orbitron', sans-serif; margin-bottom: 20px;">Course Overview</h3>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 15px;">
+                    This video course covers the fundamentals of neural networks, including their structure, 
+                    learning mechanisms, and real-world applications in artificial intelligence.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    Use the navigation above to return to the main course or access the podcast version.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Course Resources</h3>
+                <ul>
+                    <li><a href="index.html">Main Course</a></li>
+                    <li><a href="video.html">Video</a></li>
+                    <li><a href="podcast.html">Podcast</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ByteAI — Neural Networks Fundamentals Course. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

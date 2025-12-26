@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Microlearning: Parallax Design Fundamentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+<!--
+Tooplate 2144 Parallax Depth
+https://www.tooplate.com/view/2144-parallax-depth
+Free HTML CSS Template
+-->
+</head>
+<body>
+    <div class="mouse-follower" id="mouseFollower"></div>
+    <div class="stars" id="stars"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar" style="position: fixed; top: 0; width: 100%; z-index: 1000; background: rgba(0, 0, 0, 0.9); padding: 15px 50px;">
+        <div class="nav-container" style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="#hero" class="logo" style="display: flex; align-items: center; gap: 15px; text-decoration: none;">
+                <img src="../../assets/ByteB_white.png" alt="ByteAI Logo" style="height: 38px; width: auto;">
+                <span class="logo-text" style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #00d9ff, #ff00ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BYTEAI</span>
+                <span class="course-title" style="font-size: 14px; color: rgba(255,255,255,0.8); margin-left: 12px; padding-left: 12px; border-left: 1px solid rgba(0, 255, 204, 0.3);">Parallax Design Fundamentals</span>
+            </a>
+            <ul style="display: flex; gap: 30px; list-style: none;">
+                <li><a href="#hero" class="nav-link" style="color: #fff; text-decoration: none; text-transform: uppercase; font-size: 0.9rem;">COURSE</a></li>
+                <li><a href="video.html" class="nav-link" target="_blank" style="color: #fff; text-decoration: none; text-transform: uppercase; font-size: 0.9rem;">VIDEO</a></li>
+                <li><a href="podcast.html" class="nav-link" target="_blank" style="color: #fff; text-decoration: none; text-transform: uppercase; font-size: 0.9rem;">PODCAST</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Course Navigation -->
+    <div class="course-navigation">
+        <div class="course-nav-container">
+            <button type="button" id="prev-step" class="course-nav-btn" disabled>Previous</button>
+            <div class="course-nav-center">
+                <div class="course-progress-wrapper">
+                    <div class="course-progress-bar">
+                        <div class="course-progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <span class="course-stage-indicator" id="stage-indicator">1/5</span>
+            </div>
+            <button type="button" id="next-step" class="course-nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- Section 1: Hero - Stage 1 -->
+    <div class="hero-container course-stage active" id="hero" data-stage="1">
+        <div class="grid-overlay">
+            <div class="grid-diagonal-1"></div>
+            <div class="grid-diagonal-2"></div>
+        </div>
+        <div class="parallax-layer layer-bg"></div>
+        <div class="parallax-layer layer-float">
+            <div class="rectangles-bottom-left">
+                <div class="rect rect-bl-1"></div>
+                <div class="rect rect-bl-2"></div>
+                <div class="rect rect-bl-3"></div>
+            </div>
+            <div class="rectangles-top-right">
+                <div class="rect rect-tr-1"></div>
+                <div class="rect rect-tr-2"></div>
+            </div>
+        </div>
+        <div class="parallax-layer layer-fg">
+            <div class="glowing-orb orb-1"></div>
+            <div class="glowing-orb orb-2"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">PARALLAX DESIGN FUNDAMENTALS</h1>
+            <p class="hero-subtitle">Stage 1: Introduction to Parallax Effects</p>
+            <p style="max-width: 600px; margin: 30px auto; font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.9);">Welcome to this microlearning course on parallax design. Learn how to create immersive multi-layer scrolling experiences that add depth and interactivity to web interfaces.</p>
+        </div>
+    </div>
+
+    <!-- Section 2: About - Stage 2 -->
+    <section class="content-section section-gradient course-stage" id="about" data-stage="2">
+        <div class="container">
+            <h2 class="section-title">Stage 2: Parallax Design Principles</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Crafted with Precision</h3>
+                    <p>Parallax design represents the cutting edge of modern web design, where every scroll reveals new dimensions and every interaction creates magic. This stage introduces the core principles of creating depth through layered movement.</p>
+                    <p>Our multi-layered approach creates genuine depth perception, with background elements moving slower than foreground ones, mimicking real-world parallax. Each layer is carefully orchestrated to provide smooth, butter-like scrolling performance.</p>
+                    
+                    <div class="about-boxes">
+                        <div class="info-box">
+                            <div class="box-icon">
+                                ⚡
+                                <span class="box-number">1</span>
+                            </div>
+                            <h4 class="box-title">Performance</h4>
+                            <p class="box-description">Optimized animations with 60fps smooth scrolling and GPU acceleration for flawless experience.</p>
+                        </div>
+                        <div class="info-box">
+                            <div class="box-icon">
+                                🎯
+                                <span class="box-number">2</span>
+                            </div>
+                            <h4 class="box-title">Precision</h4>
+                            <p class="box-description">Pixel-perfect design with carefully calculated parallax speeds and seamless transitions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="orbit-container">
+                        <div class="orbit orbit-1">
+                            <div class="orbit-dot dot-1"></div>
+                        </div>
+                        <div class="orbit orbit-2">
+                            <div class="orbit-dot dot-2"></div>
+                        </div>
+                        <div class="orbit orbit-3">
+                            <div class="orbit-dot dot-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Features - Stage 3 -->
+    <section class="content-section features-section-bg course-stage" id="features" data-stage="3">
+        <div class="features-grid-overlay">
+            <div class="features-grid"></div>
+            <div class="features-grid-large"></div>
+        </div>
+        
+        <div class="container">
+            <h2 class="section-title">Stage 3: Parallax Techniques & Features</h2>
+            <div class="features-container">
+                <div class="carousel-3d" id="carousel">
+                    <div class="feature-card-3d" data-index="0">
+                        <span class="feature-number">01</span>
+                        <div class="feature-icon-3d">🚀</div>
+                        <h3 class="feature-title-3d">Speed Layers</h3>
+                        <p class="feature-description-3d">Multiple parallax layers moving at different speeds create realistic depth perception as you scroll through the experience.</p>
+                    </div>
+                    <div class="feature-card-3d" data-index="1">
+                        <span class="feature-number">02</span>
+                        <div class="feature-icon-3d">✨</div>
+                        <h3 class="feature-title-3d">3D Transforms</h3>
+                        <p class="feature-description-3d">Elements respond to interactions with smooth 3D rotations and translations, creating an engaging visual hierarchy.</p>
+                    </div>
+                    <div class="feature-card-3d" data-index="2">
+                        <span class="feature-number">03</span>
+                        <div class="feature-icon-3d">🎨</div>
+                        <h3 class="feature-title-3d">Gradient Mastery</h3>
+                        <p class="feature-description-3d">Dynamic gradients and color transitions guide the eye through different depth levels, enhancing the parallax effect.</p>
+                    </div>
+                    <div class="feature-card-3d" data-index="3">
+                        <span class="feature-number">04</span>
+                        <div class="feature-icon-3d">💫</div>
+                        <h3 class="feature-title-3d">Floating Elements</h3>
+                        <p class="feature-description-3d">Cards and orbs float independently, each with unique animation timing to create organic movement patterns.</p>
+                    </div>
+                    <div class="feature-card-3d" data-index="4">
+                        <span class="feature-number">05</span>
+                        <div class="feature-icon-3d">🌊</div>
+                        <h3 class="feature-title-3d">Smooth Scrolling</h3>
+                        <p class="feature-description-3d">Optimized performance ensures buttery-smooth scrolling even with multiple animated layers and effects.</p>
+                    </div>
+                    <div class="feature-card-3d" data-index="5">
+                        <span class="feature-number">06</span>
+                        <div class="feature-icon-3d">🎯</div>
+                        <h3 class="feature-title-3d">Interactive Focus</h3>
+                        <p class="feature-description-3d">Mouse-following effects and hover states add another dimension of interactivity to the parallax experience.</p>
+                    </div>
+                </div>
+                <div class="carousel-controls">
+                    <div class="carousel-btn" id="prevBtn">◀</div>
+                    <div class="carousel-btn" id="nextBtn">▶</div>
+                </div>
+                <div class="carousel-indicators" id="indicators"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Gallery - Stage 4 -->
+    <section class="gallery-section section-gradient course-stage" id="gallery" data-stage="4">
+        <div class="container">
+            <h2 class="section-title">Stage 4: Parallax Applications</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-overlay">
+                        <h3 class="gallery-title">Web Design</h3>
+                        <p class="gallery-subtitle">Parallax effects enhance user engagement and create memorable browsing experiences</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-overlay">
+                        <h3 class="gallery-title">Mobile Apps</h3>
+                        <p class="gallery-subtitle">Touch-based parallax interactions create intuitive and responsive interfaces</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-overlay">
+                        <h3 class="gallery-title">Gaming</h3>
+                        <p class="gallery-subtitle">Parallax scrolling creates depth in 2D games and enhances visual storytelling</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-overlay">
+                        <h3 class="gallery-title">Storytelling</h3>
+                        <p class="gallery-subtitle">Narrative-driven parallax experiences guide users through compelling stories</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Quiz - Stage 5 -->
+    <section class="content-section contact-section-bg course-stage" id="contact" data-stage="5">
+        <div class="container">
+            <h2 class="section-title">Stage 5: Quiz</h2>
+            <div class="contact-content">
+                <div class="contact-form" style="max-width: 800px; margin: 0 auto;">
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 30px; font-size: 1rem; line-height: 1.8;">Test your understanding of parallax design. Answer all questions to complete the course.</p>
+                    
+                    <div class="quiz-container">
+                        <div class="quiz-question" data-qid="q1" style="margin-bottom: 30px;">
+                            <strong style="color: #fff; display: block; margin-bottom: 15px;">1) What is the primary principle behind parallax scrolling?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">All elements move at the same speed</div>
+                                <div class="choice" data-value="B">Background elements move slower than foreground elements</div>
+                                <div class="choice" data-value="C">Only images move</div>
+                                <div class="choice" data-value="D">Text remains static</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question" data-qid="q2" style="margin-bottom: 30px;">
+                            <strong style="color: #fff; display: block; margin-bottom: 15px;">2) What is the target frame rate for smooth parallax animations?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">30fps</div>
+                                <div class="choice" data-value="B">60fps</div>
+                                <div class="choice" data-value="C">120fps</div>
+                                <div class="choice" data-value="D">240fps</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question" data-qid="q3" style="margin-bottom: 30px;">
+                            <strong style="color: #fff; display: block; margin-bottom: 15px;">3) Which technique helps optimize parallax performance?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">Using many layers</div>
+                                <div class="choice" data-value="B">GPU acceleration and hardware transforms</div>
+                                <div class="choice" data-value="C">Complex animations</div>
+                                <div class="choice" data-value="D">Large image files</div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="submit-btn" id="submit-quiz" style="width: 100%; margin-top: 20px;">Submit Quiz</button>
+                        <div id="quiz-result" style="margin-top: 20px; display: none; color: #fff;"></div>
+                    </div>
+                    
+                    <div id="certificate-section" style="margin-top: 30px; padding: 30px; border: 2px solid #00ffcc; border-radius: 15px; text-align: center; display: none; background: rgba(0, 255, 204, 0.1);">
+                        <h3 style="margin-bottom: 15px; color: #00ffcc;">🎉 Course Complete!</h3>
+                        <p style="margin-bottom: 15px; color: rgba(255,255,255,0.9);">Congratulations! You have successfully completed the Parallax Design Fundamentals course.</p>
+                        <p id="cert-name" style="margin-bottom: 20px; font-weight: 600; color: #fff;">Learner</p>
+                        <button type="button" class="submit-btn" id="download-cert">Download Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="index.html" class="footer-link">Main Course</a>
+                <a href="video.html" class="footer-link">Video</a>
+                <a href="podcast.html" class="footer-link">Podcast</a>
+            </div>
+            <div class="footer-copyright">
+                <p>© 2025 ByteAI — Parallax Design Fundamentals Course. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+<script src="script.js"></script>
+</body>
+</html>
+

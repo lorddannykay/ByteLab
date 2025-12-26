@@ -1,0 +1,3011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Minimalist Design Principles — Typography Video</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg1: #ffffff;
+  --bg2: #fafafa;
+  --bg3: #f5f5f5;
+  --bg4: #eeeeee;
+  --bgInverse: #000000;
+  --bgInverse2: #000000;
+  --border: #000000;
+  --text: #000000;
+  --text-dark: #000000;
+  --text-light: #333333;
+  --accent1: #000000;
+  --accent2: #000000;
+  --inter: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --poppins: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --calora: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
+  /* Animation timings */
+  --scene-duration: 4000ms;
+  --fade-duration: 800ms;
+  --word-reveal-delay: 120ms;
+  --kinetic-duration: 1500ms;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--inter);
+}
+
+body {
+  background: var(--bg1);
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Animated Gradient Background */
+:root {
+  --color-bg1: rgb(255, 255, 255);
+  --color-bg2: rgb(250, 250, 250);
+  --color1: 0, 0, 0;
+  --color2: 0, 0, 0;
+  --color3: 0, 0, 0;
+  --color4: 0, 0, 0;
+  --color5: 0, 0, 0;
+  --color-interactive: 0, 0, 0;
+  --circle-size: 80%;
+  --blending: normal;
+}
+
+@keyframes moveInCircle {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes moveVertical {
+  0% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(50%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes moveHorizontal {
+  0% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+  50% {
+    transform: translateX(50%) translateY(10%);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+}
+
+.gradient-bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background: var(--bg1);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.gradient-bg svg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+.gradient-bg .gradients-container {
+  filter: url(#goo) blur(40px);
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.gradient-bg .g1 {
+  position: absolute;
+  background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+  mix-blend-mode: var(--blending);
+  width: var(--circle-size);
+  height: var(--circle-size);
+  top: calc(50% - var(--circle-size) / 2);
+  left: calc(50% - var(--circle-size) / 2);
+  transform-origin: center center;
+  animation: moveVertical 30s ease infinite;
+  opacity: 1;
+}
+
+.gradient-bg .g2 {
+  position: absolute;
+  background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+  mix-blend-mode: var(--blending);
+  width: var(--circle-size);
+  height: var(--circle-size);
+  top: calc(50% - var(--circle-size) / 2);
+  left: calc(50% - var(--circle-size) / 2);
+  transform-origin: calc(50% - 400px);
+  animation: moveInCircle 20s reverse infinite;
+  opacity: 1;
+}
+
+.gradient-bg .g3 {
+  position: absolute;
+  background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+  mix-blend-mode: var(--blending);
+  width: var(--circle-size);
+  height: var(--circle-size);
+  top: calc(50% - var(--circle-size) / 2 + 200px);
+  left: calc(50% - var(--circle-size) / 2 - 500px);
+  transform-origin: calc(50% + 400px);
+  animation: moveInCircle 40s linear infinite;
+  opacity: 1;
+}
+
+.gradient-bg .g4 {
+  position: absolute;
+  background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+  mix-blend-mode: var(--blending);
+  width: var(--circle-size);
+  height: var(--circle-size);
+  top: calc(50% - var(--circle-size) / 2);
+  left: calc(50% - var(--circle-size) / 2);
+  transform-origin: calc(50% - 200px);
+  animation: moveHorizontal 40s ease infinite;
+  opacity: 0.7;
+}
+
+.gradient-bg .g5 {
+  position: absolute;
+  background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+  mix-blend-mode: var(--blending);
+  width: calc(var(--circle-size) * 2);
+  height: calc(var(--circle-size) * 2);
+  top: calc(50% - var(--circle-size));
+  left: calc(50% - var(--circle-size));
+  transform-origin: calc(50% - 800px) calc(50% + 200px);
+  animation: moveInCircle 20s ease infinite;
+  opacity: 1;
+}
+
+.gradient-bg .interactive {
+  position: fixed;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0) 70%) no-repeat;
+  mix-blend-mode: multiply;
+  width: 600px;
+  height: 600px;
+  top: 50%;
+  left: 50%;
+  margin-top: -300px;
+  margin-left: -300px;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 1;
+  will-change: left, top;
+  transition: left 0.1s ease-out, top 0.1s ease-out;
+  filter: blur(30px);
+  border-radius: 50%;
+}
+
+/* Video Container */
+.video-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* Scene Container */
+.scene {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  padding: 60px;
+  text-align: center;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scene.active {
+  opacity: 1 !important;
+  pointer-events: auto;
+  display: flex !important;
+}
+
+.scene-content {
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+  padding: 0 40px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.scene.active .scene-content {
+  opacity: 1 !important;
+}
+
+.scene.active .scene-content h1,
+.scene.active .scene-content h2,
+.scene.active .scene-content h3,
+.scene.active .scene-content p {
+  opacity: 1 !important;
+  display: block !important;
+}
+
+/* Ensure all text in active scenes is visible */
+.scene.active h1,
+.scene.active h2,
+.scene.active h3,
+.scene.active p {
+  opacity: 1 !important;
+}
+
+/* Typography Styles */
+.scene h1 {
+  font-family: var(--poppins);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--bgInverse);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.scene h2 {
+  font-family: var(--poppins);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1.5rem;
+  color: var(--bgInverse);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.scene h3 {
+  font-family: var(--poppins);
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  color: var(--bgInverse);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.scene p {
+  font-family: var(--inter);
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  font-weight: 400;
+  line-height: 1.6;
+  max-width: 900px;
+  margin: 0 auto;
+  color: var(--bgInverse);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.scene .highlight {
+  color: var(--bgInverse);
+  font-weight: 800;
+  text-decoration: underline;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.scene .highlight2 {
+  color: var(--bgInverse);
+  font-weight: 800;
+  text-decoration: underline;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+/* Text color adjustment for readability when over dark blobs */
+.scene h1.text-inverted,
+.scene h2.text-inverted,
+.scene h3.text-inverted,
+.scene p.text-inverted {
+  color: #ffffff !important;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.scene .highlight.text-inverted,
+.scene .highlight2.text-inverted,
+.scene strong.text-inverted,
+.scene em.text-inverted,
+.scene b.text-inverted,
+.scene i.text-inverted {
+  color: #ffffff !important;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Word-by-Word Container */
+.word-reveal {
+  display: inline-block;
+}
+
+.word-reveal .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.word-reveal .word.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Professional Kinetic Typography Animations */
+@keyframes kineticIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-5px) scale(1.02);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes professionalTitleIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+    letter-spacing: 0.1em;
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-3px);
+    letter-spacing: -0.02em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: -0.02em;
+  }
+}
+
+@keyframes professionalSubtitleIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kineticOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(5deg) translateY(-30px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Animation Classes */
+.animate-kinetic-in {
+  animation: kineticIn 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  opacity: 1 !important; /* Ensure content is visible */
+}
+
+.animate-professional-title {
+  animation: professionalTitleIn 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  opacity: 1 !important;
+}
+
+.animate-professional-subtitle {
+  animation: professionalSubtitleIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards;
+  opacity: 0;
+}
+
+.animate-kinetic-out {
+  animation: kineticOut 600ms ease-in;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--fade-duration) ease-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--fade-duration) ease-in;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 800ms ease-out;
+}
+
+.animate-slide-right {
+  animation: slideInRight 800ms ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 600ms ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Control Panel */
+.controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  border-top: 2px solid var(--border);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.control-btn {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  color: var(--bgInverse);
+  padding: 12px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: var(--inter);
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.control-btn:hover {
+  background: var(--bgInverse);
+  color: var(--bg1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn.active {
+  background: var(--bgInverse);
+  border-color: var(--border);
+  color: var(--bg1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.play-pause-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.progress-container {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+
+.progress-container:hover {
+  height: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--bgInverse);
+  width: 0%;
+  transition: width 0.1s linear;
+  border-radius: 3px;
+}
+
+@keyframes progressShimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+.progress-scrubber {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: var(--bgInverse);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.3s ease;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.progress-container:hover .progress-scrubber {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.progress-scrubber:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.time-display {
+  font-family: var(--inter);
+  font-size: 13px;
+  color: var(--bgInverse);
+  opacity: 0.8;
+  min-width: 100px;
+  text-align: center;
+}
+
+.scene-indicator {
+  font-family: var(--inter);
+  font-size: 12px;
+  color: var(--bgInverse);
+  opacity: 0.8;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* Audio Toggle */
+.audio-toggle {
+  position: relative;
+}
+
+.audio-toggle.muted::after {
+  content: '🔇';
+}
+
+.audio-toggle:not(.muted)::after {
+  content: '🔊';
+}
+
+/* List Styles for Components */
+.scene ul {
+  list-style: none;
+  text-align: left;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.scene ul li {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.4s ease;
+  color: var(--bgInverse);
+}
+
+.scene ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--bgInverse);
+  font-weight: bold;
+}
+
+.scene ul li.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Code/Example Styles */
+.code-example {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 2rem auto;
+  max-width: 700px;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  text-align: left;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.code-example.visible {
+  opacity: 1;
+  transform: scale(1);
+  border-color: var(--bgInverse);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.code-example pre {
+  margin: 0;
+  color: var(--bgInverse);
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .scene {
+    padding: 40px 20px;
+  }
+  
+  .controls {
+    padding: 15px 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .control-btn {
+    padding: 10px 15px;
+    font-size: 12px;
+  }
+  
+  .play-pause-btn {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .time-display {
+    min-width: 80px;
+    font-size: 11px;
+  }
+}
+
+/* Accessibility */
+.control-btn:focus,
+.progress-container:focus {
+  outline: 2px solid var(--accent1);
+  outline-offset: 2px;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Loading State */
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  opacity: 0.5;
+  z-index: 9999;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-dark);
+}
+
+::-moz-selection {
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-dark);
+}
+
+/* Hidden Audio Element */
+#narration-audio {
+  display: none;
+}
+
+/* Logo Video Styles */
+.logo-video {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scene.active .logo-video {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Diagram Styles */
+.api-diagram {
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.api-diagram.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.diagram-box {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: var(--bgInverse);
+  stroke-width: 2;
+  rx: 8;
+  transition: all 0.3s ease;
+}
+
+.diagram-box.highlight {
+  fill: rgba(0, 0, 0, 0.1);
+  stroke: var(--bgInverse);
+  stroke-width: 3;
+}
+
+.diagram-arrow {
+  stroke: var(--bgInverse);
+  stroke-width: 3;
+  fill: none;
+  marker-end: url(#arrowhead);
+  opacity: 0;
+  animation: drawArrow 1s ease-out forwards;
+}
+
+@keyframes drawArrow {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.diagram-text {
+  fill: var(--bgInverse);
+  font-family: var(--inter);
+  font-size: 16px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.diagram-label {
+  fill: var(--bgInverse);
+  opacity: 0.8;
+  font-family: var(--inter);
+  font-size: 14px;
+  font-weight: 400;
+  text-anchor: middle;
+}
+
+/* Quiz Styles */
+.quiz-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease;
+}
+
+.quiz-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quiz-question {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  line-height: 1.4;
+  color: var(--bgInverse);
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quiz-option {
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 25px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  text-align: left;
+  opacity: 0;
+  transform: translateX(-20px);
+  color: var(--bgInverse);
+}
+
+.quiz-option.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quiz-option:hover {
+  background: var(--bg3);
+  border-color: var(--accent1);
+  transform: translateX(10px);
+}
+
+.quiz-option.selected {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: var(--bgInverse);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.quiz-option.correct {
+  background: rgba(76, 175, 80, 0.3);
+  border-color: #4caf50;
+}
+
+.quiz-option.incorrect {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: #f44336;
+}
+
+.quiz-feedback {
+  margin-top: 1.5rem;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+}
+
+.quiz-feedback.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quiz-feedback.correct {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4caf50;
+  color: #81c784;
+}
+
+.quiz-feedback.incorrect {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid #f44336;
+  color: #e57373;
+}
+
+.quiz-continue-btn {
+  margin-top: 2rem;
+  padding: 15px 30px;
+  background: var(--bgInverse);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--inter);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.quiz-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(204, 137, 145, 0.4);
+}
+
+.quiz-continue-btn:active {
+  transform: translateY(0);
+}
+
+.quiz-continue-btn.animate-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Visual Elements */
+.icon-badge {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bgInverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 1rem;
+  opacity: 0;
+  transform: scale(0);
+  animation: iconPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  color: var(--bg1);
+}
+
+@keyframes iconPop {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.floating-shape {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+/* HTTP Method Badges */
+.http-method {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0.5rem;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.4s ease;
+}
+
+.http-method.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.http-method.get {
+  background: rgba(76, 175, 80, 0.3);
+  color: #81c784;
+  border: 1px solid #4caf50;
+}
+
+.http-method.post {
+  background: rgba(33, 150, 243, 0.3);
+  color: #64b5f6;
+  border: 1px solid #2196f3;
+}
+
+.http-method.put {
+  background: rgba(255, 193, 7, 0.3);
+  color: #ffd54f;
+  border: 1px solid #ffc107;
+}
+
+.http-method.delete {
+  background: rgba(244, 67, 54, 0.3);
+  color: #e57373;
+  border: 1px solid #f44336;
+}
+
+/* Learning Objective Badge */
+.learning-objective {
+  background: var(--bg2);
+  border-left: 4px solid var(--bgInverse);
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 800px;
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: all 0.6s ease;
+  color: var(--bgInverse);
+}
+
+.learning-objective.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.learning-objective strong {
+  color: var(--bgInverse);
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+/* Comparison Table */
+.comparison-table {
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto;
+  border-collapse: collapse;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.6s ease;
+}
+
+.comparison-table.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comparison-table th {
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.comparison-table td {
+  font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+}
+
+/* Code Syntax Highlighting */
+.code-example .keyword {
+  color: #c792ea;
+}
+
+.code-example .string {
+  color: #c3e88d;
+}
+
+.code-example .number {
+  color: #f78c6c;
+}
+
+.code-example .comment {
+  color: #546e7a;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<!-- Animated Gradient Background -->
+<div class="gradient-bg">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+  <div class="gradients-container">
+    <div class="g1"></div>
+    <div class="g2"></div>
+    <div class="g3"></div>
+    <div class="g4"></div>
+    <div class="g5"></div>
+    <div class="interactive"></div>
+  </div>
+</div>
+
+<!-- Video Container -->
+<div class="video-container" id="videoContainer">
+  
+  <!-- Scene 0: Logo Intro -->
+  <div class="scene" data-scene="0" data-animation="fade" data-duration="3000">
+    <div class="scene-content">
+      <video class="logo-video" autoplay muted playsinline>
+        <source src="../assets/bytelogo.mp4" type="video/mp4">
+        <!-- Fallback if video doesn't exist -->
+        <div style="text-align: center; padding: 40px;">
+          <h1 style="font-size: 3rem; font-weight: 800; color: var(--bgInverse);">BYTEAI</h1>
+          <p style="font-size: 1.2rem; color: var(--bgInverse); margin-top: 20px;">Minimalist Design Principles</p>
+        </div>
+      </video>
+    </div>
+  </div>
+
+  <!-- Scene 1: Introduction -->
+  <div class="scene active" data-scene="1" data-animation="kinetic" data-duration="1914">
+    <div class="scene-content">
+      <h1 style="opacity: 1 !important;">Minimalist <span class="highlight">Design Principles</span></h1>
+      <p style="margin-top: 2rem; opacity: 1 !important;">Learn how minimalist design creates powerful visual communication</p>
+    </div>
+  </div>
+
+  <!-- Scene 2: Learning Objective -->
+  <div class="scene" data-scene="2" data-animation="fade" data-duration="3105">
+    <div class="scene-content">
+      <div class="learning-objective" data-delay="500">
+        <strong>Learning Objective</strong>
+        <p>Understand the core principles of minimalist design, learn how to apply them effectively, and discover how "less is more" creates powerful visual communication.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 3: What is Minimalist Design? -->
+  <div class="scene" data-scene="3" data-animation="fade" data-duration="1620">
+    <div class="scene-content">
+      <h2>What is <span class="highlight">Minimalist Design</span>?</h2>
+      <p class="word-reveal" data-delay="800" style="margin-top: 1.5rem;">A design philosophy emphasizing simplicity and essential elements</p>
+    </div>
+  </div>
+
+  <!-- Scene 4: Minimalist Design Definition -->
+  <div class="scene" data-scene="4" data-animation="fade" data-duration="5440">
+    <div class="scene-content">
+      <p class="word-reveal" data-delay="300">Minimalist design is about <span class="highlight">reduction</span> — removing everything unnecessary to reveal what truly matters.</p>
+      <p style="margin-top: 2rem; opacity: 0;" data-delay="2500">It focuses on clarity, functionality, and intentional use of space, color, and typography.</p>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="4000">The principle of <span class="highlight2">"less is more"</span> guides every design decision.</p>
+    </div>
+  </div>
+
+  <!-- Scene 5: Core Principles Diagram -->
+  <div class="scene" data-scene="5" data-animation="fade" data-duration="2730">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Core Principles</h3>
+      <svg class="api-diagram" viewBox="0 0 800 300" data-delay="1000">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+            <polygon points="0 0, 10 3, 0 6" fill="#000000" />
+          </marker>
+        </defs>
+        <rect x="50" y="100" width="150" height="100" rx="8" class="diagram-box" data-delay="1500"/>
+        <text x="125" y="155" class="diagram-text">Whitespace</text>
+        <text x="125" y="175" class="diagram-label">Breathing Room</text>
+        
+        <line x1="200" y1="150" x2="400" y2="150" class="diagram-arrow" data-delay="2500" style="animation-delay: 2.5s;"/>
+        <text x="300" y="140" class="diagram-label">+</text>
+        
+        <rect x="400" y="100" width="150" height="100" rx="8" class="diagram-box" data-delay="3500"/>
+        <text x="475" y="155" class="diagram-text">Typography</text>
+        <text x="475" y="175" class="diagram-label">Clear Communication</text>
+        
+        <line x1="550" y1="150" x2="750" y2="150" class="diagram-arrow" data-delay="4500" style="animation-delay: 4.5s;"/>
+        <text x="650" y="140" class="diagram-label">=</text>
+        
+        <rect x="600" y="100" width="150" height="100" rx="8" class="diagram-box" data-delay="5500"/>
+        <text x="675" y="155" class="diagram-text">Clarity</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Scene 6: Design Philosophy -->
+  <div class="scene" data-scene="6" data-animation="word-reveal" data-duration="6395">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Design Philosophy</h3>
+      <p class="word-reveal" data-delay="300">"Perfection is achieved not when there is nothing more to add,</p>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="3000">but when there is nothing left to take away."</p>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="4500">— Antoine de Saint-Exupéry</p>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="6000">This quote embodies the essence of minimalist design</p>
+    </div>
+  </div>
+
+  <!-- Scene 7: Why Minimalism Works -->
+  <div class="scene" data-scene="7" data-animation="fade" data-duration="2003">
+    <div class="scene-content">
+      <h2>Why Minimalism Works</h2>
+      <p style="margin-top: 2rem; opacity: 0;" data-delay="1500">Minimalist design creates powerful visual communication</p>
+    </div>
+  </div>
+
+  <!-- Scene 8: Minimalist Design Benefits -->
+  <div class="scene" data-scene="8" data-animation="list" data-duration="12265">
+    <div class="scene-content">
+      <h2 style="margin-bottom: 2rem; opacity: 1;">Key <span class="highlight">Benefits</span></h2>
+      <ul>
+        <li data-delay="800"><strong>Clarity:</strong> Removes visual noise to focus attention on essential content</li>
+        <li data-delay="2200"><strong>Usability:</strong> Simplifies navigation and improves user experience</li>
+        <li data-delay="3600"><strong>Timelessness:</strong> Avoids trends, creating designs that age gracefully</li>
+        <li data-delay="5000"><strong>Performance:</strong> Faster loading times with less visual complexity</li>
+        <li data-delay="6400"><strong>Accessibility:</strong> Clear hierarchy and contrast improve readability</li>
+        <li data-delay="7800"><strong>Focus:</strong> Guides users to important information without distraction</li>
+        <li data-delay="9200"><strong>Elegance:</strong> Creates sophisticated, professional visual communication</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 9: Key Elements Title -->
+  <div class="scene" data-scene="9" data-animation="fade" data-duration="1856">
+    <div class="scene-content">
+      <h2>Key Design <span class="highlight2">Elements</span></h2>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="1500">Every minimalist design consists of these essential parts</p>
+    </div>
+  </div>
+
+  <!-- Scene 10: Elements List -->
+  <div class="scene" data-scene="10" data-animation="list" data-duration="12852">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem; opacity: 1;">Essential Design <span class="highlight2">Elements</span></h3>
+      <ul>
+        <li data-delay="800"><strong>Whitespace</strong> — Strategic use of empty space to create breathing room and focus</li>
+        <li data-delay="2400"><strong>Typography</strong> — Limited font choices with clear hierarchy and consistent sizing</li>
+        <li data-delay="4000"><strong>Color Palette</strong> — Restrained use of 2-3 colors, often monochromatic or limited</li>
+        <li data-delay="5600"><strong>Layout</strong> — Clean grid systems with clear alignment and structure</li>
+        <li data-delay="7200"><strong>Imagery</strong> — High-quality, purposeful images with plenty of space</li>
+        <li data-delay="8800"><strong>Functionality</strong> — Every element serves a clear purpose</li>
+        <li data-delay="10400"><strong>Simplicity</strong> — Reduction of decorative elements to reveal essential content</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 11: Design Principles -->
+  <div class="scene" data-scene="11" data-animation="fade" data-duration="2844">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Core Principles</h3>
+      <div style="margin-top: 2rem;">
+        <span class="http-method get" data-delay="800">Clarity</span>
+        <span class="http-method post" data-delay="1500">Simplicity</span>
+        <span class="http-method put" data-delay="2200">Functionality</span>
+        <span class="http-method delete" data-delay="2900">Intentionality</span>
+      </div>
+      <p style="margin-top: 2rem; opacity: 0;" data-delay="4000">Each principle guides effective minimalist design</p>
+    </div>
+  </div>
+
+  <!-- Scene 12: Design Example -->
+  <div class="scene" data-scene="12" data-animation="fade" data-duration="6485">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Design Process Example</h3>
+      <div class="code-example" data-delay="1000">
+        <pre>1. Identify essential content
+2. Remove decorative elements
+3. Establish clear hierarchy
+4. Apply consistent spacing
+5. Use limited color palette
+6. Refine typography choices</pre>
+      </div>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="4000">This systematic approach creates effective minimalist designs</p>
+    </div>
+  </div>
+
+  <!-- Scene 13: Before and After -->
+  <div class="scene" data-scene="13" data-animation="fade" data-duration="5718">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Before vs. After</h3>
+      <div class="code-example" data-delay="1000">
+        <pre>BEFORE: Cluttered, multiple fonts,
+        excessive colors, busy layout
+
+AFTER:  Clean, single font family,
+        limited palette, clear space</pre>
+      </div>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="4500">Reduction reveals what truly matters</p>
+    </div>
+  </div>
+
+  <!-- Scene 14: Applications Title -->
+  <div class="scene" data-scene="14" data-animation="fade" data-duration="1930">
+    <div class="scene-content">
+      <h2>Minimalist Design <span class="highlight">Applications</span></h2>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="1500">Minimalism is used across many design disciplines</p>
+    </div>
+  </div>
+
+  <!-- Scene 15: Applications List -->
+  <div class="scene" data-scene="15" data-animation="list" data-duration="12844">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem; opacity: 1;">Design <span class="highlight">Applications</span></h3>
+      <ul>
+        <li data-delay="500"><strong>Web Design:</strong> Clean layouts, clear navigation, focused content</li>
+        <li data-delay="2000"><strong>Brand Identity:</strong> Simple logos, limited color palettes, clear messaging</li>
+        <li data-delay="3500"><strong>Print Design:</strong> Magazine layouts, book covers, posters with breathing room</li>
+        <li data-delay="5000"><strong>Product Design:</strong> Functional objects with essential features only</li>
+        <li data-delay="6500"><strong>Architecture:</strong> Clean lines, open spaces, natural light</li>
+        <li data-delay="8000"><strong>Fashion:</strong> Timeless pieces, neutral colors, quality over quantity</li>
+        <li data-delay="9500"><strong>User Interfaces:</strong> Intuitive apps with clear visual hierarchy</li>
+        <li data-delay="11000"><strong>Typography:</strong> Clear, readable fonts with generous spacing</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 16: Design Styles Title -->
+  <div class="scene" data-scene="16" data-animation="kinetic" data-duration="1407">
+    <div class="scene-content">
+      <h1>Design <span class="highlight2">Approaches</span></h1>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="2000">Different approaches to minimalist design</p>
+    </div>
+  </div>
+
+  <!-- Scene 17: Extreme Minimalism -->
+  <div class="scene" data-scene="17" data-animation="fade" data-duration="2085">
+    <div class="scene-content">
+      <h2><span class="highlight">Extreme Minimalism</span></h2>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="1500">Maximum reduction</p>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="3000">Only the absolute essentials remain</p>
+    </div>
+  </div>
+
+  <!-- Scene 18: Minimalism Characteristics -->
+  <div class="scene" data-scene="18" data-animation="list" data-duration="8616">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Minimalist Characteristics</h3>
+      <ul>
+        <li data-delay="500"><strong>Whitespace:</strong> Generous use of empty space creates focus</li>
+        <li data-delay="2000"><strong>Limited Elements:</strong> Only essential components included</li>
+        <li data-delay="3500"><strong>Monochrome:</strong> Often uses black, white, and one accent color</li>
+        <li data-delay="5000"><strong>Typography:</strong> Clean, readable fonts with clear hierarchy</li>
+        <li data-delay="6500"><strong>Functionality:</strong> Every element serves a clear purpose</li>
+        <li data-delay="8000"><strong>Balance:</strong> Visual weight distributed evenly across the design</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 19: Design Example -->
+  <div class="scene" data-scene="19" data-animation="fade" data-duration="3334">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Web Design Example</h3>
+      <div class="code-example" data-delay="1000">
+        <pre>Header: Logo + Navigation
+        (minimal, centered)
+
+Content: Large headline
+        Short paragraph
+        Single CTA button
+        (plenty of whitespace)
+
+Footer: Simple text
+        (minimal links)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 20: Typography Focus -->
+  <div class="scene" data-scene="20" data-animation="fade" data-duration="2191">
+    <div class="scene-content">
+      <h2><span class="highlight2">Typography</span></h2>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="1500">The foundation of minimalist design</p>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="3000">Clear, readable, purposeful</p>
+    </div>
+  </div>
+
+  <!-- Scene 21: Typography Principles -->
+  <div class="scene" data-scene="21" data-animation="list" data-duration="6444">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Typography Principles</h3>
+      <ul>
+        <li data-delay="500"><strong>Font Choice:</strong> One or two font families maximum</li>
+        <li data-delay="2000"><strong>Hierarchy:</strong> Clear size differences guide the eye</li>
+        <li data-delay="3500"><strong>Spacing:</strong> Generous line-height and letter-spacing</li>
+        <li data-delay="5000"><strong>Alignment:</strong> Consistent left, center, or justified alignment</li>
+        <li data-delay="6500"><strong>Contrast:</strong> Strong contrast between text and background</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 22: Typography Example -->
+  <div class="scene" data-scene="22" data-animation="fade" data-duration="3963">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Typography Hierarchy</h3>
+      <div class="code-example" data-delay="1000">
+        <pre>H1: 48px, Bold
+    (Main headline)
+
+H2: 32px, Semi-bold
+    (Section titles)
+
+Body: 16px, Regular
+      (Content text)
+
+Small: 12px, Light
+       (Captions, metadata)</pre>
+      </div>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="4500">Clear hierarchy guides users through content</p>
+    </div>
+  </div>
+
+  <!-- Scene 23: Quiz 1 -->
+  <div class="scene" data-scene="23" data-animation="quiz" data-duration="60000">
+    <div class="scene-content">
+      <div class="quiz-container" data-delay="500">
+        <div class="quiz-question">What is the primary principle of minimalist design?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-delay="500" data-correct="true">Less is More</div>
+          <div class="quiz-option" data-delay="800">More is Better</div>
+          <div class="quiz-option" data-delay="1100">Complexity is Key</div>
+          <div class="quiz-option" data-delay="1400">Decoration is Essential</div>
+        </div>
+        <div class="quiz-feedback" style="display: none;"></div>
+        <button class="quiz-continue-btn" style="display: none; margin-top: 2rem; padding: 15px 30px; background: var(--bgInverse); border: none; border-radius: 8px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 24: Design Process -->
+  <div class="scene" data-scene="24" data-animation="fade" data-duration="1881">
+    <div class="scene-content">
+      <h2>Design <span class="highlight">Process</span></h2>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="1500">A systematic approach to minimalist design</p>
+    </div>
+  </div>
+
+  <!-- Scene 25: Process Steps -->
+  <div class="scene" data-scene="25" data-animation="list" data-duration="6583">
+    <div class="scene-content">
+      <ul>
+        <li data-delay="500"><strong>Identify Essentials:</strong> Determine what is truly necessary</li>
+        <li data-delay="2000"><strong>Remove Excess:</strong> Eliminate decorative and unnecessary elements</li>
+        <li data-delay="3500"><strong>Establish Hierarchy:</strong> Create clear visual structure</li>
+        <li data-delay="5000"><strong>Refine Details:</strong> Perfect typography, spacing, and alignment</li>
+        <li data-delay="6500"><strong>Test Clarity:</strong> Ensure the design communicates effectively</li>
+        <li data-delay="8000"><strong>Iterate:</strong> Continue refining until perfect</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 26: Color Guidelines -->
+  <div class="scene" data-scene="26" data-animation="fade" data-duration="4191">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem;">Color Guidelines</h3>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="1500"><span class="highlight">Monochrome</span> - Black, white, grays</p>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="2500"><span class="highlight">Limited Palette</span> - 2-3 colors maximum</p>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="3500"><span class="highlight">High Contrast</span> - Ensure readability</p>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="4500"><span class="highlight">Strategic Use</span> - Color for emphasis only</p>
+      <p style="margin-top: 1rem; opacity: 0;" data-delay="5500"><span class="highlight">Neutral Base</span> - Start with neutrals</p>
+    </div>
+  </div>
+
+  <!-- Scene 27: Quiz 2 -->
+  <div class="scene" data-scene="27" data-animation="quiz" data-duration="60000">
+    <div class="scene-content">
+      <div class="quiz-container" data-delay="500">
+        <div class="quiz-question">Which element is often emphasized in minimalist web design?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-delay="500" data-correct="true">Whitespace</div>
+          <div class="quiz-option" data-delay="800">Cluttered layouts</div>
+          <div class="quiz-option" data-delay="1100">Excessive animations</div>
+          <div class="quiz-option" data-delay="1400">Bright, contrasting colors</div>
+        </div>
+        <div class="quiz-feedback" style="display: none;"></div>
+        <button class="quiz-continue-btn" style="display: none; margin-top: 2rem; padding: 15px 30px; background: var(--bgInverse); border: none; border-radius: 8px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 28: Best Practices -->
+  <div class="scene" data-scene="28" data-animation="fade" data-duration="7456">
+    <div class="scene-content">
+      <h2 style="opacity: 1;">Design Best <span class="highlight2">Practices</span></h2>
+      <p style="margin-top: 2rem; opacity: 0;" data-delay="1500">Follow these guidelines to create effective minimalist designs</p>
+    </div>
+  </div>
+
+  <!-- Scene 29: Best Practices List -->
+  <div class="scene" data-scene="29" data-animation="list" data-duration="11000">
+    <div class="scene-content">
+      <h3 style="margin-bottom: 2rem; opacity: 1;">Best <span class="highlight2">Practices</span></h3>
+      <ul>
+        <li data-delay="300">Use clear, consistent typography hierarchy</li>
+        <li data-delay="1500">Limit color palette to 2-3 colors maximum</li>
+        <li data-delay="2700">Provide generous whitespace around elements</li>
+        <li data-delay="3900">Ensure every element serves a purpose</li>
+        <li data-delay="5100">Maintain consistent spacing and alignment</li>
+        <li data-delay="6300">Test for clarity and readability</li>
+        <li data-delay="7500">Remove unnecessary decorative elements</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Scene 30: Quiz 3 - Final Quiz -->
+  <div class="scene" data-scene="30" data-animation="quiz" data-duration="60000">
+    <div class="scene-content">
+      <div class="quiz-container" data-delay="500">
+        <div class="quiz-question">What is the recommended maximum number of colors in a minimalist design palette?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" data-delay="500">5-7 colors</div>
+          <div class="quiz-option" data-delay="800" data-correct="true">2-3 colors</div>
+          <div class="quiz-option" data-delay="1100">Unlimited colors</div>
+          <div class="quiz-option" data-delay="1400">1 color only</div>
+        </div>
+        <div class="quiz-feedback" style="display: none;"></div>
+        <button class="quiz-continue-btn" style="display: none; margin-top: 2rem; padding: 15px 30px; background: var(--bgInverse); border: none; border-radius: 8px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 31: Conclusion -->
+  <div class="scene" data-scene="31" data-animation="fade" data-duration="1930">
+    <div class="scene-content">
+      <h2 style="opacity: 1;">Minimalism Creates <span class="highlight">Powerful Design</span></h2>
+      <p style="margin-top: 2rem; opacity: 0;" data-delay="2000">Less is more — reduction reveals what truly matters</p>
+      <p style="margin-top: 1.5rem; opacity: 0;" data-delay="3500">Start applying minimalist principles today!</p>
+    </div>
+  </div>
+
+  <!-- Scene 32: Final -->
+  <div class="scene" data-scene="32" data-animation="kinetic" data-duration="2028">
+    <div class="scene-content">
+      <h1>Master <span class="highlight">Minimalist Design</span></h1>
+      <p style="margin-top: 2rem; opacity: 0;" data-delay="2500">You're ready to create elegant, effective designs!</p>
+    </div>
+  </div>
+
+  <!-- Scene 33: Logo Outro -->
+  <div class="scene" data-scene="33" data-animation="fade" data-duration="3000">
+    <div class="scene-content">
+      <video class="logo-video" autoplay muted playsinline>
+        <source src="../assets/bytelogo.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+</div>
+
+<!-- Control Panel -->
+<div class="controls">
+  <button class="control-btn play-pause-btn" id="playPauseBtn" aria-label="Play/Pause">
+    <span id="playIcon">▶</span>
+  </button>
+  
+  <div class="progress-container" id="progressContainer" role="slider" aria-label="Video progress" tabindex="0">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-scrubber" id="progressScrubber"></div>
+  </div>
+  
+  <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
+  
+  <div class="scene-indicator" id="sceneIndicator">Intro / 33</div>
+  
+  <button class="control-btn" id="prevBtn" aria-label="Previous Scene">◀ Prev</button>
+  <button class="control-btn" id="nextBtn" aria-label="Next Scene">Next ▶</button>
+  
+  <button class="control-btn" id="autoPlayBtn" aria-label="Toggle Auto-play">Auto</button>
+  
+  <button class="control-btn audio-toggle" id="audioToggle" aria-label="Toggle Audio">Audio</button>
+</div>
+
+<!-- Audio Element (Optional) -->
+<audio id="narration-audio" preload="auto">
+  <!-- Audio file will be loaded here -->
+  <!-- <source src="audio/api-intro-narration.mp3" type="audio/mpeg"> -->
+</audio>
+
+<script>
+class TypographyVideo {
+  constructor() {
+    this.scenes = Array.from(document.querySelectorAll('.scene'));
+    this.currentSceneIndex = 0;
+    this.isPlaying = false;
+    // Disable autoplay if loaded in an iframe (to prevent auto-playing when modal opens)
+    this.autoPlay = window.self === window.top; // Only autoplay if not in iframe
+    this.audioEnabled = true;
+    this.sceneTimers = [];
+    this.totalDuration = 0;
+    this.currentTime = 0;
+    this.animationFrame = null;
+    
+    this.init();
+  }
+
+  init() {
+    // Check if scenes exist
+    if (this.scenes.length === 0) {
+      console.error('No scenes found!');
+      return;
+    }
+    
+    // Calculate total duration - will be recalculated when audio loads
+    this.scenes.forEach(scene => {
+      const duration = parseInt(scene.dataset.duration) || 4000;
+      this.totalDuration += duration;
+    });
+
+    // Initialize first content scene - start with Scene 1 (Introduction) which has text content
+    // Scene 0 is just a logo intro video, Scene 1 has the actual introduction text
+    const firstContentScene = this.scenes.length > 1 ? this.scenes[1] : this.scenes[0];
+    if (firstContentScene) {
+      // Remove active from all scenes first
+      this.scenes.forEach(s => s.classList.remove('active'));
+      // Add active to first content scene
+      firstContentScene.classList.add('active');
+      this.currentSceneIndex = this.scenes.length > 1 ? 1 : 0;
+      // Apply animations
+      const animationType = firstContentScene.dataset.animation || 'fade';
+      this.animateScene(firstContentScene, animationType);
+    }
+    
+    // Setup controls
+    this.setupControls();
+    
+    // Setup keyboard shortcuts
+    this.setupKeyboard();
+    
+    // Update UI for initial scene
+    this.updateSceneIndicator();
+    this.updateProgress();
+    
+    // Recalculate total duration after audio loads (with delay to allow audio metadata to load)
+    setTimeout(() => {
+      this.recalculateTotalDuration();
+    }, 2000);
+    
+    // Start auto-play if enabled AND not in iframe
+    // When loaded in iframe (modal), don't autoplay - wait for user to click play
+    if (this.autoPlay && window.self === window.top) {
+      setTimeout(() => this.play(), 1000);
+    }
+  }
+
+  recalculateTotalDuration() {
+    const audioManager = window.audioManager;
+    let newTotalDuration = 0;
+    
+    for (let i = 0; i < this.scenes.length; i++) {
+      const sceneDuration = parseInt(this.scenes[i].dataset.duration) || 4000;
+      const isQuizScene = this.scenes[i].dataset.animation === 'quiz';
+      
+      // Quiz scenes pause and wait for user, so use a fixed short duration for calculation
+      // (they won't auto-advance anyway)
+      if (isQuizScene) {
+        newTotalDuration += 10000; // 10 seconds placeholder for quiz scenes
+        continue;
+      }
+      
+      // If we have audio for this scene, use audio duration + buffer
+      let effectiveDuration = sceneDuration;
+      if (audioManager && i > 0 && i <= 31) {
+        const audioDuration = audioManager.getAudioDuration(i);
+        if (audioDuration) {
+          // Use audio duration + 800ms buffer to ensure audio finishes
+          effectiveDuration = Math.max(sceneDuration, audioDuration + 800);
+        }
+      }
+      
+      newTotalDuration += effectiveDuration;
+    }
+    
+    this.totalDuration = newTotalDuration;
+    console.log(`Total duration recalculated: ${(newTotalDuration / 1000).toFixed(2)}s`);
+  }
+
+  setupControls() {
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const autoPlayBtn = document.getElementById('autoPlayBtn');
+    const audioToggle = document.getElementById('audioToggle');
+    const progressContainer = document.getElementById('progressContainer');
+    const audio = document.getElementById('narration-audio');
+
+    playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+    prevBtn.addEventListener('click', () => this.previousScene());
+    nextBtn.addEventListener('click', () => this.nextScene());
+    autoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
+    audioToggle.addEventListener('click', () => this.toggleAudio());
+
+    // Progress bar scrubbing
+    progressContainer.addEventListener('click', (e) => {
+      const rect = progressContainer.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      this.seekTo(percent);
+    });
+
+    // Audio events
+    if (audio) {
+      audio.addEventListener('loadedmetadata', () => {
+        this.totalDuration = Math.max(this.totalDuration, audio.duration * 1000);
+      });
+    }
+  }
+
+  setupKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      switch(e.code) {
+        case 'Space':
+          e.preventDefault();
+          this.togglePlayPause();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          this.previousScene();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          this.nextScene();
+          break;
+        case 'KeyM':
+          this.toggleAudio();
+          break;
+      }
+    });
+  }
+
+  showScene(index) {
+    if (index < 0 || index >= this.scenes.length) return;
+
+    // Hide all scenes
+    this.scenes.forEach((scene, i) => {
+      scene.classList.remove('active');
+      if (i !== index) {
+        this.resetScene(scene);
+      }
+    });
+
+    // Show current scene
+    const scene = this.scenes[index];
+    scene.classList.add('active');
+    this.currentSceneIndex = index;
+
+    // Handle logo video scenes
+    const logoVideo = scene.querySelector('.logo-video');
+    if (logoVideo) {
+      logoVideo.currentTime = 0;
+      logoVideo.play().catch(e => console.log('Video play failed:', e));
+    }
+
+    // Apply animations based on scene type
+    const animationType = scene.dataset.animation || 'fade';
+    this.animateScene(scene, animationType);
+    
+    // Force visibility of main content elements after a short delay
+    setTimeout(() => {
+      const mainElements = scene.querySelectorAll('h1, h2, h3, p, .scene-content > *');
+      mainElements.forEach(el => {
+        if (el.offsetParent !== null) { // Only if element is visible
+          el.style.opacity = '1';
+          el.style.display = '';
+        }
+      });
+      // Trigger readability check after scene content is visible
+      if (typeof checkTextReadability === 'function') {
+        checkTextReadability();
+      }
+    }, 200);
+
+    // Update UI
+    this.updateSceneIndicator();
+    this.updateProgress();
+  }
+
+  resetScene(scene) {
+    // Reset all animated elements
+    const words = scene.querySelectorAll('.word');
+    words.forEach(word => {
+      word.classList.remove('visible');
+    });
+
+    const listItems = scene.querySelectorAll('li');
+    listItems.forEach(item => {
+      item.classList.remove('visible');
+    });
+
+    const delayedElements = scene.querySelectorAll('[data-delay]');
+    delayedElements.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = '';
+    });
+
+    const codeExamples = scene.querySelectorAll('.code-example');
+    codeExamples.forEach(code => {
+      code.classList.remove('visible');
+    });
+
+    const diagrams = scene.querySelectorAll('.api-diagram');
+    diagrams.forEach(diagram => {
+      diagram.classList.remove('visible');
+    });
+
+    const quizContainers = scene.querySelectorAll('.quiz-container');
+    quizContainers.forEach(quiz => {
+      quiz.classList.remove('visible');
+      // Reset inline styles
+      quiz.style.opacity = '';
+      quiz.style.transform = '';
+      const options = quiz.querySelectorAll('.quiz-option');
+      options.forEach(opt => {
+        opt.classList.remove('visible', 'selected', 'correct', 'incorrect');
+        // Reset inline styles
+        opt.style.opacity = '';
+        opt.style.transform = '';
+      });
+      const feedback = quiz.querySelector('.quiz-feedback');
+      if (feedback) {
+        feedback.style.display = 'none';
+        feedback.classList.remove('visible', 'correct', 'incorrect');
+        feedback.textContent = '';
+      }
+      const continueBtn = quiz.querySelector('.quiz-continue-btn');
+      if (continueBtn) {
+        continueBtn.style.display = 'none';
+        continueBtn.style.opacity = '0';
+      }
+    });
+
+    const learningObjectives = scene.querySelectorAll('.learning-objective');
+    learningObjectives.forEach(obj => {
+      obj.classList.remove('visible');
+    });
+
+    const httpMethods = scene.querySelectorAll('.http-method');
+    httpMethods.forEach(method => {
+      method.classList.remove('visible');
+    });
+
+    const tables = scene.querySelectorAll('.comparison-table');
+    tables.forEach(table => {
+      table.classList.remove('visible');
+    });
+
+    // Pause logo videos
+    const logoVideos = scene.querySelectorAll('.logo-video');
+    logoVideos.forEach(video => {
+      video.pause();
+      video.currentTime = 0;
+    });
+  }
+
+  animateScene(scene, animationType) {
+    const duration = parseInt(scene.dataset.duration) || 4000;
+
+    switch(animationType) {
+      case 'kinetic':
+        this.animateKinetic(scene);
+        break;
+      case 'fade':
+        this.animateFade(scene);
+        break;
+      case 'word-reveal':
+        this.animateWordReveal(scene);
+        break;
+      case 'list':
+        this.animateList(scene);
+        break;
+      case 'quiz':
+        this.animateQuiz(scene);
+        break;
+      default:
+        this.animateFade(scene);
+    }
+  }
+
+  animateQuiz(scene) {
+    // Pause the timeline when quiz scene appears - quiz scenes wait for user interaction
+    if (this.isPlaying) {
+      this.pause();
+    }
+    
+    // Animate quiz container - make sure it's visible
+    const quizContainer = scene.querySelector('.quiz-container');
+    if (quizContainer) {
+      // Make sure quiz container is visible immediately
+      quizContainer.style.opacity = '1';
+      quizContainer.style.transform = 'translateY(0)';
+      
+      const delay = parseInt(quizContainer.dataset.delay) || 0;
+      setTimeout(() => {
+        quizContainer.classList.add('visible');
+        this.setupQuiz(quizContainer);
+      }, delay);
+    }
+  }
+
+  animateKinetic(scene) {
+    const headings = scene.querySelectorAll('h1, h2, h3');
+    const isIntroScene = scene.dataset.scene === '1';
+    
+    headings.forEach((heading, index) => {
+      heading.style.opacity = '1';
+      heading.style.display = '';
+      
+      // Use professional animation for intro scene (Scene 1)
+      if (isIntroScene && heading.tagName === 'H1') {
+        heading.classList.add('animate-professional-title');
+      } else {
+        heading.classList.add('animate-kinetic-in');
+      }
+    });
+    
+    // Also make paragraphs visible with professional animation for intro
+    scene.querySelectorAll('p').forEach((p, index) => {
+      p.style.opacity = '1';
+      p.style.display = '';
+      if (isIntroScene) {
+        p.classList.add('animate-professional-subtitle');
+      }
+    });
+  }
+
+  animateFade(scene) {
+    // Make all main elements visible immediately - remove ALL inline opacity overrides
+    const elements = scene.querySelectorAll('h1, h2, h3, p, .scene-content > *');
+    elements.forEach((el) => {
+      if (!el.classList.contains('word-reveal')) {
+        // Force visibility - remove any inline opacity styles
+        el.style.opacity = '1';
+        el.style.display = '';
+        el.style.visibility = 'visible';
+        el.classList.add('animate-fade-in');
+      }
+    });
+
+    // Handle delayed elements - but make them visible faster
+    const delayedElements = scene.querySelectorAll('[data-delay]');
+    delayedElements.forEach(el => {
+      const delay = Math.min(parseInt(el.dataset.delay) || 0, 800); // Cap delay at 800ms
+      setTimeout(() => {
+        el.style.opacity = '1';
+        el.style.display = '';
+        el.style.visibility = 'visible';
+        el.classList.add('animate-fade-in');
+      }, delay);
+    });
+    
+    // Force visibility of ALL content after a short delay - be aggressive
+    setTimeout(() => {
+      scene.querySelectorAll('h1, h2, h3, p, .learning-objective, .scene-content > *').forEach(el => {
+        // Remove inline opacity if it's set to 0
+        if (el.style.opacity === '0' || (el.hasAttribute('style') && el.style.opacity === '')) {
+          el.style.opacity = '1';
+        }
+        el.style.visibility = 'visible';
+        el.style.display = '';
+      });
+    }, 200);
+
+    // Handle code examples
+    const codeExamples = scene.querySelectorAll('.code-example');
+    codeExamples.forEach(code => {
+      const delay = parseInt(code.dataset.delay) || 0;
+      setTimeout(() => {
+        code.classList.add('visible');
+      }, delay);
+    });
+
+    // Handle diagrams
+    const diagrams = scene.querySelectorAll('.api-diagram');
+    diagrams.forEach(diagram => {
+      const delay = parseInt(diagram.dataset.delay) || 0;
+      setTimeout(() => {
+        diagram.classList.add('visible');
+        this.animateDiagram(diagram);
+      }, delay);
+    });
+
+    // Handle quiz containers
+    const quizContainers = scene.querySelectorAll('.quiz-container');
+    quizContainers.forEach(quiz => {
+      const delay = parseInt(quiz.dataset.delay) || 0;
+      setTimeout(() => {
+        quiz.classList.add('visible');
+        this.setupQuiz(quiz);
+      }, delay);
+    });
+
+    // Handle learning objectives
+    const learningObjectives = scene.querySelectorAll('.learning-objective');
+    learningObjectives.forEach(obj => {
+      const delay = parseInt(obj.dataset.delay) || 0;
+      setTimeout(() => {
+        obj.classList.add('visible');
+      }, delay);
+    });
+
+    // Handle HTTP method badges
+    const httpMethods = scene.querySelectorAll('.http-method');
+    httpMethods.forEach(method => {
+      const delay = parseInt(method.dataset.delay) || 0;
+      setTimeout(() => {
+        method.classList.add('visible');
+      }, delay);
+    });
+
+    // Handle comparison tables
+    const tables = scene.querySelectorAll('.comparison-table');
+    tables.forEach(table => {
+      setTimeout(() => {
+        table.classList.add('visible');
+      }, 500);
+    });
+  }
+
+  animateDiagram(diagram) {
+    const boxes = diagram.querySelectorAll('.diagram-box');
+    const arrows = diagram.querySelectorAll('.diagram-arrow');
+    
+    boxes.forEach((box, index) => {
+      setTimeout(() => {
+        box.classList.add('highlight');
+        setTimeout(() => box.classList.remove('highlight'), 1000);
+      }, index * 800);
+    });
+  }
+
+  setupQuiz(quizContainer) {
+    const options = quizContainer.querySelectorAll('.quiz-option');
+    const feedback = quizContainer.querySelector('.quiz-feedback');
+    const continueBtn = quizContainer.querySelector('.quiz-continue-btn');
+    let answered = false;
+    const video = window.typographyVideo;
+
+    // Show options with delay - make sure they appear
+    options.forEach((option, index) => {
+      const delay = parseInt(option.dataset.delay) || 0;
+      setTimeout(() => {
+        option.classList.add('visible');
+        // Also set inline styles to ensure visibility
+        option.style.opacity = '1';
+        option.style.transform = 'translateX(0)';
+      }, delay);
+    });
+
+    // Add click handlers
+    options.forEach(option => {
+      option.addEventListener('click', () => {
+        if (answered) return;
+        answered = true;
+
+        const isCorrect = option.dataset.correct === 'true';
+        
+        // Mark all options
+        options.forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt === option) {
+            opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+          } else if (opt.dataset.correct === 'true') {
+            opt.classList.add('correct');
+          } else if (!isCorrect) {
+            opt.classList.add('incorrect');
+          }
+        });
+
+        // Show feedback
+        if (feedback) {
+          feedback.style.display = 'block';
+          feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
+          feedback.classList.add('visible');
+          feedback.textContent = isCorrect 
+            ? '✓ Correct! Well done!' 
+            : '✗ Incorrect. The correct answer is highlighted in green.';
+        }
+
+        // Show continue button after feedback
+        if (continueBtn) {
+          setTimeout(() => {
+            continueBtn.style.display = 'block';
+            continueBtn.style.opacity = '1';
+            continueBtn.classList.add('animate-fade-in');
+          }, 1000);
+        }
+      });
+    });
+
+    // Continue button handler - advances to next scene
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
+        if (video) {
+          if (video.currentSceneIndex < video.scenes.length - 1) {
+            video.pause();
+            video.updateCurrentTimeForScene(video.currentSceneIndex + 1);
+            video.showScene(video.currentSceneIndex + 1);
+            if (video.autoPlay) {
+              setTimeout(() => video.play(), 500);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  animateWordReveal(scene) {
+    const wordRevealElements = scene.querySelectorAll('.word-reveal');
+    
+    wordRevealElements.forEach(element => {
+      const text = element.textContent;
+      const words = text.split(' ');
+      element.innerHTML = '';
+      
+      words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = word + ' ';
+        element.appendChild(span);
+        
+        setTimeout(() => {
+          span.classList.add('visible');
+        }, index * 120 + (parseInt(element.dataset.delay) || 0));
+      });
+    });
+
+    // Handle other delayed elements
+    const delayedElements = scene.querySelectorAll('[data-delay]');
+    delayedElements.forEach(el => {
+      if (!el.classList.contains('word-reveal')) {
+        const delay = parseInt(el.dataset.delay) || 0;
+        setTimeout(() => {
+          el.style.opacity = '1';
+          el.classList.add('animate-fade-in');
+        }, delay);
+      }
+    });
+  }
+
+  animateList(scene) {
+    // Handle headings first - make sure they're visible immediately
+    const headings = scene.querySelectorAll('h1, h2, h3');
+    headings.forEach(heading => {
+      heading.style.opacity = '1';
+      heading.style.display = '';
+      heading.classList.add('animate-fade-in');
+    });
+    
+    // Make paragraphs visible
+    scene.querySelectorAll('p').forEach(p => {
+      p.style.opacity = '1';
+      p.style.display = '';
+    });
+
+    // Then handle list items - show them faster
+    const listItems = scene.querySelectorAll('li');
+    listItems.forEach((item, index) => {
+      const delay = Math.min(parseInt(item.dataset.delay) || (index * 200), 1000);
+      setTimeout(() => {
+        item.classList.add('visible');
+        item.style.opacity = '1';
+        item.style.transform = '';
+      }, delay);
+    });
+  }
+
+  play() {
+    if (this.isPlaying) return;
+    
+    this.isPlaying = true;
+    document.getElementById('playIcon').textContent = '⏸';
+    document.getElementById('playPauseBtn').setAttribute('aria-label', 'Pause');
+
+    // Start audio if available and enabled
+    const audio = document.getElementById('narration-audio');
+    if (audio && this.audioEnabled && audio.src) {
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    }
+
+    // Start timeline
+    this.startTimeline();
+  }
+
+  pause() {
+    if (!this.isPlaying) return;
+    
+    this.isPlaying = false;
+    document.getElementById('playIcon').textContent = '▶';
+    document.getElementById('playPauseBtn').setAttribute('aria-label', 'Play');
+
+    // Pause audio
+    const audio = document.getElementById('narration-audio');
+    if (audio) {
+      audio.pause();
+    }
+
+    // Stop timeline
+    this.stopTimeline();
+  }
+
+  togglePlayPause() {
+    if (this.isPlaying) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+
+  startTimeline() {
+    const startTime = Date.now() - this.currentTime;
+    const audioManager = window.audioManager;
+    
+    const update = () => {
+      if (!this.isPlaying) return;
+
+      this.currentTime = Date.now() - startTime;
+      this.updateProgress();
+
+      // Check if we need to move to next scene
+      // Skip auto-advance for quiz scenes (they pause and wait for user)
+      const currentScene = this.scenes[this.currentSceneIndex];
+      const isQuizScene = currentScene && currentScene.dataset.animation === 'quiz';
+      
+      if (!isQuizScene) {
+        let accumulatedTime = 0;
+        for (let i = 0; i < this.scenes.length; i++) {
+          // Quiz scenes have very long duration and pause, so skip them in timeline calculation
+          if (this.scenes[i].dataset.animation === 'quiz') {
+            // Add a fixed time for quiz scenes (they pause anyway)
+            accumulatedTime += 10000; // 10 seconds placeholder
+            continue;
+          }
+          
+          const sceneDuration = parseInt(this.scenes[i].dataset.duration) || 4000;
+          
+          // If we have audio for this scene, use audio duration + buffer instead of scene duration
+          let effectiveDuration = sceneDuration;
+          if (audioManager && i > 0 && i <= 31) {
+            const audioDuration = audioManager.getAudioDuration(i);
+            if (audioDuration) {
+              // Use audio duration + 800ms buffer to ensure audio finishes
+              // Use the maximum of scene duration or audio duration + buffer
+              effectiveDuration = Math.max(sceneDuration, audioDuration + 800);
+            }
+          }
+          
+          if (this.currentTime < accumulatedTime + effectiveDuration) {
+            if (i !== this.currentSceneIndex) {
+              this.showScene(i);
+            }
+            break;
+          }
+          accumulatedTime += effectiveDuration;
+        }
+      } else {
+        // For quiz scenes, don't advance automatically - wait for user to click continue
+        // Just update progress based on current time
+      }
+
+      // Check if video ended
+      if (this.currentTime >= this.totalDuration) {
+        this.pause();
+        this.currentTime = this.totalDuration;
+      } else {
+        this.animationFrame = requestAnimationFrame(update);
+      }
+    };
+
+    this.animationFrame = requestAnimationFrame(update);
+  }
+
+  stopTimeline() {
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+  }
+
+  nextScene() {
+    if (this.currentSceneIndex < this.scenes.length - 1) {
+      this.pause();
+      this.updateCurrentTimeForScene(this.currentSceneIndex + 1);
+      this.showScene(this.currentSceneIndex + 1);
+      if (this.autoPlay) {
+        setTimeout(() => this.play(), 300);
+      }
+    }
+  }
+
+  previousScene() {
+    if (this.currentSceneIndex > 0) {
+      this.pause();
+      this.updateCurrentTimeForScene(this.currentSceneIndex - 1);
+      this.showScene(this.currentSceneIndex - 1);
+      if (this.autoPlay) {
+        setTimeout(() => this.play(), 300);
+      }
+    }
+  }
+
+  updateCurrentTimeForScene(sceneIndex) {
+    const audioManager = window.audioManager;
+    let time = 0;
+    
+    for (let i = 0; i < sceneIndex; i++) {
+      const sceneDuration = parseInt(this.scenes[i].dataset.duration) || 4000;
+      const isQuizScene = this.scenes[i].dataset.animation === 'quiz';
+      
+      // Quiz scenes pause and wait for user
+      if (isQuizScene) {
+        time += 10000; // 10 seconds placeholder
+        continue;
+      }
+      
+      // If we have audio for this scene, use audio duration + buffer
+      let effectiveDuration = sceneDuration;
+      if (audioManager && i > 0 && i <= 31) {
+        const audioDuration = audioManager.getAudioDuration(i);
+        if (audioDuration) {
+          // Use audio duration + 800ms buffer to ensure audio finishes
+          effectiveDuration = Math.max(sceneDuration, audioDuration + 800);
+        }
+      }
+      
+      time += effectiveDuration;
+    }
+    
+    this.currentTime = time;
+  }
+
+  seekTo(percent) {
+    this.pause();
+    this.currentTime = this.totalDuration * percent;
+    this.updateCurrentTimeForScene(Math.floor(percent * this.scenes.length));
+    this.showScene(Math.floor(percent * this.scenes.length));
+    if (this.autoPlay) {
+      setTimeout(() => this.play(), 300);
+    }
+  }
+
+  toggleAutoPlay() {
+    this.autoPlay = !this.autoPlay;
+    const btn = document.getElementById('autoPlayBtn');
+    if (this.autoPlay) {
+      btn.classList.add('active');
+      btn.textContent = 'Auto ✓';
+    } else {
+      btn.classList.remove('active');
+      btn.textContent = 'Auto';
+    }
+  }
+
+  toggleAudio() {
+    this.audioEnabled = !this.audioEnabled;
+    const btn = document.getElementById('audioToggle');
+    const audio = document.getElementById('narration-audio');
+    
+    if (this.audioEnabled) {
+      btn.classList.remove('muted');
+      if (audio && audio.src) {
+        audio.muted = false;
+      }
+    } else {
+      btn.classList.add('muted');
+      if (audio) {
+        audio.muted = true;
+      }
+    }
+  }
+
+  updateProgress() {
+    const percent = (this.currentTime / this.totalDuration) * 100;
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressScrubber').style.left = percent + '%';
+
+    // Update time display
+    const currentMinutes = Math.floor(this.currentTime / 60000);
+    const currentSeconds = Math.floor((this.currentTime % 60000) / 1000);
+    const totalMinutes = Math.floor(this.totalDuration / 60000);
+    const totalSeconds = Math.floor((this.totalDuration % 60000) / 1000);
+
+    document.getElementById('timeDisplay').textContent = 
+      `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')} / ${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+  }
+
+  updateSceneIndicator() {
+    let displayText = '';
+    if (this.currentSceneIndex === 0) {
+      displayText = 'Intro / 33';
+    } else if (this.currentSceneIndex === this.scenes.length - 1) {
+      displayText = 'Outro / 33';
+    } else {
+      displayText = `Scene ${this.currentSceneIndex} / 33`;
+    }
+    document.getElementById('sceneIndicator').textContent = displayText;
+  }
+}
+
+// Audio Manager - Loads pre-generated audio files
+class AudioManager {
+  constructor() {
+    this.audioElements = [];
+    this.currentSceneAudio = null;
+    this.audioDurations = {};
+    this.init();
+  }
+
+  init() {
+    // Create audio elements for each scene (skip scene 0 and 32 - logo scenes)
+    for (let i = 1; i <= 31; i++) {
+      const audio = document.createElement('audio');
+      audio.preload = 'auto';
+      audio.src = `audio/scene-${i}.mp3`;
+      audio.id = `scene-audio-${i}`;
+      
+      // Store duration when loaded
+      audio.addEventListener('loadedmetadata', () => {
+        this.audioDurations[i] = audio.duration * 1000; // Convert to milliseconds
+        console.log(`Scene ${i} audio duration: ${this.audioDurations[i]}ms`);
+        
+        // Recalculate total duration when audio loads
+        if (window.typographyVideo) {
+          window.typographyVideo.recalculateTotalDuration();
+        }
+      });
+      
+      // Handle audio errors gracefully
+      audio.addEventListener('error', (e) => {
+        console.warn(`Failed to load audio for scene ${i}:`, e);
+      });
+      
+      this.audioElements[i] = audio;
+    }
+  }
+
+  playSceneAudio(sceneIndex) {
+    // Stop current audio
+    if (this.currentSceneAudio) {
+      this.currentSceneAudio.pause();
+      this.currentSceneAudio.currentTime = 0;
+      // Remove any existing ended listeners
+      if (this.onAudioEnded) {
+        this.currentSceneAudio.removeEventListener('ended', this.onAudioEnded);
+      }
+    }
+
+    // Don't play audio for quiz scenes (23 and 27) - they don't have narration
+    if (sceneIndex === 23 || sceneIndex === 27) {
+      return;
+    }
+
+    // Play new scene audio if it exists
+    if (sceneIndex > 0 && sceneIndex <= 31 && this.audioElements[sceneIndex]) {
+      this.currentSceneAudio = this.audioElements[sceneIndex];
+      this.currentSceneAudio.currentTime = 0;
+      
+      // Ensure audio is not muted if audio is enabled
+      const video = window.typographyVideo;
+      if (video && video.audioEnabled) {
+        this.currentSceneAudio.muted = false;
+      }
+      
+      // Listen for audio end to ensure we don't cut it off
+      this.onAudioEnded = () => {
+        // Audio finished - allow scene to advance if auto-playing
+        if (video && video.isPlaying && video.autoPlay) {
+          // Small delay to ensure smooth transition
+          setTimeout(() => {
+            if (video.currentSceneIndex === sceneIndex && video.isPlaying) {
+              // Scene is still active and playing, allow natural progression
+            }
+          }, 200);
+        }
+      };
+      
+      this.currentSceneAudio.addEventListener('ended', this.onAudioEnded);
+      
+      this.currentSceneAudio.play().catch(e => {
+        console.log(`Audio play failed for scene ${sceneIndex}:`, e);
+      });
+    }
+  }
+
+  pauseAudio() {
+    if (this.currentSceneAudio) {
+      this.currentSceneAudio.pause();
+    }
+  }
+
+  setMuted(muted) {
+    this.audioElements.forEach(audio => {
+      if (audio) {
+        audio.muted = muted;
+      }
+    });
+    if (this.currentSceneAudio) {
+      this.currentSceneAudio.muted = muted;
+    }
+  }
+
+  getAudioDuration(sceneIndex) {
+    return this.audioDurations[sceneIndex] || null;
+  }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Check if scenes exist before initializing
+  const scenes = document.querySelectorAll('.scene');
+  if (scenes.length === 0) {
+    console.error('No scenes found in the DOM!');
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = 'padding: 50px; text-align: center; color: #000; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+    errorDiv.innerHTML = '<h1>Error: No scenes found</h1><p>Please check that the HTML structure is correct.</p>';
+    document.body.appendChild(errorDiv);
+    return;
+  }
+  
+  const video = new TypographyVideo();
+  const audioManager = new AudioManager();
+  
+  // Make video and audio manager accessible globally
+  window.typographyVideo = video;
+  window.audioManager = audioManager;
+  
+  // Ensure first content scene (Scene 1) is visible
+  if (video.scenes.length > 1) {
+    const firstContentScene = video.scenes[1];
+    if (!firstContentScene.classList.contains('active')) {
+      // Remove active from all scenes
+      video.scenes.forEach(s => s.classList.remove('active'));
+      // Add active to Scene 1
+      firstContentScene.classList.add('active');
+      video.currentSceneIndex = 1;
+      // Apply animations
+      const animationType = firstContentScene.dataset.animation || 'fade';
+      video.animateScene(firstContentScene, animationType);
+      video.updateSceneIndicator();
+      video.updateProgress();
+    }
+  } else if (video.scenes.length > 0) {
+    // Fallback to Scene 0 if Scene 1 doesn't exist
+    const firstScene = video.scenes[0];
+    if (!firstScene.classList.contains('active')) {
+      firstScene.classList.add('active');
+    }
+  }
+
+  // Override showScene to play audio and check readability
+  const originalShowScene = video.showScene.bind(video);
+  video.showScene = function(index) {
+    originalShowScene(index);
+    audioManager.playSceneAudio(index);
+    // Check readability after scene change
+    setTimeout(() => {
+      if (typeof checkTextReadability === 'function') {
+        checkTextReadability();
+      }
+    }, 300);
+  };
+
+  // Override pause to pause audio
+  const originalPause = video.pause.bind(video);
+  video.pause = function() {
+    originalPause();
+    audioManager.pauseAudio();
+  };
+
+  // Override toggleAudio to control audio manager
+  const originalToggleAudio = video.toggleAudio.bind(video);
+  video.toggleAudio = function() {
+    originalToggleAudio();
+    audioManager.setMuted(!this.audioEnabled);
+  };
+  
+  // Ensure audio syncs with scene changes
+  const originalStartTimeline = video.startTimeline.bind(video);
+  video.startTimeline = function() {
+    // When timeline starts, ensure current scene audio plays
+    if (this.isPlaying) {
+      audioManager.playSceneAudio(this.currentSceneIndex);
+    }
+    originalStartTimeline();
+  };
+
+  // Initialize interactive gradient background - blob follows cursor
+  // Global mouse position for readability detection
+  let globalMouseX = window.innerWidth / 2;
+  let globalMouseY = window.innerHeight / 2;
+  
+  const interBubble = document.querySelector('.interactive');
+  let mouseX = globalMouseX;
+  let mouseY = globalMouseY;
+  
+  if (interBubble) {
+    // Set initial position (centered on cursor)
+    interBubble.style.left = `${mouseX - 300}px`;
+    interBubble.style.top = `${mouseY - 300}px`;
+    
+    let curX = mouseX;
+    let curY = mouseY;
+    let tgX = mouseX;
+    let tgY = mouseY;
+
+    function move() {
+      curX += (tgX - curX) / 8;
+      curY += (tgY - curY) / 8;
+      // Position blob centered at cursor location (blob is 600x600)
+      interBubble.style.left = `${Math.round(curX - 300)}px`;
+      interBubble.style.top = `${Math.round(curY - 300)}px`;
+      requestAnimationFrame(move);
+    }
+
+    // Follow mouse cursor - update global variables for readability detection
+    window.addEventListener('mousemove', (event) => {
+      globalMouseX = event.clientX;
+      globalMouseY = event.clientY;
+      mouseX = globalMouseX;
+      mouseY = globalMouseY;
+      tgX = mouseX;
+      tgY = mouseY;
+      // Trigger readability check on mouse move
+      if (typeof checkTextReadability === 'function') {
+        checkTextReadability();
+      }
+    });
+
+    // Also follow on touch devices
+    window.addEventListener('touchmove', (event) => {
+      if (event.touches.length > 0) {
+        globalMouseX = event.touches[0].clientX;
+        globalMouseY = event.touches[0].clientY;
+        mouseX = globalMouseX;
+        mouseY = globalMouseY;
+        tgX = mouseX;
+        tgY = mouseY;
+        if (typeof checkTextReadability === 'function') {
+          checkTextReadability();
+        }
+      }
+    }, { passive: true });
+
+    // Start animation
+    move();
+  }
+  
+  // Trigger readability check periodically and on mouse move
+  setInterval(() => {
+    if (typeof checkTextReadability === 'function') {
+      checkTextReadability();
+    }
+  }, 100);
+  
+  window.addEventListener('mousemove', () => {
+    if (typeof checkTextReadability === 'function') {
+      checkTextReadability();
+    }
+  });
+
+  // Universal text readability enhancement - check if text is over dark blobs
+  function checkTextReadability() {
+    const activeScene = document.querySelector('.scene.active');
+    if (!activeScene) return;
+    
+    // Get ALL text elements including nested ones and quiz elements
+    const textElements = activeScene.querySelectorAll('h1, h2, h3, h4, p, li, span, .highlight, .highlight2, strong, em, b, i, .quiz-question, .quiz-option, .quiz-feedback, .scene-content *');
+    if (textElements.length === 0) return;
+    
+    const gradientBlobs = document.querySelectorAll('.gradient-bg .g1, .gradient-bg .g2, .gradient-bg .g3, .gradient-bg .g4, .gradient-bg .g5, .gradient-bg .interactive');
+    if (gradientBlobs.length === 0) return;
+    
+    textElements.forEach(textEl => {
+      // Skip if element is not visible or has no dimensions
+      if (!textEl.offsetParent || textEl.offsetWidth === 0 || textEl.offsetHeight === 0) return;
+      // Skip if element is inside a hidden parent
+      if (window.getComputedStyle(textEl).display === 'none' || window.getComputedStyle(textEl).visibility === 'hidden') return;
+      
+      const textRect = textEl.getBoundingClientRect();
+      
+      // Use more check points for better accuracy - check across entire text area
+      const checkPoints = [];
+      const numPointsX = Math.max(7, Math.floor(textRect.width / 30)); // More points for wider text
+      const numPointsY = Math.max(5, Math.floor(textRect.height / 20)); // More points for taller text
+      
+      // Add points across the entire text element
+      for (let i = 0; i <= numPointsX; i++) {
+        for (let j = 0; j <= numPointsY; j++) {
+          const x = textRect.left + (textRect.width * i / numPointsX);
+          const y = textRect.top + (textRect.height * j / numPointsY);
+          checkPoints.push({ x, y });
+        }
+      }
+      
+      // Also check corners and edges
+      checkPoints.push(
+        { x: textRect.left, y: textRect.top },
+        { x: textRect.right, y: textRect.top },
+        { x: textRect.left, y: textRect.bottom },
+        { x: textRect.right, y: textRect.bottom },
+        { x: textRect.left + textRect.width / 2, y: textRect.top },
+        { x: textRect.left + textRect.width / 2, y: textRect.bottom },
+        { x: textRect.left, y: textRect.top + textRect.height / 2 },
+        { x: textRect.right, y: textRect.top + textRect.height / 2 }
+      );
+      
+      let darkPoints = 0;
+      let totalOverlap = 0;
+      let maxOverlap = 0;
+      
+      checkPoints.forEach(point => {
+        let pointIsDark = false;
+        let maxOverlapForPoint = 0;
+        
+        gradientBlobs.forEach(blob => {
+          const blobRect = blob.getBoundingClientRect();
+          if (blobRect.width === 0 || blobRect.height === 0) return;
+          
+          // Get computed style
+          const computedStyle = window.getComputedStyle(blob);
+          
+          // Calculate blob center
+          let blobCenterX = blobRect.left + blobRect.width / 2;
+          let blobCenterY = blobRect.top + blobRect.height / 2;
+          
+          // For interactive blob, use current mouse position
+          if (blob.classList.contains('interactive')) {
+            blobCenterX = typeof globalMouseX !== 'undefined' ? globalMouseX : blobCenterX;
+            blobCenterY = typeof globalMouseY !== 'undefined' ? globalMouseY : blobCenterY;
+          }
+          
+          // Use larger effective radius (80% instead of 60%) to catch more overlap
+          const blobRadius = Math.max(blobRect.width, blobRect.height) / 2 * 0.8;
+          
+          // Calculate distance from point to blob center
+          const distance = Math.sqrt(
+            Math.pow(point.x - blobCenterX, 2) + 
+            Math.pow(point.y - blobCenterY, 2)
+          );
+          
+          // Calculate overlap intensity (closer to center = more overlap)
+          const overlap = Math.max(0, 1 - (distance / blobRadius));
+          maxOverlapForPoint = Math.max(maxOverlapForPoint, overlap);
+          maxOverlap = Math.max(maxOverlap, overlap);
+          
+          // More sensitive threshold - if point is within blob radius at all
+          if (distance < blobRadius && overlap > 0.2) {
+            pointIsDark = true;
+          }
+        });
+        
+        if (pointIsDark) {
+          darkPoints++;
+        }
+        totalOverlap += maxOverlapForPoint;
+      });
+      
+      // Calculate metrics
+      const avgOverlap = totalOverlap / checkPoints.length;
+      const darkRatio = darkPoints / checkPoints.length;
+      
+      // More aggressive inversion: if 15% of points are dark OR average overlap > 0.12 OR max overlap > 0.35
+      // Lowered thresholds to catch more edge cases
+      if (darkRatio > 0.15 || avgOverlap > 0.12 || maxOverlap > 0.35) {
+        textEl.classList.add('text-inverted');
+        // Also apply to parent elements if they contain this text
+        let parent = textEl.parentElement;
+        while (parent && parent.classList.contains('scene-content')) {
+          parent.classList.add('has-inverted-text');
+          parent = parent.parentElement;
+        }
+      } else {
+        textEl.classList.remove('text-inverted');
+      }
+      
+      // Additional check: if text center is over a dark blob, force inversion
+      const textCenterX = textRect.left + textRect.width / 2;
+      const textCenterY = textRect.top + textRect.height / 2;
+      
+      let centerIsDark = false;
+      gradientBlobs.forEach(blob => {
+        const blobRect = blob.getBoundingClientRect();
+        if (blobRect.width === 0 || blobRect.height === 0) return;
+        
+        const computedStyle = window.getComputedStyle(blob);
+        let blobCenterX = blobRect.left + blobRect.width / 2;
+        let blobCenterY = blobRect.top + blobRect.height / 2;
+        
+        if (blob.classList.contains('interactive')) {
+          blobCenterX = globalMouseX;
+          blobCenterY = globalMouseY;
+        }
+        
+        const blobRadius = Math.max(blobRect.width, blobRect.height) / 2 * 0.75;
+        const distance = Math.sqrt(
+          Math.pow(textCenterX - blobCenterX, 2) + 
+          Math.pow(textCenterY - blobCenterY, 2)
+        );
+        
+        if (distance < blobRadius) {
+          centerIsDark = true;
+        }
+      });
+      
+      // If center is dark, force inversion
+      if (centerIsDark && !textEl.classList.contains('text-inverted')) {
+        textEl.classList.add('text-inverted');
+      }
+    });
+  }
+  
+  // Readability check is now handled in the showScene override above
+  
+  // Check readability periodically (every 200ms for responsive updates)
+  setInterval(checkTextReadability, 200);
+  
+  // Check on window resize and mouse move
+  window.addEventListener('resize', () => {
+    setTimeout(checkTextReadability, 100);
+  });
+  
+  window.addEventListener('mousemove', () => {
+    checkTextReadability();
+  });
+  
+  // Initial check after page load
+  setTimeout(checkTextReadability, 1000);
+
+  // Listen for pause messages from parent window (when modal closes)
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.action === 'pause') {
+      if (window.typographyVideo) {
+        window.typographyVideo.pause();
+      }
+    }
+  });
+});
+</script>
+
+</body>
+</html>
+

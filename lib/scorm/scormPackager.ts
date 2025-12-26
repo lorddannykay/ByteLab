@@ -36,7 +36,7 @@ export async function createSCORMPackage(
     archive.append(commonJS, { name: 'common.js' });
 
     // Generate course HTML with SCORM integration using template from config
-    const templateId = (config.templateId as TemplateId) || 'modern';
+    const templateId = (config.templateId as TemplateId) || 'birb-classic';
     const courseHTML = generateCourseHTMLWithTemplate(courseData, config, templateId);
     // Inject SCORM scripts into HTML
     const scormHTML = courseHTML.replace(

@@ -11,6 +11,7 @@ interface AIContentAssistantProps {
   selectedElement: HTMLElement | null;
   onUpdate: (stage: CourseStage) => void;
   onClose: () => void;
+  onApplyResult?: (result: string) => void;
 }
 
 export default function AIContentAssistant({
@@ -20,6 +21,7 @@ export default function AIContentAssistant({
   selectedElement,
   onUpdate,
   onClose,
+  onApplyResult,
 }: AIContentAssistantProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [action, setAction] = useState<string | null>(null);
@@ -53,19 +55,26 @@ export default function AIContentAssistant({
         if (response.ok) {
           const data = await response.json();
           if (actionType === 'generate-quiz') {
-            // Add quiz to interactive elements
+            // Add quiz to blocks
             if (currentStage) {
-              const updatedElements = [
-                ...(currentStage.interactiveElements || []),
+              const allBlocks = [
+                ...(currentStage.blocks || []),
+                ...((!currentStage.blocks && currentStage.content?.sections) ? currentStage.content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+                ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+              ];
+
+              const updatedBlocks = [
+                ...allBlocks,
                 {
                   type: 'quiz',
                   data: data.quiz,
                   id: `quiz-${Date.now()}`,
-                },
+                } as any,
               ];
               onUpdate({
                 ...currentStage,
-                interactiveElements: updatedElements,
+                blocks: updatedBlocks,
+                interactiveElements: [],
               });
             }
             setIsProcessing(false);
@@ -81,7 +90,7 @@ export default function AIContentAssistant({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: selectedText,
-            action: actionType === 'summarize' ? 'summarize' : actionType,
+            action: actionType,
             context: {
               courseTitle: courseData.course.title,
               stageTitle: currentStage?.title,
@@ -94,11 +103,44 @@ export default function AIContentAssistant({
           const data = await response.json();
           result = data.result || data.transformedText;
 
-          // Replace selected text in the element
-          if (selectedElement && selectedText && result) {
-            // This is a simplified version - in production, you'd track which block/field contains the selection
-            // For now, we'll show the result and let the user manually apply it
-            alert(`AI ${actionType} result:\n\n${result.substring(0, 200)}${result.length > 200 ? '...' : ''}\n\nPlease apply this manually to your content.`);
+          // Handle transformation result
+          if (result) {
+            if (actionType === 'generate-section') {
+              // Add as a new section block
+              if (currentStage) {
+                const allBlocks: any[] = [
+                  ...(currentStage.blocks || []),
+                  ...((!currentStage.blocks && currentStage.content?.sections) ? currentStage.content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+                  ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+                ];
+
+                // Simple parsing helper (could be more robust)
+                const headingMatch = result.match(/Heading:?\s*(.*)/i);
+                const contentMatch = result.match(/Content:?\s*([\s\S]*)/i);
+
+                const newSection = {
+                  type: 'section' as const,
+                  data: {
+                    heading: headingMatch ? headingMatch[1].trim() : 'New Section',
+                    content: contentMatch ? contentMatch[1].trim() : result,
+                    type: 'text' as const
+                  },
+                  id: `section-${Date.now()}`
+                };
+
+                onUpdate({
+                  ...currentStage,
+                  blocks: [...allBlocks, newSection],
+                  interactiveElements: [],
+                });
+                onClose();
+              }
+            } else if (onApplyResult) {
+              onApplyResult(result);
+            } else {
+              // Fallback if no apply function provided
+              alert(`AI ${actionType} result:\n\n${result.substring(0, 200)}${result.length > 200 ? '...' : ''}\n\nPlease apply this manually to your content.`);
+            }
           }
         }
       }
@@ -143,7 +185,23 @@ export default function AIContentAssistant({
             className="w-full px-4 py-2 text-sm glass-button rounded-lg transition-colors text-left disabled:opacity-50 flex items-center gap-2"
           >
             <PencilIcon className="w-4 h-4" />
-            Rewrite
+            Rewrite / Edit
+          </button>
+          <button
+            onClick={() => handleAIAction('clarity')}
+            disabled={isProcessing}
+            className="w-full px-4 py-2 text-sm glass-button rounded-lg transition-colors text-left disabled:opacity-50 flex items-center gap-2"
+          >
+            <SparklesIcon className="w-4 h-4" />
+            Improve Clarity
+          </button>
+          <button
+            onClick={() => handleAIAction('modify-tone')}
+            disabled={isProcessing}
+            className="w-full px-4 py-2 text-sm glass-button rounded-lg transition-colors text-left disabled:opacity-50 flex items-center gap-2"
+          >
+            <PencilIcon className="w-4 h-4" />
+            Modify Tone
           </button>
           <button
             onClick={() => handleAIAction('expand')}

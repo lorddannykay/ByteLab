@@ -5,6 +5,7 @@ export interface Course {
   title: string;
   description?: string;
   category?: string;
+  tags?: string[];
   thumbnail?: string;
   icon?: string;
   createdAt: number;
@@ -19,6 +20,7 @@ export interface CourseFolder {
   id: string;
   name: string;
   color?: string;
+  parentId?: string | null; // ID of parent folder for subfolders
   createdAt: number;
   lastModified: number;
 }
@@ -28,6 +30,7 @@ export interface CourseMetadata {
   title: string;
   description?: string;
   category?: string;
+  tags?: string[];
   thumbnail?: string;
   icon?: string;
   createdAt: number;

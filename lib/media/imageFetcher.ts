@@ -1,4 +1,5 @@
-import { extractImageKeywords, generateImageSearchQuery, scoreImageRelevance } from './imageSelector';
+import { findRelevantImages } from './imageRelevanceEngine';
+import { getUnifiedImageSearch, UnifiedMediaResult } from './unifiedImageSearch';
 
 export interface ImageResult {
   url: string;
@@ -8,175 +9,82 @@ export interface ImageResult {
   photographerUrl?: string;
   width: number;
   height: number;
-  provider: 'pexels' | 'unsplash';
+  provider: 'pexels' | 'unsplash' | 'google' | 'duckduckgo' | 'giphy' | 'upload' | 'pexels-video';
   relevanceScore: number;
 }
 
 /**
- * Fetch image from Pexels
- */
-async function fetchFromPexels(query: string): Promise<ImageResult[]> {
-  const apiKey = process.env.PEXELS_API_KEY;
-  if (!apiKey) {
-    return [];
-  }
-
-  try {
-    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=10&page=1`;
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': apiKey,
-      },
-    });
-
-    if (!response.ok) {
-      console.warn('Pexels API error:', response.status);
-      return [];
-    }
-
-    const data = await response.json();
-    const images: ImageResult[] = [];
-
-    if (data.photos && Array.isArray(data.photos)) {
-      data.photos.forEach((photo: any) => {
-        images.push({
-          url: photo.src?.large || photo.src?.original || '',
-          thumbnailUrl: photo.src?.medium || photo.src?.small || '',
-          attribution: `Photo by ${photo.photographer || 'Unknown'} from Pexels`,
-          photographer: photo.photographer || 'Unknown',
-          photographerUrl: photo.photographer_url || '',
-          width: photo.width || 0,
-          height: photo.height || 0,
-          provider: 'pexels',
-          relevanceScore: 0.8, // Default score, will be refined by selector
-        });
-      });
-    }
-
-    return images;
-  } catch (error) {
-    console.error('Pexels fetch error:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch image from Unsplash
- */
-async function fetchFromUnsplash(query: string): Promise<ImageResult[]> {
-  const accessKey = process.env.UNSPLASH_ACCESS_KEY;
-  if (!accessKey) {
-    return [];
-  }
-
-  try {
-    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=10&page=1`;
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Client-ID ${accessKey}`,
-      },
-    });
-
-    if (!response.ok) {
-      console.warn('Unsplash API error:', response.status);
-      return [];
-    }
-
-    const data = await response.json();
-    const images: ImageResult[] = [];
-
-    if (data.results && Array.isArray(data.results)) {
-      data.results.forEach((photo: any) => {
-        images.push({
-          url: photo.urls?.regular || photo.urls?.full || '',
-          thumbnailUrl: photo.urls?.thumb || photo.urls?.small || '',
-          attribution: `Photo by ${photo.user?.name || 'Unknown'} on Unsplash`,
-          photographer: photo.user?.name || 'Unknown',
-          photographerUrl: photo.user?.links?.html || '',
-          width: photo.width || 0,
-          height: photo.height || 0,
-          provider: 'unsplash',
-          relevanceScore: 0.8, // Default score, will be refined by selector
-        });
-      });
-    }
-
-    return images;
-  } catch (error) {
-    console.error('Unsplash fetch error:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch the best matching image for content
+ * Fetch the best matching image for content using the Unified Image Search and Relevance Engine
  */
 export async function fetchImageForContent(
   content: string,
   heading?: string,
   provider: 'pexels' | 'unsplash' | 'both' = 'both'
 ): Promise<ImageResult | null> {
-  // Extract keywords
-  const keywords = extractImageKeywords(content, heading);
-  if (keywords.length === 0) {
-    return null;
-  }
+  // Use a default topic if not provided (could be improved by passing topic to this function)
+  const courseTopic = 'Course Content';
 
-  // Generate search query
-  const searchQuery = generateImageSearchQuery(keywords);
+  const unifiedSearch = getUnifiedImageSearch();
 
-  // Fetch from providers with error handling
-  const allImages: ImageResult[] = [];
+  // Adapter function to connect Relevance Engine with Unified Search
+  const searchFn = async (query: string): Promise<any[]> => {
+    try {
+      // Map 'both' to 'all' or specific providers for UnifiedSearch
+      let searchProvider: any = 'all';
+      if (provider === 'pexels') searchProvider = 'pexels';
+      if (provider === 'unsplash') searchProvider = 'unsplash';
+
+      const results = await unifiedSearch.search(query, {
+        provider: searchProvider,
+        mediaType: 'image',
+        maxResults: 15
+      });
+
+      // Map UnifiedMediaResult to format expected by scoreImageRelevance (alt, description, tags)
+      return results.map(r => ({
+        ...r,
+        // Map available fields to what relevance engine looks for
+        alt: r.title || r.attribution,
+        description: r.title,
+        tags: r.title ? r.title.split(' ') : [],
+        photographer_location: '' // UnifiedResult currently doesn't carry this, could be added later
+      }));
+    } catch (error) {
+      console.warn(`Unified search failed for query "${query}":`, error);
+      return [];
+    }
+  };
 
   try {
-    if (provider === 'pexels' || provider === 'both') {
-      try {
-        const pexelsImages = await fetchFromPexels(searchQuery);
-        // Score images by relevance
-        pexelsImages.forEach(img => {
-          img.relevanceScore = scoreImageRelevance(
-            img.attribution,
-            searchQuery,
-            keywords
-          );
-        });
-        allImages.push(...pexelsImages);
-      } catch (error) {
-        console.warn('Pexels fetch failed, trying Unsplash:', error);
-        // Continue to try Unsplash
-      }
-    }
+    // findRelevantImages handles keyword extraction, query generation, searching, and ranking
+    const relevantImages = await findRelevantImages(
+      heading || '',
+      content,
+      courseTopic,
+      searchFn,
+      5 // Get top 5
+    );
 
-    if (provider === 'unsplash' || provider === 'both') {
-      try {
-        const unsplashImages = await fetchFromUnsplash(searchQuery);
-        // Score images by relevance
-        unsplashImages.forEach(img => {
-          img.relevanceScore = scoreImageRelevance(
-            img.attribution,
-            searchQuery,
-            keywords
-          );
-        });
-        allImages.push(...unsplashImages);
-      } catch (error) {
-        console.warn('Unsplash fetch failed:', error);
-        // Continue with whatever we have
-      }
+    if (relevantImages.length > 0) {
+      const bestMatch = relevantImages[0] as UnifiedMediaResult & { relevanceScore: number };
+
+      return {
+        url: bestMatch.url,
+        thumbnailUrl: bestMatch.thumbnailUrl,
+        attribution: bestMatch.attribution,
+        photographer: bestMatch.photographer || 'Unknown',
+        photographerUrl: bestMatch.photographerUrl,
+        width: bestMatch.width,
+        height: bestMatch.height,
+        provider: bestMatch.provider,
+        relevanceScore: bestMatch.relevanceScore
+      };
     }
   } catch (error) {
-    console.error('Image fetching error:', error);
-    return null;
+    console.error('Error in fetchImageForContent:', error);
   }
 
-  if (allImages.length === 0) {
-    return null;
-  }
-
-  // Sort by relevance score and return the best match
-  allImages.sort((a, b) => b.relevanceScore - a.relevanceScore);
-
-  return allImages[0];
+  return null;
 }
 
 /**
@@ -188,17 +96,22 @@ export async function fetchImagesForSections(
 ): Promise<Map<string, ImageResult | null>> {
   const imageMap = new Map<string, ImageResult | null>();
 
-  // Fetch images in parallel (with rate limiting consideration)
-  const promises = sections.map(async (section) => {
-    const image = await fetchImageForContent(section.content, section.heading, provider);
-    return { heading: section.heading, image };
-  });
+  // Fetch images in parallel (with rate limiting consideration handled by providers internally if needed)
+  // We process them sequentially here to avoid hammering the API if many sections
+  for (const section of sections) {
+    try {
+      // Small delay to be nice to APIs
+      if (imageMap.size > 0) await new Promise(r => setTimeout(r, 200));
 
-  const results = await Promise.all(promises);
-  results.forEach(({ heading, image }) => {
-    imageMap.set(heading, image);
-  });
+      const image = await fetchImageForContent(section.content, section.heading, provider);
+      imageMap.set(section.heading, image);
+    } catch (e) {
+      console.error(`Failed to fetch image for section ${section.heading}`, e);
+      imageMap.set(section.heading, null);
+    }
+  }
 
   return imageMap;
 }
+
 

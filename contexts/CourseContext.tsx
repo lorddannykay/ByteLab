@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Course, CourseMetadata, CourseFolder } from '@/types/courseMetadata';
 import { CourseCreationState } from '@/types/courseCreation';
+import { generateCourseTags } from '@/lib/tagging/autoTagGenerator';
 
 const COURSES_STORAGE_KEY = 'bytelab_courses';
 const FOLDERS_STORAGE_KEY = 'bytelab_folders';
@@ -13,17 +14,20 @@ interface CourseContextValue {
   featuredCourses: CourseMetadata[];
   recentCourses: CourseMetadata[];
   folders: CourseFolder[];
+  isLoading: boolean; // Loading state from localStorage
   createCourse: (title: string, state: CourseCreationState, metadata?: Partial<CourseMetadata>) => string;
   updateCourse: (id: string, updates: Partial<CourseMetadata> | { state: CourseCreationState }) => void;
+  updateCourseTags: (id: string, tags: string[]) => void;
   deleteCourse: (id: string) => void;
   getCourse: (id: string) => Course | null;
   getCourseState: (id: string) => CourseCreationState | null;
   // Folder management
-  createFolder: (name: string, color?: string) => string;
+  createFolder: (name: string, color?: string, parentId?: string | null) => string;
   updateFolder: (id: string, updates: Partial<CourseFolder>) => void;
   deleteFolder: (id: string) => void;
   moveCourseToFolder: (courseId: string, folderId: string | null) => void;
   getCoursesByFolder: (folderId: string | null) => CourseMetadata[];
+  getSubfolders: (parentId: string | null) => CourseFolder[];
 }
 
 const CourseContext = createContext<CourseContextValue | undefined>(undefined);
@@ -71,6 +75,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
         title: course.title,
         description: course.description,
         category: course.category,
+        tags: course.tags,
         thumbnail: course.thumbnail,
         icon: course.icon,
         createdAt: course.createdAt,
@@ -102,10 +107,11 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       category: metadata?.category,
       thumbnail: metadata?.thumbnail,
       icon: metadata?.icon,
+      tags: metadata?.tags, // Use provided tags if available
       createdAt: now,
       lastModified: now,
       sourceCount: state.uploadedFiles.length,
-      stageCount: state.courseData?.course.stages.length,
+      stageCount: state.courseData?.course.stages?.length || 0,
       isFeatured: metadata?.isFeatured || false,
     };
 
@@ -123,6 +129,32 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       return updated.slice(0, MAX_COURSES);
     });
 
+    // Generate tags asynchronously if not provided
+    if (!metadata?.tags) {
+      generateCourseTags(
+        {
+          title,
+          description: metadata?.description,
+          topic: state.courseConfig?.topic,
+          stageTitles: state.courseData?.course.stages?.map(s => s.title) || [],
+          stageObjectives: state.courseData?.course.stages?.map(s => s.objective || '') || [],
+        },
+        state
+      )
+        .then((tags) => {
+          if (tags.length > 0) {
+            setCourses((prev) =>
+              prev.map((course) =>
+                course.id === id ? { ...course, tags } : course
+              )
+            );
+          }
+        })
+        .catch((error) => {
+          console.error('Error generating tags:', error);
+        });
+    }
+
     return id;
   }, []);
 
@@ -134,28 +166,81 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       const course = prev.find(c => c.id === id);
       if (!course) return prev;
 
+      const titleChanged = 'title' in updates && updates.title !== course.title;
+      const descriptionChanged = 'description' in updates && updates.description !== course.description;
+      const shouldRegenerateTags = (titleChanged || descriptionChanged) && !('tags' in updates);
+
       const updated: CourseMetadata = {
         ...course,
         ...('state' in updates ? {} : updates),
         lastModified: Date.now(),
         ...('state' in updates && 'state' in updates ? {
           sourceCount: updates.state.uploadedFiles.length,
-          stageCount: updates.state.courseData?.course.stages.length,
+          stageCount: updates.state.courseData?.course.stages?.length || 0,
         } : {}),
       };
 
       // If updating state, save it separately
+      let courseState: CourseCreationState | null = null;
       if ('state' in updates) {
+        courseState = updates.state;
         try {
           const courseStateKey = `${COURSES_STORAGE_KEY}_state_${id}`;
           localStorage.setItem(courseStateKey, JSON.stringify(updates.state));
         } catch (error) {
           console.error('Error saving course state:', error);
         }
+      } else {
+        // Try to load existing state for tag generation
+        try {
+          const courseStateKey = `${COURSES_STORAGE_KEY}_state_${id}`;
+          const stateJson = localStorage.getItem(courseStateKey);
+          if (stateJson) {
+            courseState = JSON.parse(stateJson) as CourseCreationState;
+          }
+        } catch (error) {
+          // Ignore errors loading state
+        }
+      }
+
+      // Regenerate tags if title or description changed
+      if (shouldRegenerateTags && courseState) {
+        generateCourseTags(
+          {
+            title: updated.title,
+            description: updated.description,
+            topic: courseState.courseConfig?.topic,
+            stageTitles: courseState.courseData?.course.stages?.map(s => s.title) || [],
+            stageObjectives: courseState.courseData?.course.stages?.map(s => s.objective || '') || [],
+          },
+          courseState
+        )
+          .then((tags) => {
+            if (tags.length > 0) {
+              setCourses((prev) =>
+                prev.map((c) =>
+                  c.id === id ? { ...c, tags } : c
+                )
+              );
+            }
+          })
+          .catch((error) => {
+            console.error('Error regenerating tags:', error);
+          });
       }
 
       return prev.map(c => c.id === id ? updated : c);
     });
+  }, []);
+
+  const updateCourseTags = useCallback((id: string, tags: string[]) => {
+    setCourses((prev) =>
+      prev.map((course) =>
+        course.id === id
+          ? { ...course, tags, lastModified: Date.now() }
+          : course
+      )
+    );
   }, []);
 
   const deleteCourse = useCallback((id: string) => {
@@ -201,7 +286,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const createFolder = useCallback((name: string, color?: string): string => {
+  const createFolder = useCallback((name: string, color?: string, parentId?: string | null): string => {
     const id = `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const now = Date.now();
 
@@ -209,6 +294,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       id,
       name,
       color: color || '#6366f1',
+      parentId: parentId ?? null,
       createdAt: now,
       lastModified: now,
     };
@@ -228,14 +314,32 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteFolder = useCallback((id: string) => {
-    setFolders((prev) => prev.filter((f) => f.id !== id));
-    // Move courses in this folder to root (no folder)
+    // Move subfolders to parent folder (or root if no parent)
+    setFolders((prev) => {
+      const folderToDelete = prev.find(f => f.id === id);
+      const parentId = folderToDelete?.parentId ?? null;
+      
+      return prev.map((folder) => {
+        if (folder.parentId === id) {
+          // Move subfolder to parent
+          return { ...folder, parentId: parentId ?? null, lastModified: Date.now() };
+        }
+        return folder;
+      }).filter((f) => f.id !== id);
+    });
+    
+    // Move courses in this folder to parent folder (or root if no parent)
     setCourses((prev) =>
-      prev.map((course) =>
-        course.folderId === id ? { ...course, folderId: undefined } : course
-      )
+      prev.map((course) => {
+        if (course.folderId === id) {
+          const folderToDelete = folders.find(f => f.id === id);
+          const parentId = folderToDelete?.parentId ?? null;
+          return { ...course, folderId: parentId ?? undefined, lastModified: Date.now() };
+        }
+        return course;
+      })
     );
-  }, []);
+  }, [folders]);
 
   const moveCourseToFolder = useCallback((courseId: string, folderId: string | null) => {
     setCourses((prev) =>
@@ -257,6 +361,13 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     [courses]
   );
 
+  const getSubfolders = useCallback(
+    (parentId: string | null): CourseFolder[] => {
+      return folders.filter((f) => f.parentId === parentId);
+    },
+    [folders]
+  );
+
   const featuredCourses = courses.filter(c => c.isFeatured).slice(0, 10);
   const recentCourses = courses
     .filter(c => !c.isFeatured)
@@ -268,8 +379,10 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     featuredCourses,
     recentCourses,
     folders,
+    isLoading: !mounted,
     createCourse,
     updateCourse,
+    updateCourseTags,
     deleteCourse,
     getCourse,
     getCourseState,
@@ -278,6 +391,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     deleteFolder,
     moveCourseToFolder,
     getCoursesByFolder,
+    getSubfolders,
   };
 
   return <CourseContext.Provider value={value}>{children}</CourseContext.Provider>;

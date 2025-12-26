@@ -7,12 +7,13 @@ import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import FeaturedCourses from '@/components/Dashboard/FeaturedCourses';
 import RecentCourses from '@/components/Dashboard/RecentCourses';
 import MediaLibrary from '@/components/Dashboard/MediaLibrary';
+import CourseCardSkeleton from '@/components/Dashboard/CourseCardSkeleton';
 import { useCourses } from '@/contexts/CourseContext';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab') || 'all';
-  const { featuredCourses, recentCourses, deleteCourse } = useCourses();
+  const { featuredCourses, recentCourses, deleteCourse, isLoading } = useCourses();
 
   const activeTab = tab === 'my' ? 'my' : tab === 'featured' ? 'featured' : tab === 'library' ? 'library' : 'all';
 

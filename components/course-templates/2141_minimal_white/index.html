@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Microlearning: Minimalist Design Principles</title>
+    <link href="style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+    
+<!--
+
+Tooplate 2141 Minimal White
+
+https://www.tooplate.com/view/2141-minimal-white
+
+Free HTML CSS Template
+
+-->
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                <img src="../../assets/ByteB_white.png" alt="ByteAI Logo" class="logo-img">
+                <span class="logo-text">BYTEAI</span>
+                <span class="course-title">Minimalist Design Principles</span>
+            </a>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="nav-link">COURSE</a></li>
+                <li><a href="video.html" class="nav-link" target="_blank">VIDEO</a></li>
+                <li><a href="podcast.html" class="nav-link" target="_blank">PODCAST</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Course Navigation -->
+    <div class="course-navigation">
+        <div class="course-nav-container">
+            <button type="button" id="prev-step" class="course-nav-btn" disabled>Previous</button>
+            <div class="course-nav-center">
+                <div class="course-progress-wrapper">
+                    <div class="course-progress-bar">
+                        <div class="course-progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <span class="course-stage-indicator" id="stage-indicator">1/6</span>
+            </div>
+            <button type="button" id="next-step" class="course-nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- Section 1: Hero - Stage 1 -->
+    <section id="home" class="hero course-stage active" data-stage="1">
+        <!-- Animated Objects (Reduced) -->
+        <div class="floating-objects">
+            <div class="floating-circle"></div>
+            <div class="floating-circle"></div>
+            <div class="floating-square"></div>
+            <div class="floating-line"></div>
+        </div>
+        
+        <div class="hero-decoration"></div>
+        <div class="hero-content">
+            <h1>Minimalist Design Principles</h1>
+            <p class="subtitle">Stage 1: Foundations of Minimalism</p>
+            <p style="max-width: 600px; margin: 30px auto; font-size: 16px; line-height: 1.8;">Welcome to this microlearning course on minimalist design. Learn how "less is more" creates powerful visual communication and discover the core principles that guide effective minimalist design.</p>
+        </div>
+    </section>
+
+    <!-- Section 2: About - Stage 2 -->
+    <section id="about" class="about course-stage" data-stage="2">
+        <div class="container">
+            <!-- Introduction with large quote -->
+            <div class="about-intro fade-in">
+                <div class="quote-block">
+                    <span class="quote-mark">"</span>
+                    <h3>Stage 2: The 'Less is More' Philosophy</h3>
+                    <div class="quote-author">
+                        <span class="author-line"></span>
+                        <p>Understanding the core principle of minimalist design</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="black-line"></div>
+
+            <!-- Key Concepts Section -->
+            <div class="stats-grid fade-in">
+                <div class="stat-item">
+                    <div class="stat-number">01</div>
+                    <div class="stat-label">Whitespace</div>
+                    <div class="stat-decoration"></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">02</div>
+                    <div class="stat-label">Typography</div>
+                    <div class="stat-decoration"></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">03</div>
+                    <div class="stat-label">Color Palette</div>
+                    <div class="stat-decoration"></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">04</div>
+                    <div class="stat-label">Simplicity</div>
+                    <div class="stat-decoration"></div>
+                </div>
+            </div>
+
+            <!-- Core Principles Section -->
+            <div class="philosophy-section fade-in">
+                <div class="philosophy-header">
+                    <h2>Core Principles</h2>
+                    <div class="header-decoration"></div>
+                </div>
+                <div class="philosophy-content">
+                    <div class="philosophy-main">
+                        <p class="lead-text">Minimalist design emphasizes reduction and intentionality. Every element must serve a purpose, and unnecessary decoration is removed to create clarity and focus.</p>
+                    </div>
+                    <div class="philosophy-points">
+                        <div class="point-item">
+                            <span class="point-number">01</span>
+                            <h4>Clarity First</h4>
+                            <p>Remove complexity to reveal essential information</p>
+                        </div>
+                        <div class="point-item">
+                            <span class="point-number">02</span>
+                            <h4>Space to Breathe</h4>
+                            <p>Whitespace is a design element, not empty space</p>
+                        </div>
+                        <div class="point-item">
+                            <span class="point-number">03</span>
+                            <h4>Intentional Choices</h4>
+                            <p>Every design decision must have a clear purpose</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design Process Timeline -->
+            <div class="process-timeline fade-in">
+                <h2 class="section-subtitle">Minimalist Design Process</h2>
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Identify Essentials</h4>
+                            <p>Determine what is truly necessary</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Remove Excess</h4>
+                            <p>Eliminate decorative and unnecessary elements</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Refine Details</h4>
+                            <p>Perfect typography, spacing, and alignment</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Test Clarity</h4>
+                            <p>Ensure the design communicates effectively</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Values Grid -->
+            <div class="values-section fade-in">
+                <div class="values-header">
+                    <div class="black-square"></div>
+                    <h2>Core Values</h2>
+                    <div class="black-square"></div>
+                </div>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-icon">—</div>
+                        <h4>Minimalism</h4>
+                    </div>
+                    <div class="value-card black">
+                        <div class="value-icon">+</div>
+                        <h4>Innovation</h4>
+                    </div>
+                    <div class="value-card black">
+                        <div class="value-icon">○</div>
+                        <h4>Precision</h4>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">□</div>
+                        <h4>Balance</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Services - Stage 3 -->
+    <section id="services" class="services course-stage" data-stage="3">
+        <div class="container">
+            <div class="services-header fade-in">
+                <h2>Stage 3: Minimalist Design in Practice</h2>
+            </div>
+            
+            <div class="asymmetric-grid fade-in">
+                <div class="service-large">
+                    <h3>Web Design Applications</h3>
+                    <p>Minimalist web design prioritizes content over decoration. Clean layouts, ample whitespace, and clear typography guide users naturally through the interface. Every element serves a functional purpose.</p>
+                </div>
+                <div class="service-small">
+                    <div class="service-number">01</div>
+                    <h4>Content First</h4>
+                </div>
+            </div>
+            
+            <div class="asymmetric-grid reverse fade-in">
+                <div class="service-small">
+                    <div class="service-number">02</div>
+                    <h4>Visual Hierarchy</h4>
+                </div>
+                <div class="service-large">
+                    <h3>Typography & Layout</h3>
+                    <p>Effective minimalist design uses typography to create visual hierarchy. Limited font choices, consistent sizing, and strategic spacing create clarity without visual noise.</p>
+                </div>
+            </div>
+            
+            <div class="asymmetric-grid fade-in">
+                <div class="service-large">
+                    <h3>Color & Contrast</h3>
+                    <p>Minimalist color palettes are typically limited to 2-3 colors. High contrast between text and background ensures readability, while strategic use of color draws attention to key elements.</p>
+                </div>
+                <div class="service-small">
+                    <div class="service-number">03</div>
+                    <h4>Restrained Palette</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Examples - Stage 4 -->
+    <section id="examples" class="examples course-stage" data-stage="4">
+        <div class="container">
+            <div class="examples-header fade-in">
+                <h2>Stage 4: Real-World Examples</h2>
+                <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto;">Explore how minimalist design principles are applied in successful projects across different industries.</p>
+            </div>
+            
+            <div class="examples-grid fade-in">
+                <div class="example-card">
+                    <div class="example-number">01</div>
+                    <h3>Web Design</h3>
+                    <p>Clean navigation, generous whitespace, and focused content create intuitive user experiences. Examples include Apple, Google, and Stripe.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li>Simplified navigation menus</li>
+                        <li>Ample whitespace around content</li>
+                        <li>Limited color palettes</li>
+                    </ul>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-number">02</div>
+                    <h3>Brand Identity</h3>
+                    <p>Minimalist logos and brand systems communicate clearly without visual clutter. Think Nike, FedEx, and Airbnb.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li>Simple, memorable logos</li>
+                        <li>Consistent typography</li>
+                        <li>Strategic color usage</li>
+                    </ul>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-number">03</div>
+                    <h3>Mobile Apps</h3>
+                    <p>Minimalist mobile interfaces prioritize functionality and ease of use. Instagram, Spotify, and Medium excel at this.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li>Clear iconography</li>
+                        <li>Focused feature sets</li>
+                        <li>Intuitive gestures</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="case-study-section fade-in">
+                <h3 style="text-align: center; margin-bottom: 40px;">Case Study: Before & After</h3>
+                <div class="case-study-grid">
+                    <div class="case-study-item">
+                        <h4>Before: Cluttered Design</h4>
+                        <ul style="margin-top: 15px; padding-left: 20px;">
+                            <li>Multiple font families</li>
+                            <li>Excessive colors and gradients</li>
+                            <li>Busy layouts with many elements</li>
+                            <li>Lack of clear hierarchy</li>
+                            <li>Overwhelming visual noise</li>
+                        </ul>
+                    </div>
+                    <div class="case-study-item">
+                        <h4>After: Minimalist Design</h4>
+                        <ul style="margin-top: 15px; padding-left: 20px;">
+                            <li>Single font family with hierarchy</li>
+                            <li>Limited 2-3 color palette</li>
+                            <li>Clean layouts with whitespace</li>
+                            <li>Clear visual hierarchy</li>
+                            <li>Focused, purposeful elements</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Tools & Resources - Stage 5 -->
+    <section id="tools" class="tools course-stage" data-stage="5">
+        <div class="container">
+            <div class="tools-header fade-in">
+                <h2>Stage 5: Tools & Resources</h2>
+                <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto;">Essential tools and resources to help you create effective minimalist designs.</p>
+            </div>
+            
+            <div class="tools-grid fade-in">
+                <div class="tool-category">
+                    <h3>Design Tools</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Figma:</strong> Collaborative design with clean interfaces</li>
+                        <li><strong>Sketch:</strong> Vector-based design tool</li>
+                        <li><strong>Adobe XD:</strong> Prototyping and design</li>
+                        <li><strong>Canva:</strong> Accessible design platform</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-category">
+                    <h3>Typography Resources</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Google Fonts:</strong> Free, web-safe fonts</li>
+                        <li><strong>Typewolf:</strong> Typography inspiration</li>
+                        <li><strong>Font Pair:</strong> Font combination suggestions</li>
+                        <li><strong>Inter:</strong> Excellent minimalist typeface</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-category">
+                    <h3>Color Tools</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Coolors:</strong> Color palette generator</li>
+                        <li><strong>Adobe Color:</strong> Color wheel and schemes</li>
+                        <li><strong>Contrast Checker:</strong> Ensure readability</li>
+                        <li><strong>Material Design Colors:</strong> Pre-defined palettes</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="resources-section fade-in">
+                <h3 style="text-align: center; margin-bottom: 40px;">Learning Resources</h3>
+                <div class="resources-list">
+                    <div class="resource-item">
+                        <h4>Books</h4>
+                        <p>"The Design of Everyday Things" by Don Norman</p>
+                        <p>"Grid Systems" by Josef Müller-Brockmann</p>
+                        <p>"Thinking with Type" by Ellen Lupton</p>
+                    </div>
+                    <div class="resource-item">
+                        <h4>Online Courses</h4>
+                        <p>Interaction Design Foundation</p>
+                        <p>Coursera Design Courses</p>
+                        <p>YouTube Design Channels</p>
+                    </div>
+                    <div class="resource-item">
+                        <h4>Inspiration</h4>
+                        <p>Dribbble Minimalist Collections</p>
+                        <p>Behance Design Projects</p>
+                        <p>Awwwards Minimalist Sites</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Quiz - Stage 6 -->
+    <section id="contact" class="contact course-stage" data-stage="6">
+        <div class="container">
+            <div class="contact-grid fade-in">
+                <div class="contact-info">
+                    <h2>Stage 4: Quiz</h2>
+                    <p style="margin-top: 20px; font-size: 16px; line-height: 1.6;">Test your understanding of minimalist design principles. Answer all questions to complete the course.</p>
+                </div>
+                
+                <div class="contact-divider"></div>
+                
+                <div class="contact-form">
+                    <div class="quiz-container">
+                        <div class="quiz-question" data-qid="q1">
+                            <strong>1) What is the primary principle of Minimalist Design?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">Less is More</div>
+                                <div class="choice" data-value="B">More is Better</div>
+                                <div class="choice" data-value="C">Complexity is Key</div>
+                                <div class="choice" data-value="D">Decoration is Essential</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question" data-qid="q2">
+                            <strong>2) Which element is often emphasized in minimalist web design?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">Cluttered layouts</div>
+                                <div class="choice" data-value="B">Excessive animations</div>
+                                <div class="choice" data-value="C">Whitespace</div>
+                                <div class="choice" data-value="D">Bright, contrasting colors</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question" data-qid="q3">
+                            <strong>3) What is a common goal of minimalist design in user experience?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">To overwhelm the user with options</div>
+                                <div class="choice" data-value="B">To simplify navigation and focus on content</div>
+                                <div class="choice" data-value="C">To hide essential features</div>
+                                <div class="choice" data-value="D">To use as many design elements as possible</div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="submit-btn" id="submit-quiz">Submit Quiz</button>
+                        <div id="quiz-result" style="margin-top: 20px; display: none;"></div>
+                    </div>
+                    
+                    <div id="certificate-section" style="margin-top: 30px; padding: 30px; border: 1px solid #000; text-align: center; display: none;">
+                        <h3 style="margin-bottom: 15px;">🎉 Course Complete!</h3>
+                        <p style="margin-bottom: 15px;">Congratulations! You have successfully completed the Minimalist Design Principles course.</p>
+                        <p id="cert-name" style="margin-bottom: 20px; font-weight: 600;">Learner</p>
+                        <button type="button" class="submit-btn" id="download-cert">Download Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 ByteAI — Minimalist Design Principles Course</p>
+    </footer>
+<script src="script.js"></script>
+</body>
+</html>

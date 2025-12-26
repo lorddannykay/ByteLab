@@ -20,13 +20,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Chunk the text
-    const chunks = chunkText(text, undefined, 200, filename);
+    // Generate a descriptive filename from text content
+    let generatedFilename = filename;
+    if (generatedFilename === 'pasted-text.txt') {
+      const words = text.trim().split(/\s+/).slice(0, 5).join('-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const random = Math.random().toString(36).substring(2, 7);
+      const prefix = words.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20);
+      generatedFilename = `pasted-${prefix || 'content'}-${timestamp}-${random}.txt`;
+    }
+
+    const safeFilename = generatedFilename.replace(/[^a-z0-9.-]/gi, '-') || 'pasted-text.txt';
+
+    // Chunk the text with the FINAL filename for the metadata
+    const chunks = chunkText(text, undefined, 200, safeFilename);
+
+    console.log(`[Upload/Text] Indexed chunks with source: ${safeFilename}`);
 
     // Add chunks to vector store
     await globalVectorStore.addChunks(chunks);
-
-    const safeFilename = filename.replace(/[^a-z0-9.-]/gi, '-') || 'pasted-text.txt';
 
     return NextResponse.json({
       success: true,

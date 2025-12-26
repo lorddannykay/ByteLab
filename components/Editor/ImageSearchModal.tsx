@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { ImageMetadata } from '@/types/course';
+import { extractSearchKeywords, scoreImageRelevance } from '@/lib/media/imageRelevanceEngine';
 
 interface ImageSearchModalProps {
   isOpen: boolean;
@@ -9,6 +11,11 @@ interface ImageSearchModalProps {
   onSelect: (image: ImageMetadata) => void;
   currentImage?: ImageMetadata;
   searchQuery?: string;
+  context?: {
+    heading?: string;
+    content?: string;
+    topic?: string;
+  };
 }
 
 type MediaProvider = 'all' | 'pexels' | 'unsplash' | 'google' | 'duckduckgo' | 'giphy' | 'video';
@@ -28,6 +35,7 @@ interface MediaResult {
   title?: string;
   loop?: boolean;
   autoplay?: boolean;
+  relevanceScore?: number;
 }
 
 export default function ImageSearchModal({
@@ -36,6 +44,7 @@ export default function ImageSearchModal({
   onSelect,
   currentImage,
   searchQuery: initialQuery = '',
+  context,
 }: ImageSearchModalProps) {
   const [searchQuery, setSearchQuery] = useState(initialQuery || currentImage?.attribution || '');
   const [media, setMedia] = useState<MediaResult[]>([]);
@@ -244,9 +253,38 @@ export default function ImageSearchModal({
 
       await Promise.all(searchPromises);
 
-      // Shuffle and limit results
-      const shuffled = allMedia.sort(() => Math.random() - 0.5);
-      setMedia(shuffled.slice(0, 50));
+      // Rank by relevance if context is available, otherwise shuffle
+      let processedMedia = [...allMedia];
+
+      if (context || (initialQuery && !searchQuery.includes(' '))) {
+        // Use course topic prominently for better geographic and contextual relevance
+        const courseTopic = context?.topic || '';
+        const keywords = extractSearchKeywords(
+          context?.heading || searchQuery || '',
+          context?.content || '',
+          courseTopic
+        );
+        
+        // Log for debugging
+        if (courseTopic && courseTopic.toLowerCase().includes('bombay')) {
+          console.log('[ImageSearch] Course topic detected:', courseTopic);
+          console.log('[ImageSearch] Extracted keywords:', keywords);
+        }
+
+        processedMedia = allMedia.map(item => ({
+          ...item,
+          relevanceScore: scoreImageRelevance(item, keywords, searchQuery)
+        })).sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
+
+        // If everything has 0 score, shuffle a bit to avoid same results every time
+        if (processedMedia.length > 0 && processedMedia[0].relevanceScore === 0) {
+          processedMedia = processedMedia.sort(() => Math.random() - 0.5);
+        }
+      } else {
+        processedMedia = allMedia.sort(() => Math.random() - 0.5);
+      }
+
+      setMedia(processedMedia.slice(0, 50));
     } catch (error) {
       console.error('Media search error:', error);
     } finally {
@@ -293,7 +331,7 @@ export default function ImageSearchModal({
 
         if (response.ok) {
           const data = await response.json();
-          
+
           // Determine media type
           let detectedMediaType: 'image' | 'gif' | 'video-loop' = 'image';
           if (file.type === 'image/gif') {
@@ -400,21 +438,19 @@ export default function ImageSearchModal({
         <div className="flex border-b border-border">
           <button
             onClick={() => setActiveTab('search')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              activeTab === 'search'
-                ? 'text-accent1 border-b-2 border-accent1'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
+            className={`px-6 py-3 font-medium transition-colors ${activeTab === 'search'
+              ? 'text-accent1 border-b-2 border-accent1'
+              : 'text-text-secondary hover:text-text-primary'
+              }`}
           >
             Search
           </button>
           <button
             onClick={() => setActiveTab('upload')}
-            className={`px-6 py-3 font-medium transition-colors ${
-              activeTab === 'upload'
-                ? 'text-accent1 border-b-2 border-accent1'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
+            className={`px-6 py-3 font-medium transition-colors ${activeTab === 'upload'
+              ? 'text-accent1 border-b-2 border-accent1'
+              : 'text-text-secondary hover:text-text-primary'
+              }`}
           >
             Upload
           </button>
@@ -443,6 +479,40 @@ export default function ImageSearchModal({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
+
+                <button
+                  onClick={async () => {
+                    if (!currentImage?.attribution) { // Use attribution or other context as fallback
+                      alert("Select an existing image or enter text to use Smart Search context");
+                      return;
+                    }
+                    setLoading(true);
+                    try {
+                      const res = await fetch('/api/ai/smart-image', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          content: searchQuery || currentImage.attribution,
+                          heading: 'Image Search'
+                        })
+                      });
+                      const data = await res.json();
+                      if (data.queries && data.queries.length > 0) {
+                        setSearchQuery(data.queries[0].query); // Use the first generated query
+                        // Optionally auto-trigger search:
+                        // handleSearch(data.queries[0].query);
+                      }
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  <span className="text-xl">✨</span>
+                </button>
+
                 <select
                   value={mediaType}
                   onChange={(e) => setMediaType(e.target.value as MediaType)}
@@ -528,19 +598,24 @@ export default function ImageSearchModal({
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {media.map((item) => {
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {media.map((item, index) => {
                     const badge = getMediaTypeBadge(item.mediaType);
                     return (
-                      <div
+                      <motion.div
                         key={item.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.03, duration: 0.3 }}
                         onClick={() => handleSelect(item)}
                         className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-border hover:border-accent1 transition-all"
+                        whileHover={{ scale: 1.05, zIndex: 10 }}
+                        whileTap={{ scale: 0.98 }}
                       >
                         {item.mediaType === 'video-loop' ? (
                           <video
                             src={item.thumbnailUrl}
-                            className="w-full h-32 object-cover"
+                            className="w-full h-32 sm:h-40 object-cover"
                             muted
                             loop
                             playsInline
@@ -549,15 +624,24 @@ export default function ImageSearchModal({
                           <img
                             src={item.thumbnailUrl}
                             alt={item.attribution}
-                            className="w-full h-32 object-cover"
+                            className="w-full h-32 sm:h-40 object-cover"
                             loading="lazy"
                           />
                         )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                          <span className="opacity-0 group-hover:opacity-100 text-white text-xs font-medium px-2 py-1 bg-black/60 rounded">
+                        <motion.div 
+                          className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                        >
+                          <motion.span 
+                            className="text-white text-xs font-medium px-4 py-2 bg-accent1/95 rounded-lg shadow-xl"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            whileHover={{ scale: 1.1, opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
                             Select
-                          </span>
-                        </div>
+                          </motion.span>
+                        </motion.div>
                         <div className="absolute top-2 left-2 flex gap-1">
                           <span className={`px-2 py-0.5 text-xs rounded text-white ${badge.color}`}>
                             {badge.label}
@@ -566,11 +650,11 @@ export default function ImageSearchModal({
                             {getProviderIcon(item.provider)}
                           </span>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                          <p className="text-white text-xs truncate">{item.photographer}</p>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <p className="text-white text-xs truncate font-medium">{item.photographer}</p>
                           <p className="text-white/80 text-[10px] truncate">{item.provider}</p>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -587,11 +671,10 @@ export default function ImageSearchModal({
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                  dragActive
-                    ? 'border-accent1 bg-accent1/10'
-                    : 'border-border hover:border-accent1/50'
-                }`}
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${dragActive
+                  ? 'border-accent1 bg-accent1/10'
+                  : 'border-border hover:border-accent1/50'
+                  }`}
               >
                 <input
                   ref={fileInputRef}

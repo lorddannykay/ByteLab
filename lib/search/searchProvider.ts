@@ -17,3 +17,5 @@ export interface SearchProvider {
   isAvailable(): boolean;
 }
 
+
+

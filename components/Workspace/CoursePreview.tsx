@@ -4,7 +4,7 @@ import { CourseData, CourseConfig } from '@/types/course';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import TemplateSelector from '@/components/Templates/TemplateSelector';
-import { generateCourseHTMLWithTemplate, TemplateId } from '@/lib/templates/templateSelector';
+import { generateCourseHTMLWithTemplate, TemplateId, TEMPLATES } from '@/lib/templates/templateSelector';
 import { SwatchIcon } from '@/components/Icons/AppleIcons';
 
 interface CoursePreviewProps {
@@ -12,10 +12,11 @@ interface CoursePreviewProps {
   config?: Partial<CourseConfig>;
   onClose: () => void;
   onExport?: () => void;
+  onConfigUpdate?: (config: Partial<CourseConfig>) => void; // Callback to update config when template changes
   courseId?: string;
 }
 
-export default function CoursePreview({ courseData, config, onClose, onExport, courseId }: CoursePreviewProps) {
+export default function CoursePreview({ courseData, config, onClose, onExport, onConfigUpdate, courseId }: CoursePreviewProps) {
   const router = useRouter();
   const [selectedStage, setSelectedStage] = useState<number>(1);
   const [viewMode, setViewMode] = useState<'structured' | 'html'>('structured');
@@ -79,7 +80,10 @@ export default function CoursePreview({ courseData, config, onClose, onExport, c
                 title="Choose template"
               >
                 <SwatchIcon className="w-4 h-4" />
-                Template
+                <span className="hidden sm:inline">
+                  {TEMPLATES.find(t => t.id === (selectedTemplate || config?.templateId || 'modern'))?.name || 'Template'}
+                </span>
+                <span className="sm:hidden">Template</span>
               </button>
             )}
             {viewMode === 'structured' && courseId && (
@@ -146,9 +150,14 @@ export default function CoursePreview({ courseData, config, onClose, onExport, c
               </div>
             )}
             <button
-              onClick={onClose}
-              className="p-2 hover:bg-bg2 rounded transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
+              className="p-2 hover:bg-bg2 rounded transition-colors z-50 relative"
               aria-label="Close"
+              style={{ pointerEvents: 'auto' }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -169,6 +178,27 @@ export default function CoursePreview({ courseData, config, onClose, onExport, c
                   title="Course HTML Preview"
                   sandbox="allow-scripts allow-same-origin allow-forms"
                   style={{ minHeight: '600px' }}
+                  onLoad={(e) => {
+                    // Listen for postMessage from iframe to handle close requests
+                    const iframe = e.target as HTMLIFrameElement;
+                    if (iframe?.contentWindow) {
+                      // Set up message listener for iframe communication
+                      const handleMessage = (event: MessageEvent) => {
+                        // Accept messages from same origin or iframe
+                        if (event.data === 'closePreview' || 
+                            event.data?.action === 'closeModal' ||
+                            event.data?.type === 'closePreview') {
+                          onClose();
+                        }
+                      };
+                      window.addEventListener('message', handleMessage);
+                      
+                      // Cleanup on unmount
+                      return () => {
+                        window.removeEventListener('message', handleMessage);
+                      };
+                    }
+                  }}
                 />
               ) : (
                 <div className="flex items-center justify-center h-full min-h-[600px] text-text-secondary">
@@ -237,8 +267,13 @@ export default function CoursePreview({ courseData, config, onClose, onExport, c
             setSelectedTemplate(templateId);
             setShowTemplateSelector(false);
             // Update config with new template
-            if (config) {
-              (config as any).templateId = templateId;
+            const updatedConfig = {
+              ...config,
+              templateId: templateId,
+            };
+            // Notify parent component of config change
+            if (onConfigUpdate) {
+              onConfigUpdate(updatedConfig);
             }
           }}
           onClose={() => setShowTemplateSelector(false)}

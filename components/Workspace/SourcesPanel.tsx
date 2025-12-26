@@ -16,6 +16,7 @@ interface SourcesPanelProps {
   onSelectSource: (id: string) => void;
   selectedSources: Set<string>;
   onSelectAll: () => void;
+  onClearSelection: () => void;
   onDeleteSource?: (id: string) => void;
   folders?: SourceFolder[];
   onCreateFolder?: (name: string) => void;
@@ -34,6 +35,7 @@ export default function SourcesPanel({
   onSelectSource,
   selectedSources,
   onSelectAll,
+  onClearSelection,
   onDeleteSource,
   folders = [],
   onCreateFolder,
@@ -54,7 +56,7 @@ export default function SourcesPanel({
   const [newFileName, setNewFileName] = useState('');
   const [newFolderRename, setNewFolderRename] = useState('');
   const fileRefs = useRef<Record<string, HTMLDivElement>>({});
-  
+
   // Organize files by folder
   const organizedFiles = sources.map(file => {
     // Determine source type from file name/type
@@ -68,16 +70,16 @@ export default function SourcesPanel({
     }
     return { ...file, folderId: null, sourceType } as OrganizedFile;
   });
-  
+
   const filesByFolder = organizedFiles.reduce((acc, file) => {
     const folderId = file.folderId || 'root';
     if (!acc[folderId]) acc[folderId] = [];
     acc[folderId].push(file);
     return acc;
   }, {} as Record<string, OrganizedFile[]>);
-  
+
   const rootFiles = filesByFolder['root'] || [];
-  
+
   const handleCreateFolder = () => {
     if (newFolderName.trim() && onCreateFolder) {
       onCreateFolder(newFolderName.trim());
@@ -85,7 +87,7 @@ export default function SourcesPanel({
       setShowCreateFolder(false);
     }
   };
-  
+
   const toggleFolder = (folderId: string) => {
     setExpandedFolders(prev => {
       const next = new Set(prev);
@@ -142,11 +144,11 @@ export default function SourcesPanel({
     }
   };
 
-  const handleBulkDelete = () => {
+  const handleDeleteAll = () => {
     if (selectedSources.size > 0 && onDeleteSource) {
       if (confirm(`Delete ${selectedSources.size} file(s)?`)) {
         selectedSources.forEach(id => onDeleteSource(id));
-        setSelectedSources(new Set());
+        onClearSelection();
       }
     }
   };
@@ -157,14 +159,32 @@ export default function SourcesPanel({
     alert('Move functionality - select folder from dropdown');
   };
 
-  const handleBulkExport = () => {
+  const handleBulkExport = async () => {
     const selectedFiles = sources.filter(f => selectedSources.has(f.id));
-    const exportData = JSON.stringify(selectedFiles, null, 2);
+
+    // Fetch content for text/url sources that don't have it
+    const filesWithContent = await Promise.all(selectedFiles.map(async (file) => {
+      if ((file.id.startsWith('text-') || file.id.startsWith('url-') || file.name.endsWith('.txt')) && !file.content) {
+        try {
+          const response = await fetch(`/api/files/preview?fileId=${file.id}&filename=${encodeURIComponent(file.name)}`);
+          if (response.ok) {
+            const data = await response.json();
+            return { ...file, content: data.content };
+          }
+        } catch (err) {
+          console.error(`Failed to fetch content for ${file.name}:`, err);
+        }
+      }
+      return file;
+    }));
+
+    const exportData = JSON.stringify(filesWithContent, null, 2);
     const blob = new Blob([exportData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+    a.dataset.testid = 'bulk-export-link';
     a.href = url;
-    a.download = 'selected-sources.json';
+    a.download = `byte-lab-sources-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -177,7 +197,7 @@ export default function SourcesPanel({
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [contextMenu]);
-  
+
   const getSourceIcon = (sourceType: SourceType) => {
     switch (sourceType) {
       case 'url':
@@ -414,7 +434,7 @@ export default function SourcesPanel({
                 </div>
               );
             })}
-            
+
             {/* Root files (not in folders) */}
             {rootFiles.map((source) => {
               const isRenaming = renamingFile === source.id;
@@ -547,10 +567,10 @@ export default function SourcesPanel({
       {/* Bulk Actions Bar */}
       <BulkActionsBar
         selectedCount={selectedSources.size}
-        onDeleteAll={handleBulkDelete}
+        onDeleteAll={handleDeleteAll}
         onMoveAll={handleBulkMove}
         onExportSelection={handleBulkExport}
-        onClearSelection={() => setSelectedSources(new Set())}
+        onClearSelection={onClearSelection}
         folders={folders}
       />
     </div>

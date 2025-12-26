@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCourses } from '@/contexts/CourseContext';
 import { useCourseCreation } from '@/contexts/CourseCreationContext';
 import SourcesPanel from '@/components/Workspace/SourcesPanel';
@@ -39,7 +40,7 @@ export default function CourseWorkspacePage() {
   const [studioOutputs, setStudioOutputs] = useState<Record<string, any>>({});
   const [contentSummary, setContentSummary] = useState<string>('');
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
-  
+
   // Generation state
   const [generating, setGenerating] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState<{
@@ -49,7 +50,7 @@ export default function CourseWorkspacePage() {
     totalStages?: number;
     message?: string;
   }>({ status: 'idle', progress: 0 });
-  
+
   // Modal states
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [extractedConfig, setExtractedConfig] = useState<{ config: Partial<CourseConfig>; confidence: Record<string, number> } | null>(null);
@@ -66,52 +67,52 @@ export default function CourseWorkspacePage() {
     const courseData = getCourse(courseId);
     if (courseData) {
       setCourse(courseData);
-      
+
       // For new courses (no uploaded files), start with welcome message
       const isNewCourse = !courseData.state.uploadedFiles || courseData.state.uploadedFiles.length === 0;
       let stateToLoad = { ...courseData.state };
-      
+
       if (isNewCourse) {
         // Add welcome message if chat is empty
         const hasWelcome = stateToLoad.chatHistory?.some(
           msg => msg.content.includes('Welcome to ByteLab') || msg.content.includes('👋')
         );
-        
+
         if (!hasWelcome && (!stateToLoad.chatHistory || stateToLoad.chatHistory.length === 0)) {
           const welcomeMessage: ChatMessage = {
             role: 'assistant',
             content: '👋 Welcome to ByteLab! I\'m here to help you create an amazing microlearning course.\n\nTo get started, click "+ Add Source" to upload PDFs, text files, URLs, or paste text directly. I\'ll automatically analyze your content and provide insights.\n\nOr just tell me what topic you\'d like to create a course about and I\'ll help you plan it out!\n\nWhat would you like to teach today? 🚀',
             timestamp: Date.now(),
           };
-          
+
           stateToLoad = {
             ...stateToLoad,
             chatHistory: [welcomeMessage],
           };
         }
       }
-      
+
       // Load course state into context using the new course-scoped method
       // This ensures state is isolated per course
       loadStateForCourse(courseId, stateToLoad);
-      
+
       // Load course data into outputs if it exists and has actual content
       // Only load if the course data matches the current context (has sources)
       // Clear outputs if no sources or if course data doesn't match current context
       const hasSources = courseData.state.uploadedFiles && courseData.state.uploadedFiles.length > 0;
-      
+
       // Clear any stale notifications/toasts on load
       setToast(null);
-      
+
       // Check if course data matches current context
       if (hasSources && courseData.state.courseData && courseData.state.courseData.course?.stages?.length > 0) {
         // Verify course data is recent (within last 24 hours) or matches current sources
         const courseDataAge = Date.now() - (courseData.lastModified || 0);
         const isRecentCourse = courseDataAge < 24 * 60 * 60 * 1000; // 24 hours
-        
+
         // Check if course data has content (not just outline)
         const hasContent = courseData.state.courseData.course.stages[0]?.content;
-        
+
         // Only load if course has content AND is recent OR matches current sources
         if (hasContent && (isRecentCourse || hasSources)) {
           setStudioOutputs({
@@ -138,27 +139,64 @@ export default function CourseWorkspacePage() {
           updateState({ courseData: null, courseConfig: null });
         }
       }
-      
+
       // Load content summary if available - pass source count
       const sourceCount = courseData.state.uploadedFiles?.length || 0;
       loadContentSummary(sourceCount);
-      
+
       // If there are uploaded files but no analysis in chat, analyze them
       if (!isNewCourse && courseData.state.uploadedFiles.length > 0) {
         // Check if analysis already exists in chat
         const hasAnalysis = stateToLoad.chatHistory.some(
-          msg => msg.role === 'assistant' && 
-          (msg.content.includes('Content Overview') || msg.content.includes('Course Planning') || 
-           msg.content.includes('analyzed your uploaded content'))
+          msg => msg.role === 'assistant' &&
+            (msg.content.includes('Content Overview') || msg.content.includes('Course Planning') ||
+              msg.content.includes('analyzed your uploaded content'))
         );
-        
+
         if (!hasAnalysis) {
           analyzeAndAddToChat(courseData.state.uploadedFiles.map(f => f.name));
         }
       }
     } else {
-      // Course not found, redirect to dashboard
-      router.push('/');
+      // Course not found immediately - wait a bit for async course loading, then check again
+      setTimeout(() => {
+        const retryCourse = getCourse(courseId);
+        if (!retryCourse) {
+          // Only redirect if still not found after retry
+          router.push('/');
+        } else {
+          // Course found on retry, load it
+          setCourse(retryCourse);
+          
+          // Load state similar to the main loading logic
+          const isNewCourse = !retryCourse.state.uploadedFiles || retryCourse.state.uploadedFiles.length === 0;
+          let stateToLoad = { ...retryCourse.state };
+
+          if (isNewCourse) {
+            const hasWelcome = stateToLoad.chatHistory?.some(
+              msg => msg.content.includes('Welcome to ByteLab') || msg.content.includes('👋')
+            );
+
+            if (!hasWelcome && (!stateToLoad.chatHistory || stateToLoad.chatHistory.length === 0)) {
+              const welcomeMessage: ChatMessage = {
+                role: 'assistant',
+                content: '👋 Welcome to ByteLab! I\'m here to help you create an amazing microlearning course.\n\nTo get started, click "+ Add Source" to upload PDFs, text files, URLs, or paste text directly. I\'ll automatically analyze your content and provide insights.\n\nOr just tell me what topic you\'d like to create a course about and I\'ll help you plan it out!\n\nWhat would you like to teach today? 🚀',
+                timestamp: Date.now(),
+              };
+
+              stateToLoad = {
+                ...stateToLoad,
+                chatHistory: [welcomeMessage],
+              };
+            }
+          }
+
+          loadStateForCourse(courseId, stateToLoad);
+          setLoading(false);
+        }
+      }, 500);
+      // Don't set loading to false immediately - wait for retry
+      return;
     }
     setLoading(false);
   }, [courseId]);
@@ -167,9 +205,9 @@ export default function CourseWorkspacePage() {
   useEffect(() => {
     if (course && courseId) {
       const timeoutId = setTimeout(() => {
-        updateCourse(courseId, { 
+        updateCourse(courseId, {
           state,
-          stageCount: state.courseData?.course.stages.length,
+          stageCount: state.courseData?.course.stages?.length || 0,
         });
       }, 1000); // Debounce saves by 1 second
 
@@ -209,7 +247,7 @@ export default function CourseWorkspacePage() {
   const loadContentSummary = async (sourceCount?: number) => {
     try {
       const hasSources = (sourceCount !== undefined ? sourceCount : state.uploadedFiles.length) > 0;
-      
+
       // If no sources, set default questions immediately - focus on course building
       if (!hasSources) {
         setSuggestedQuestions([
@@ -220,7 +258,7 @@ export default function CourseWorkspacePage() {
         ]);
         return; // Don't call API if no sources
       }
-      
+
       const response = await fetch('/api/context/guide');
       if (response.ok) {
         const data = await response.json();
@@ -244,25 +282,18 @@ export default function CourseWorkspacePage() {
 
   const analyzeAndAddToChat = async (fileNames: string[]) => {
     try {
-      // Check if we already have an analysis or error message for these files
+      console.log('[RAG] Analyzing files:', fileNames);
+
       const errorMessageText = 'I encountered an error analyzing your content';
-      const hasExistingError = state.chatHistory.some(
-        msg => msg.role === 'assistant' && msg.content.includes(errorMessageText)
-      );
-      
-      // Don't add duplicate error messages
-      if (hasExistingError) {
-        return;
-      }
 
       // Show loading state
       const loadingMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Analyzing your uploaded content...',
+        content: `Analyzing ${fileNames.length} new source(s): ${fileNames.join(', ')}...`,
         timestamp: Date.now(),
       };
       addChatMessage(loadingMessage);
-      
+
       const response = await fetch('/api/context/analyze-for-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -271,36 +302,41 @@ export default function CourseWorkspacePage() {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Remove loading message and any previous error messages
         const currentHistory = state.chatHistory.filter(
           msg => !msg.content.includes('Analyzing your uploaded content') &&
-                 !msg.content.includes(errorMessageText)
+            !msg.content.includes(errorMessageText)
         );
         updateState({ chatHistory: currentHistory });
-        
+
         // Add analysis as assistant message to chat
         const analysisMessage: ChatMessage = {
           role: 'assistant',
           content: data.analysis,
           timestamp: Date.now(),
         };
-        
+
         addChatMessage(analysisMessage);
-        
+
         // Update suggested questions with quick options
         if (data.quickOptions) {
           setSuggestedQuestions(data.quickOptions);
         }
       } else {
         // Remove loading message and any previous error messages
+        const errorMessageText = 'I encountered an error analyzing your content';
+        const hasExistingError = state.chatHistory.some(
+          msg => msg.role === 'assistant' && msg.content.includes(errorMessageText)
+        );
+
         const currentHistory = state.chatHistory.filter(
           msg => !msg.content.includes('Analyzing your uploaded content') &&
-                 !msg.content.includes(errorMessageText)
+            !msg.content.includes(errorMessageText)
         );
         updateState({ chatHistory: currentHistory });
-        
-        // Only add error message if we don't already have one
+
+        // Only add error if we don't already have one
         if (!hasExistingError) {
           const errorMessage: ChatMessage = {
             role: 'assistant',
@@ -317,13 +353,13 @@ export default function CourseWorkspacePage() {
       const hasExistingError = state.chatHistory.some(
         msg => msg.role === 'assistant' && msg.content.includes(errorMessageText)
       );
-      
+
       const currentHistory = state.chatHistory.filter(
         msg => !msg.content.includes('Analyzing your uploaded content') &&
-               !msg.content.includes(errorMessageText)
+          !msg.content.includes(errorMessageText)
       );
       updateState({ chatHistory: currentHistory });
-      
+
       // Only add error if we don't already have one
       if (!hasExistingError) {
         const errorMessage: ChatMessage = {
@@ -339,7 +375,7 @@ export default function CourseWorkspacePage() {
   const handleExtractConfigFromChat = async () => {
     try {
       setGenerationProgress({ status: 'extracting', progress: 10, message: 'Extracting configuration...' });
-      
+
       const extractResponse = await fetch('/api/context/extract-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -354,15 +390,20 @@ export default function CourseWorkspacePage() {
       }
 
       const extractData = await extractResponse.json();
+      // Preserve templateId from existing config if it exists
+      const existingTemplateId = (state.courseConfig as any)?.templateId;
+      if (existingTemplateId && extractData.config && !extractData.config.templateId) {
+        extractData.config.templateId = existingTemplateId;
+      }
       setExtractedConfig(extractData);
       setShowConfigModal(true);
-      
+
       // Update course title immediately if extracted
       if (extractData.config.title && extractData.config.title !== 'Untitled Course' && course && course.title === 'Untitled course') {
         updateCourse(courseId, { title: extractData.config.title });
         setCourse({ ...course, title: extractData.config.title });
       }
-      
+
       // Add message to chat
       const configMessage: ChatMessage = {
         role: 'assistant',
@@ -370,7 +411,7 @@ export default function CourseWorkspacePage() {
         timestamp: Date.now(),
       };
       addChatMessage(configMessage);
-      
+
       setGenerationProgress({ status: 'idle', progress: 0 });
     } catch (error) {
       console.error('Config extraction error:', error);
@@ -379,31 +420,59 @@ export default function CourseWorkspacePage() {
     }
   };
 
-  const generateContextualOptions = (response: string): string[] => {
-    // Generate contextual quick options based on the AI response
+  const generateContextualOptions = (response: string, conversationHistory: ChatMessage[] = []): string[] => {
+    // Generate contextual quick options based on the AI response and conversation context
     const options: string[] = [];
-    
-    if (response.toLowerCase().includes('outline') || response.toLowerCase().includes('stage')) {
-      options.push('Show me the course outline', 'What stages should I include?', 'Help me refine the structure');
+    const responseLower = response.toLowerCase();
+    const lastUserMessage = conversationHistory.filter(m => m.role === 'user').pop()?.content.toLowerCase() || '';
+
+    // Analyze response content for context
+    if (responseLower.includes('outline') || responseLower.includes('stage') || responseLower.includes('structure')) {
+      options.push('Show me the course outline', 'What stages should I include?', 'Help me refine the structure', 'Can you break this down into modules?');
     }
-    
-    if (response.toLowerCase().includes('objective') || response.toLowerCase().includes('goal')) {
-      options.push('What are the learning objectives?', 'Help me define clear goals', 'What should learners achieve?');
+
+    if (responseLower.includes('objective') || responseLower.includes('goal') || responseLower.includes('learn') || responseLower.includes('achieve')) {
+      options.push('What are the learning objectives?', 'Help me define clear goals', 'What should learners achieve?', 'How do I measure success?');
     }
-    
-    if (response.toLowerCase().includes('quiz') || response.toLowerCase().includes('assessment')) {
-      options.push('Add interactive quizzes', 'What assessments should I include?', 'Suggest quiz questions');
+
+    if (responseLower.includes('quiz') || responseLower.includes('assessment') || responseLower.includes('test') || responseLower.includes('evaluate')) {
+      options.push('Add interactive quizzes', 'What assessments should I include?', 'Suggest quiz questions', 'How do I test understanding?');
     }
-    
-    if (response.toLowerCase().includes('content') || response.toLowerCase().includes('material')) {
-      options.push('Generate course content', 'What topics should I cover?', 'Help me organize the content');
+
+    if (responseLower.includes('content') || responseLower.includes('material') || responseLower.includes('topic') || responseLower.includes('lesson')) {
+      options.push('Generate course content', 'What topics should I cover?', 'Help me organize the content', 'Can you expand on this?');
     }
-    
+
+    if (responseLower.includes('audience') || responseLower.includes('learner') || responseLower.includes('student') || responseLower.includes('target')) {
+      options.push('Who is this course for?', 'What background do learners need?', 'Is this suitable for beginners?', 'What prerequisites are needed?');
+    }
+
+    if (responseLower.includes('source') || responseLower.includes('upload') || responseLower.includes('file') || responseLower.includes('document')) {
+      options.push('How do I add sources?', 'What files can I upload?', 'Can I use external resources?', 'How do sources help?');
+    }
+
+    if (responseLower.includes('generate') || responseLower.includes('create') || responseLower.includes('build')) {
+      options.push('Generate course content', 'Create the course outline', 'Build the full course', 'Start generating now');
+    }
+
+    // Analyze conversation flow for better suggestions
+    if (conversationHistory.length === 0 || conversationHistory.length <= 2) {
+      // Early in conversation - suggest getting started
+      if (!options.length) {
+        options.push('What topic should I teach?', 'Help me get started', 'What makes a good course?', 'How do I create engaging content?');
+      }
+    } else if (conversationHistory.length > 5) {
+      // Later in conversation - suggest action items
+      if (!options.length) {
+        options.push('Generate the course outline', 'Create course content', 'Review what we discussed', 'What\'s the next step?');
+      }
+    }
+
     // Default options if no specific context
     if (options.length === 0) {
       options.push('Tell me more', 'What should I do next?', 'Help me plan the course', 'Generate the course outline');
     }
-    
+
     return options.slice(0, 4); // Return max 4 options
   };
 
@@ -420,7 +489,7 @@ export default function CourseWorkspacePage() {
 
   const handleUploadComplete = async () => {
     setShowUploadLoader(false);
-    
+
     // Process files based on type
     const regularFiles: File[] = [];
     const urlFiles: Array<{ url: string; filename: string }> = [];
@@ -482,7 +551,7 @@ export default function CourseWorkspacePage() {
 
         const data = await response.json();
         allUploadedFiles.push({
-          id: `url-${Date.now()}`,
+          id: `url-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
           name: data.filename || urlFile.filename,
           type: 'text/html',
           size: data.size || 0,
@@ -505,7 +574,7 @@ export default function CourseWorkspacePage() {
 
         const data = await response.json();
         allUploadedFiles.push({
-          id: `text-${Date.now()}`,
+          id: `text-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
           name: data.filename || textFile.filename,
           type: 'text/plain',
           size: textFile.text.length,
@@ -515,14 +584,21 @@ export default function CourseWorkspacePage() {
       }
 
       if (allUploadedFiles.length > 0) {
-        addUploadedFiles(allUploadedFiles);
-        
+        // Filter out any duplicates that might have been created by race conditions
+        const uniqueUploadedFiles = allUploadedFiles.filter((file, index, self) =>
+          index === self.findIndex((f) => f.name === file.name)
+        );
+        addUploadedFiles(uniqueUploadedFiles);
+
+        // Deduplicate filenames for analysis
+        const fileNamesForAnalysis = Array.from(new Set(uniqueUploadedFiles.map(f => f.name)));
+
         // Automatically analyze content and add to chat
-        await analyzeAndAddToChat(allUploadedFiles.map(f => f.name));
-        
+        await analyzeAndAddToChat(fileNamesForAnalysis);
+
         loadContentSummary();
       }
-      
+
       setUploadingFiles([]);
     } catch (error) {
       console.error('Upload error:', error);
@@ -539,7 +615,7 @@ export default function CourseWorkspacePage() {
 
   const handleUrlUpload = async (url: string) => {
     setShowAddSourcesModal(false);
-    
+
     // Show loading message in chat
     const loadingMessage: ChatMessage = {
       role: 'assistant',
@@ -547,7 +623,7 @@ export default function CourseWorkspacePage() {
       timestamp: Date.now(),
     };
     addChatMessage(loadingMessage);
-    
+
     try {
       // Directly call the URL upload API
       const response = await fetch('/api/upload/url', {
@@ -562,7 +638,7 @@ export default function CourseWorkspacePage() {
       }
 
       const data = await response.json();
-      
+
       // Add to uploaded files
       const urlFile: UploadedFile = {
         id: `url-${Date.now()}`,
@@ -573,13 +649,13 @@ export default function CourseWorkspacePage() {
         chunks: [],
       };
       addUploadedFiles([urlFile]);
-      
+
       // Remove loading message and add success message
       const currentHistory = state.chatHistory.filter(
         msg => !msg.content.includes('Fetching content from URL')
       );
       updateState({ chatHistory: currentHistory });
-      
+
       // Add success message with content summary
       const successMessage: ChatMessage = {
         role: 'assistant',
@@ -595,7 +671,7 @@ The content has been added to your sources and is ready to use. I can now help y
         timestamp: Date.now(),
       };
       addChatMessage(successMessage);
-      
+
       // Update suggested questions
       setSuggestedQuestions([
         'Analyze this content for course creation',
@@ -603,20 +679,20 @@ The content has been added to your sources and is ready to use. I can now help y
         'What are the main topics covered?',
         'How many stages should this course have?',
       ]);
-      
+
       // Also run the full analysis
       await analyzeAndAddToChat([urlFile.name]);
-      loadContentSummary(state.uploadedFiles.length + 1);
-      
+      loadContentSummary();
+
     } catch (error) {
       console.error('URL upload error:', error);
-      
+
       // Remove loading message
       const currentHistory = state.chatHistory.filter(
         msg => !msg.content.includes('Fetching content from URL')
       );
       updateState({ chatHistory: currentHistory });
-      
+
       // Add error message
       const errorMessage: ChatMessage = {
         role: 'assistant',
@@ -645,7 +721,7 @@ I couldn't extract content from: ${url}
     setUploadingFiles([textFile]);
     setShowUploadLoader(true);
     setShowAddSourcesModal(false);
-    
+
     // Store text for later processing
     (textFile as any).isText = true;
     (textFile as any).text = text;
@@ -684,16 +760,14 @@ I couldn't extract content from: ${url}
       };
 
       addChatMessage(assistantMessage);
-      
-      // Update quick options based on the response
-      if (data.quickOptions) {
+
+      // Store API quick options if available (used as fallback)
+      // SmartSuggestions component will generate dynamic suggestions based on context
+      if (data.quickOptions && data.quickOptions.length > 0) {
         setSuggestedQuestions(data.quickOptions);
-      } else if (data.response) {
-        // Generate contextual quick options from the response
-        const contextualOptions = generateContextualOptions(data.response);
-        if (contextualOptions.length > 0) {
-          setSuggestedQuestions(contextualOptions);
-        }
+      } else {
+        // Clear old suggestions - let SmartSuggestions component generate dynamically
+        setSuggestedQuestions([]);
       }
     } catch (error) {
       console.error('Chat error:', error);
@@ -711,7 +785,7 @@ I couldn't extract content from: ${url}
   const handleGenerateOutput = async (type: string) => {
     setGenerating(type);
     setError(null);
-    
+
     try {
       // For Interactive Course, implement progressive generation
       if (type === 'course') {
@@ -754,7 +828,7 @@ I couldn't extract content from: ${url}
       // - User has had a conversation discussing the course (3+ messages)
       const hasSources = state.uploadedFiles.length > 0;
       const hasConversation = state.chatHistory.length >= 3;
-      
+
       if (!hasSources && !hasConversation) {
         throw new Error('Please upload sources or describe your course topic in the chat first');
       }
@@ -775,7 +849,7 @@ I couldn't extract content from: ${url}
         if (hasContent) {
           const courseGeneratedAt = state.courseData.course.generatedAt || 0;
           const isRecent = Date.now() - courseGeneratedAt < 5 * 60 * 1000; // 5 minutes
-          
+
           if (!isRecent) {
             // Only ask if course is not recent (likely from previous session)
             const shouldRegenerate = window.confirm('A course already exists for this workspace. Do you want to generate a new course? This will replace the existing course.');
@@ -794,14 +868,14 @@ I couldn't extract content from: ${url}
 
       // Step 2: Extract or get course config
       let config: CourseConfig;
-      
+
       if (state.courseConfig) {
         // Use existing config
         config = state.courseConfig as CourseConfig;
       } else {
         // Extract config from chat
         setGenerationProgress({ status: 'extracting', progress: 10, message: 'Extracting course configuration from conversation...' });
-        
+
         const extractResponse = await fetch('/api/context/extract-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -818,7 +892,7 @@ I couldn't extract content from: ${url}
         const extractData = await extractResponse.json();
         setExtractedConfig(extractData);
         setShowConfigModal(true);
-        
+
         // Wait for user to approve config (handled by modal callback)
         return; // Modal will continue the flow
       }
@@ -830,7 +904,7 @@ I couldn't extract content from: ${url}
         // We already have an outline
         const outline = state.courseData.course;
         const hasContent = outline.stages[0]?.content;
-        
+
         if (!hasContent) {
           // We have outline but no content - show outline modal to continue
           setGeneratedOutline(outline);
@@ -840,7 +914,7 @@ I couldn't extract content from: ${url}
           // Already complete - check if it's recent (generated in last 5 minutes)
           const courseGeneratedAt = outline.generatedAt || 0;
           const isRecent = Date.now() - courseGeneratedAt < 5 * 60 * 1000; // 5 minutes
-          
+
           if (!isRecent) {
             // Only ask if course is not recent (likely from previous session)
             const shouldRegenerate = window.confirm('A course already exists. Do you want to generate a new course? This will replace the existing course.');
@@ -861,7 +935,7 @@ I couldn't extract content from: ${url}
     } catch (error) {
       console.error('Course generation error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate course';
-      
+
       // Provide specific error messages based on error type
       let userFriendlyMessage = errorMessage;
       if (errorMessage.includes('Failed to extract')) {
@@ -871,11 +945,11 @@ I couldn't extract content from: ${url}
       } else if (errorMessage.includes('No sources')) {
         userFriendlyMessage = 'Please upload source materials before generating a course.';
       }
-      
+
       setError(userFriendlyMessage);
       setGenerating(null);
       setGenerationProgress({ status: 'idle', progress: 0 });
-      
+
       // Add error message to chat for user visibility
       const errorChatMessage: ChatMessage = {
         role: 'assistant',
@@ -883,7 +957,7 @@ I couldn't extract content from: ${url}
         timestamp: Date.now(),
       };
       addChatMessage(errorChatMessage);
-      
+
       throw error;
     }
   };
@@ -891,7 +965,7 @@ I couldn't extract content from: ${url}
   const handleConfigApproved = async (config: CourseConfig) => {
     setShowConfigModal(false);
     updateState({ courseConfig: config });
-    
+
     // Update course title if config has a title - do this immediately
     if (config.title && config.title !== 'Untitled Course') {
       if (course) {
@@ -902,14 +976,14 @@ I couldn't extract content from: ${url}
         updateCourse(courseId, { title: config.title });
       }
     }
-    
+
     await generateCourseOutline(config);
   };
 
   const generateCourseOutline = async (config: CourseConfig) => {
     try {
       setGenerationProgress({ status: 'outline', progress: 20, message: 'Generating course outline...' });
-      
+
       const outlineResponse = await fetch('/api/generate/outline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -924,45 +998,58 @@ I couldn't extract content from: ${url}
       });
 
       if (!outlineResponse.ok) {
-        throw new Error('Failed to generate course outline');
+        const errorData = await outlineResponse.json().catch(() => ({}));
+        const errorMessage = errorData.error || errorData.details || 'Failed to generate course outline';
+        throw new Error(errorMessage);
       }
 
       const outlineData = await outlineResponse.json();
-      const outline = outlineData.course;
       
+      // Validate response structure
+      if (!outlineData || !outlineData.course) {
+        throw new Error('Invalid response from outline generation API: missing course data');
+      }
+
+      const outline = outlineData.course;
+
+      // Validate outline has required fields
+      if (!outline.stages || !Array.isArray(outline.stages) || outline.stages.length === 0) {
+        throw new Error('Generated outline has no stages. Please try regenerating with more specific requirements.');
+      }
+
       setGeneratedOutline(outline);
       setShowOutlineModal(true);
-      
+
       // Ensure outline uses title from config if available
       if (config.title && config.title !== 'Untitled Course') {
         outline.title = config.title;
       }
-      
+
       // Update course title from outline if available
       if (outline.title && course && (course.title === 'Untitled course' || course.title === 'Untitled Course')) {
         updateCourse(courseId, { title: outline.title });
         setCourse({ ...course, title: outline.title });
       }
-      
+
       // Store outline in course state (without content yet)
       const outlineOnlyData: CourseData = {
         course: outline,
         videoScenes: [],
         podcastDialogue: [],
       };
-      
+
       const updatedState = {
         ...state,
         courseData: outlineOnlyData,
         courseConfig: config,
       };
       updateState(updatedState);
-      updateCourse(courseId, { 
+      updateCourse(courseId, {
         state: updatedState,
-        stageCount: outline.stages.length,
+        stageCount: outline.stages?.length || 0,
         title: outline.title || course?.title,
       });
-      
+
       // Store outline in outputs
       setStudioOutputs((prev) => ({
         ...prev,
@@ -973,7 +1060,7 @@ I couldn't extract content from: ${url}
           generatedAt: Date.now(),
         },
       }));
-      
+
       setGenerationProgress({ status: 'idle', progress: 0 });
     } catch (error) {
       console.error('Outline generation error:', error);
@@ -985,9 +1072,11 @@ I couldn't extract content from: ${url}
   const handleOutlineApproved = async () => {
     setShowOutlineModal(false);
     if (!generatedOutline) return;
-    
+
     // Use existing config or create default
-    const config = state.courseConfig as CourseConfig || {
+    // Preserve templateId from existing config if it exists
+    const existingConfig = state.courseConfig as CourseConfig;
+    const config = existingConfig || {
       title: generatedOutline.title,
       topic: 'General',
       description: generatedOutline.description,
@@ -1002,8 +1091,9 @@ I couldn't extract content from: ${url}
       voiceId: '',
       includeVideo: false,
       includePodcast: false,
+      templateId: (existingConfig as any)?.templateId, // Preserve templateId from existing config
     };
-    
+
     // Check if stages already have content
     const hasContent = generatedOutline.stages[0]?.content;
     if (hasContent) {
@@ -1018,7 +1108,7 @@ I couldn't extract content from: ${url}
       setGenerating(null);
       return;
     }
-    
+
     await generateCourseStages(generatedOutline, config);
   };
 
@@ -1046,7 +1136,7 @@ I couldn't extract content from: ${url}
       for (let i = 0; i < stages.length; i++) {
         const stage = stages[i];
         const stageProgress = 30 + ((i + 1) / totalStages) * 60;
-        
+
         setGenerationProgress({
           status: 'generating',
           progress: stageProgress,
@@ -1079,7 +1169,8 @@ I couldn't extract content from: ${url}
 
             if (!contentResponse.ok) {
               const errorData = await contentResponse.json().catch(() => ({}));
-              throw new Error(errorData.error || `Failed to generate content for stage ${i + 1}`);
+              const errorMessage = errorData.error || errorData.details || `HTTP ${contentResponse.status}: Failed to generate content for stage ${i + 1}`;
+              throw new Error(errorMessage);
             }
 
             content = await contentResponse.json();
@@ -1087,7 +1178,7 @@ I couldn't extract content from: ${url}
           } catch (error) {
             lastError = error;
             retries--;
-            
+
             if (retries > 0) {
               setGenerationProgress({
                 status: 'generating',
@@ -1104,7 +1195,7 @@ I couldn't extract content from: ${url}
 
         if (!content) {
           throw new Error(
-            lastError instanceof Error 
+            lastError instanceof Error
               ? `Failed to generate Stage ${i + 1}: ${lastError.message}`
               : `Failed to generate content for stage ${i + 1} after 3 attempts`
           );
@@ -1137,11 +1228,11 @@ I couldn't extract content from: ${url}
           courseData: partialCourseData,
         };
         updateState(updatedState);
-        updateCourse(courseId, { 
+        updateCourse(courseId, {
           state: updatedState,
           stageCount: generatedStages.length,
         });
-        
+
         setStudioOutputs((prev) => ({
           ...prev,
           course: {
@@ -1164,7 +1255,7 @@ I couldn't extract content from: ${url}
       // Generate video scenes and podcast dialogue if config includes them
       let videoScenes: any[] = [];
       let podcastDialogue: any[] = [];
-      
+
       if (config.includeVideo || config.includePodcast) {
         try {
           // Generate video scenes
@@ -1212,7 +1303,7 @@ I couldn't extract content from: ${url}
               const podcastData = await podcastResponse.json();
               // Map podcast script segments to DialogueSegment format
               const episodes = podcastData.script?.episodes || podcastData.episodes || [];
-              podcastDialogue = episodes.flatMap((ep: any) => 
+              podcastDialogue = episodes.flatMap((ep: any) =>
                 (ep.segments || []).map((seg: any) => ({
                   speaker: seg.speaker || 'Host',
                   content: seg.content || '',
@@ -1234,10 +1325,10 @@ I couldn't extract content from: ${url}
       });
 
       // Ensure course title is set from config if available
-      const courseTitle = config.title && config.title !== 'Untitled Course' 
-        ? config.title 
+      const courseTitle = config.title && config.title !== 'Untitled Course'
+        ? config.title
         : outline.title || 'Untitled Course';
-      
+
       const fullCourseData: CourseData = {
         course: {
           ...outline,
@@ -1272,7 +1363,7 @@ I couldn't extract content from: ${url}
       };
       updateCourse(courseId, { state: updatedState });
       updateState(updatedState);
-      
+
       // Save course to output folder via API (async, non-blocking)
       // This will also generate video and podcast audio files
       fetch('/api/course/save', {
@@ -1284,37 +1375,61 @@ I couldn't extract content from: ${url}
           courseId: courseId,
         }),
       })
-      .then(async (response) => {
-        if (response.ok) {
-          const result = await response.json();
-          // Update status after save completes (which includes audio generation)
-          if (config.includeVideo) {
-            updateState({
-              videoGenerationStatus: {
-                status: 'complete',
-                progress: 100,
-                message: 'Video generated successfully',
-              },
-            });
+        .then(async (response) => {
+          if (response.ok) {
+            const result = await response.json();
+            // Update status after save completes (which includes audio generation)
+            if (config.includeVideo) {
+              updateState({
+                videoGenerationStatus: {
+                  status: 'complete',
+                  progress: 100,
+                  message: 'Video generated successfully',
+                },
+              });
+            }
+            if (config.includePodcast) {
+              updateState({
+                audioGenerationStatus: {
+                  status: 'complete',
+                  progress: 100,
+                  message: 'Podcast audio generated successfully',
+                },
+              });
+            }
+          } else {
+            // Handle errors
+            if (config.includeVideo) {
+              updateState({
+                videoGenerationStatus: {
+                  status: 'failed',
+                  progress: 0,
+                  message: 'Video generation failed',
+                  error: 'Failed to save course',
+                },
+              });
+            }
+            if (config.includePodcast) {
+              updateState({
+                audioGenerationStatus: {
+                  status: 'failed',
+                  progress: 0,
+                  message: 'Podcast generation failed',
+                  error: 'Failed to save course',
+                },
+              });
+            }
           }
-          if (config.includePodcast) {
-            updateState({
-              audioGenerationStatus: {
-                status: 'complete',
-                progress: 100,
-                message: 'Podcast audio generated successfully',
-              },
-            });
-          }
-        } else {
-          // Handle errors
+        })
+        .catch((error) => {
+          console.error('Failed to save course to output folder:', error);
           if (config.includeVideo) {
             updateState({
               videoGenerationStatus: {
                 status: 'failed',
                 progress: 0,
                 message: 'Video generation failed',
-                error: 'Failed to save course',
+                error: error.message || 'Unknown error',
               },
             });
           }
@@ -1324,35 +1439,11 @@ I couldn't extract content from: ${url}
                 status: 'failed',
                 progress: 0,
                 message: 'Podcast generation failed',
-                error: 'Failed to save course',
+                error: error.message || 'Unknown error',
               },
             });
           }
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to save course to output folder:', error);
-        if (config.includeVideo) {
-          updateState({
-            videoGenerationStatus: {
-              status: 'failed',
-              progress: 0,
-              message: 'Video generation failed',
-              error: error.message || 'Unknown error',
-            },
-          });
-        }
-        if (config.includePodcast) {
-          updateState({
-            audioGenerationStatus: {
-              status: 'failed',
-              progress: 0,
-              message: 'Podcast generation failed',
-              error: error.message || 'Unknown error',
-            },
-          });
-        }
-      });
+        });
 
       // Show success message and auto-open preview
       setToast({ message: `Course generated successfully with ${totalStages} stages!`, type: 'success' });
@@ -1365,7 +1456,7 @@ I couldn't extract content from: ${url}
     } catch (error) {
       console.error('Stage generation error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate course stages';
-      
+
       // Provide specific error messages
       let userFriendlyMessage = errorMessage;
       if (errorMessage.includes('Failed to generate')) {
@@ -1375,10 +1466,10 @@ I couldn't extract content from: ${url}
       } else if (errorMessage.includes('rate limit') || errorMessage.includes('Rate limit')) {
         userFriendlyMessage = 'Too many requests. Please wait a moment and try again.';
       }
-      
+
       setError(userFriendlyMessage);
       setGenerationProgress({ status: 'idle', progress: 0 });
-      
+
       // Add error message to chat with recovery options
       const errorChatMessage: ChatMessage = {
         role: 'assistant',
@@ -1386,7 +1477,7 @@ I couldn't extract content from: ${url}
         timestamp: Date.now(),
       };
       addChatMessage(errorChatMessage);
-      
+
       throw error;
     }
   };
@@ -1422,7 +1513,7 @@ I couldn't extract content from: ${url}
   };
 
   const handleRenameFile = (id: string, newName: string) => {
-    const updatedFiles = state.uploadedFiles.map(f => 
+    const updatedFiles = state.uploadedFiles.map(f =>
       f.id === id ? { ...f, name: newName } : f
     );
     updateState({ uploadedFiles: updatedFiles });
@@ -1478,36 +1569,46 @@ I couldn't extract content from: ${url}
   }
 
   return (
-    <div className="h-screen flex flex-col bg-bg1">
+    <div className="h-screen flex flex-col bg-bg1 font-geist tracking-tight">
       {/* Header */}
-      <header className="liquid-glass-header px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-accent1 hover:underline">
-            ← Back to Dashboard
+      <header className="liquid-glass-header px-8 py-5 flex items-center justify-between z-50">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="text-accent1 hover:text-accent2 transition-colors flex items-center gap-2 font-medium">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Dashboard
           </Link>
-          <h1 className="text-xl font-semibold text-text-primary">{course.title}</h1>
-          {course.stageCount && (
-            <span className="text-sm text-text-secondary">
-              {course.stageCount} {course.stageCount === 1 ? 'stage' : 'stages'}
-            </span>
-          )}
-          {state.courseData?.course.stages && state.courseData.course.stages[0]?.content && (
-            <span className="text-xs px-2 py-1 bg-green-500/20 text-green-500 rounded">
-              Complete
-            </span>
-          )}
+          <div className="h-6 w-px bg-border/40" />
+          <h1 className="text-2xl font-bold text-text-primary tracking-tightest">{course.title}</h1>
+          <div className="flex items-center gap-2">
+            {course.stageCount && (
+              <span className="px-2 py-0.5 bg-bg3 text-text-secondary rounded-full text-xs font-semibold">
+                {course.stageCount} {course.stageCount === 1 ? 'Stage' : 'Stages'}
+              </span>
+            )}
+            {state.courseData?.course.stages && state.courseData.course.stages[0]?.content && (
+              <span className="px-2 py-0.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full text-xs font-bold uppercase tracking-widest">
+                Ready
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-4">
           {state.courseData?.course.stages && state.courseData.course.stages[0]?.content && (
             <Link
               href={`/course/${courseId}/edit`}
-              className="px-4 py-2 text-sm bg-bg1 border border-border rounded-lg hover:bg-bg3 transition-colors"
+              className="px-6 py-2.5 bg-accent1 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-accent1/20 transition-all active:scale-95"
             >
               Edit Course
             </Link>
           )}
-          <button className="p-2 hover:bg-bg3 rounded transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button 
+            className="p-2.5 hover:bg-bg3 rounded-full transition-colors text-text-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent1 focus-visible:outline-offset-2"
+            aria-label="Settings"
+            title="Settings"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -1518,52 +1619,107 @@ I couldn't extract content from: ${url}
       {/* Workflow Progress Indicator */}
       <WorkflowProgress state={state} />
 
-      {/* Three Panel Layout with Resizable Panels */}
-      <div className="flex-1 flex overflow-hidden relative">
-        {!sourcesCollapsed && (
-          <ResizablePanel
-            defaultWidth={320}
-            minWidth={200}
-            maxWidth={500}
-            side="left"
-            className="bg-bg2 border-r border-border"
-          >
-            <SourcesPanel
-              sources={state.uploadedFiles}
-              isCollapsed={false}
-              onToggleCollapse={() => setSourcesCollapsed(!sourcesCollapsed)}
-              onAddSources={handleAddSources}
-              onSelectSource={handleSelectSource}
-              selectedSources={selectedSources}
-              onSelectAll={handleSelectAll}
-              onDeleteSource={handleDeleteSource}
-              onRenameFile={handleRenameFile}
-              onDuplicateFile={handleDuplicateFile}
-              onCreateFolder={handleCreateFolder}
-              onRenameFolder={handleRenameFolder}
-              onDeleteFolder={handleDeleteFolder}
-              onMoveToFolder={handleMoveToFolder}
-            />
-          </ResizablePanel>
-        )}
-        {sourcesCollapsed && (
-          <div className="w-12 bg-bg2 border-r border-border flex flex-col items-center py-4">
-            <button
-              onClick={() => setSourcesCollapsed(false)}
-              className="p-2 hover:bg-bg3 rounded transition-colors"
-              aria-label="Expand sources panel"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-              </svg>
-            </button>
+      <div className="flex-1 flex overflow-hidden relative gap-2 p-2 pt-0">
+        {/* Sources Panel - Collapsible Sheet */}
+        <motion.div 
+          className={`flex shrink-0 ${sourcesCollapsed ? 'w-14' : 'w-80'}`}
+          animate={{ width: sourcesCollapsed ? 56 : 320 }}
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        >
+          <div className="flex-1 flex flex-col glass-panel rounded-3xl overflow-hidden shadow-2xl relative">
+            <AnimatePresence mode="wait">
+              {sourcesCollapsed ? (
+                <motion.div
+                  key="collapsed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 flex flex-col items-center py-6 gap-6"
+                >
+                  <button
+                    onClick={() => setSourcesCollapsed(false)}
+                    className="p-3 bg-bg3/50 hover:bg-bg3 rounded-2xl transition-all hover:scale-110 active:scale-90 focus-visible:outline-2 focus-visible:outline-accent1 focus-visible:outline-offset-2"
+                    aria-label="Expand sources panel"
+                    title="Expand Sources"
+                  >
+                    <svg className="w-6 h-6 text-accent1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                    </svg>
+                  </button>
+                  <div className="w-px h-full bg-border/20" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="expanded"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-1"
+                >
+                  <SourcesPanel
+                sources={state.uploadedFiles}
+                isCollapsed={false}
+                onToggleCollapse={() => setSourcesCollapsed(true)}
+                onAddSources={handleAddSources}
+                onSelectSource={handleSelectSource}
+                selectedSources={selectedSources}
+                onSelectAll={handleSelectAll}
+                onClearSelection={() => setSelectedSources(new Set())}
+                onDeleteSource={handleDeleteSource}
+                onRenameFile={handleRenameFile}
+                onDuplicateFile={handleDuplicateFile}
+                onCreateFolder={handleCreateFolder}
+                onRenameFolder={handleRenameFolder}
+                onDeleteFolder={handleDeleteFolder}
+                    onMoveToFolder={handleMoveToFolder}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        )}
+        </motion.div>
 
-        <div className="flex-1 flex overflow-hidden">
-          {!chatCollapsed && (
-            <div className="flex-1 flex flex-col min-w-0">
-              <ChatPanel
+        {/* Main Workspace & Chat */}
+        <div className="flex-1 flex overflow-hidden gap-2">
+          {/* Main Chat Area */}
+          <motion.div 
+            className={`flex-1 flex flex-col glass-panel rounded-3xl shadow-2xl ${chatCollapsed ? 'flex-none w-14' : ''}`}
+            style={{ overflow: chatCollapsed ? 'hidden' : 'visible' }}
+            animate={{ width: chatCollapsed ? 56 : 'auto', flex: chatCollapsed ? 'none' : 1 }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+          >
+            <AnimatePresence mode="wait">
+              {chatCollapsed ? (
+                <motion.div
+                  key="collapsed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 flex flex-col items-center py-6 gap-6"
+                >
+                  <button
+                    onClick={() => setChatCollapsed(false)}
+                    className="p-3 bg-bg3/50 hover:bg-bg3 rounded-2xl transition-all hover:scale-110 active:scale-90 focus-visible:outline-2 focus-visible:outline-accent1 focus-visible:outline-offset-2"
+                    aria-label="Expand chat panel"
+                    title="Expand Chat"
+                  >
+                    <svg className="w-6 h-6 text-accent1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="expanded"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-1 overflow-hidden"
+                >
+                  <ChatPanel
+                labTitle="AI Workspace"
                 courseTitle={course.title}
                 sourceCount={state.uploadedFiles.length}
                 messages={state.chatHistory}
@@ -1572,104 +1728,113 @@ I couldn't extract content from: ${url}
                 contentSummary={contentSummary}
                 suggestedQuestions={suggestedQuestions}
                 isCollapsed={false}
-                onToggleCollapse={() => setChatCollapsed(!chatCollapsed)}
+                onToggleCollapse={() => setChatCollapsed(true)}
                 onExtractConfig={handleExtractConfigFromChat}
                 hasConfig={!!state.courseConfig}
                 onGenerateCourse={handleProgressiveCourseGeneration}
-                isGenerating={generating === 'course' || generationProgress?.status !== 'idle'}
-              />
+                    isGenerating={generating === 'course' || (generationProgress && generationProgress.status !== 'idle')}
+                    hasOutline={!!(state.courseData?.course.stages && state.courseData.course.stages.length > 0)}
+                    hasContent={!!(state.courseData?.course.stages?.[0]?.content)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+          {/* Studio/Preview Panel */}
+          <motion.div 
+            className={`flex shrink-0 ${studioCollapsed ? 'w-14' : 'w-96'}`}
+            animate={{ width: studioCollapsed ? 56 : 384 }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+          >
+            <div className="flex-1 flex flex-col glass-panel rounded-3xl overflow-hidden shadow-2xl relative">
+              <AnimatePresence mode="wait">
+                {studioCollapsed ? (
+                  <motion.div
+                    key="collapsed"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex-1 flex flex-col items-center py-6 gap-6"
+                  >
+                    <button
+                      onClick={() => setStudioCollapsed(false)}
+                      className="p-3 bg-bg3/50 hover:bg-bg3 rounded-2xl transition-all hover:scale-110 active:scale-90 focus-visible:outline-2 focus-visible:outline-accent1 focus-visible:outline-offset-2"
+                      aria-label="Expand studio panel"
+                      title="Expand Studio"
+                    >
+                      <svg className="w-6 h-6 text-accent1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="expanded"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex-1"
+                  >
+                    <StudioPanel
+                  isCollapsed={false}
+                  onToggleCollapse={() => setStudioCollapsed(true)}
+                  onGenerateOutput={handleGenerateOutput}
+                  outputs={studioOutputs}
+                  generating={generating}
+                  generationProgress={generationProgress}
+                  hasSources={state.uploadedFiles.length > 0 || state.chatHistory.length >= 3}
+                  onViewCourse={(courseData) => {
+                    const fullCourseData: CourseData = {
+                      course: courseData.course,
+                      videoScenes: courseData.videoScenes || [],
+                      podcastDialogue: courseData.podcastDialogue || [],
+                    };
+                    updateState({ courseData: fullCourseData });
+                    updateCourse(courseId, {
+                      state: {
+                        ...state,
+                        courseData: fullCourseData,
+                      },
+                    });
+                    setShowCoursePreview(true);
+                  }}
+                  onRemoveOutput={(type) => {
+                    setStudioOutputs((prev) => {
+                      const next = { ...prev };
+                      delete next[type];
+                      return next;
+                    });
+                    }}
+                  />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          )}
-          {chatCollapsed && (
-            <div className="w-12 bg-bg1 border-r border-border flex flex-col items-center py-4">
-              <button
-                onClick={() => setChatCollapsed(false)}
-                className="p-2 hover:bg-bg3 rounded transition-colors"
-                aria-label="Expand chat panel"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </button>
-            </div>
-          )}
-
-          {!studioCollapsed && (
-            <ResizablePanel
-              defaultWidth={320}
-              minWidth={250}
-              maxWidth={500}
-              side="right"
-              className="bg-bg2 border-l border-border"
-            >
-              <StudioPanel
-                isCollapsed={false}
-                onToggleCollapse={() => setStudioCollapsed(!studioCollapsed)}
-                onGenerateOutput={handleGenerateOutput}
-                outputs={studioOutputs}
-                generating={generating}
-                generationProgress={generationProgress}
-                hasSources={state.uploadedFiles.length > 0 || state.chatHistory.length >= 3}
-                onViewCourse={(courseData) => {
-                  // Ensure course data is saved to state
-                  const fullCourseData: CourseData = {
-                    course: courseData.course,
-                    videoScenes: courseData.videoScenes || [],
-                    podcastDialogue: courseData.podcastDialogue || [],
-                  };
-                  updateState({ courseData: fullCourseData });
-                  updateCourse(courseId, { 
-                    state: {
-                      ...state,
-                      courseData: fullCourseData,
-                    },
-                  });
-                  setShowCoursePreview(true);
-                }}
-                onRemoveOutput={(type) => {
-                  setStudioOutputs((prev) => {
-                    const next = { ...prev };
-                    delete next[type];
-                    return next;
-                  });
-                }}
-              />
-            </ResizablePanel>
-          )}
-          {studioCollapsed && (
-            <div className="w-12 bg-bg2 border-l border-border flex flex-col items-center py-4">
-              <button
-                onClick={() => setStudioCollapsed(false)}
-                className="p-2 hover:bg-bg3 rounded transition-colors"
-                aria-label="Expand studio panel"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          )}
+          </motion.div>
         </div>
 
         {/* Generation Progress Display */}
         {generationProgress.status !== 'idle' && (
-          <div className="absolute bottom-4 right-4 w-80 z-40">
-            <GenerationProgress
-              status={generationProgress.status}
-              progress={generationProgress.progress}
-              currentStage={generationProgress.currentStage}
-              totalStages={generationProgress.totalStages}
-              message={generationProgress.message}
-              onCancel={() => {
-                setGenerating(null);
-                setGenerationProgress({ status: 'idle', progress: 0 });
-              }}
-            />
+          <div className="absolute bottom-6 right-6 w-96 z-50">
+            <div className="glass-panel rounded-3xl p-1 shadow-2xl">
+              <GenerationProgress
+                status={generationProgress.status}
+                progress={generationProgress.progress}
+                currentStage={generationProgress.currentStage}
+                totalStages={generationProgress.totalStages}
+                message={generationProgress.message}
+                onCancel={() => {
+                  setGenerating(null);
+                  setGenerationProgress({ status: 'idle', progress: 0 });
+                }}
+              />
+            </div>
           </div>
         )}
       </div>
 
-      {/* Config Extraction Modal */}
+      {/* Modals & Overlays */}
       {showConfigModal && extractedConfig && (
         <ConfigExtractionModal
           extractedConfig={extractedConfig.config}
@@ -1688,7 +1853,6 @@ I couldn't extract content from: ${url}
         />
       )}
 
-      {/* Outline Review Modal */}
       {showOutlineModal && generatedOutline && (
         <OutlineReviewModal
           outline={generatedOutline}
@@ -1720,13 +1884,16 @@ I couldn't extract content from: ${url}
         />
       )}
 
-      {/* Course Preview Modal */}
       {showCoursePreview && state.courseData && (
         <CoursePreview
           courseData={state.courseData}
           config={state.courseConfig as CourseConfig}
           courseId={courseId}
           onClose={() => setShowCoursePreview(false)}
+          onConfigUpdate={(updatedConfig) => {
+            // Update the course config when template is changed in preview
+            updateState({ courseConfig: updatedConfig });
+          }}
           onExport={async () => {
             try {
               const response = await fetch('/api/export', {
@@ -1734,11 +1901,15 @@ I couldn't extract content from: ${url}
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   courseData: state.courseData,
-                  courseConfig: state.courseConfig,
+                  courseConfig: {
+                    ...state.courseConfig,
+                    // Ensure templateId is included in export
+                    templateId: state.courseConfig?.templateId || 'modern',
+                  },
                   courseId: courseId,
                 }),
               });
-              
+
               if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -1758,43 +1929,6 @@ I couldn't extract content from: ${url}
         />
       )}
 
-      {/* Toast Notifications */}
-      {toast && (
-        <div className={`fixed bottom-4 right-4 ${toast.type === 'success' ? 'bg-green-500' : toast.type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white p-4 rounded-lg shadow-lg z-50 max-w-md`}>
-          <div className="flex items-center justify-between">
-            <p className="text-sm">{toast.message}</p>
-            <button
-              onClick={() => setToast(null)}
-              className="ml-4 p-1 hover:bg-black/20 rounded"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Error Toast */}
-      {error && (
-        <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-md">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-semibold mb-1">Error</p>
-              <p className="text-sm">{error}</p>
-            </div>
-            <button
-              onClick={() => setError(null)}
-              className="ml-4 p-1 hover:bg-red-600 rounded"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Add Sources Modal */}
       {showAddSourcesModal && (
         <AddSourcesModal
@@ -1811,6 +1945,40 @@ I couldn't extract content from: ${url}
           onComplete={handleUploadComplete}
           onError={handleUploadError}
         />
+      )}
+
+      {/* Toasts */}
+      {(toast || error) && (
+        <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-[100]">
+          {toast && (
+            <div className={`glass shadow-2xl border-l-4 ${toast.type === 'success' ? 'border-green-500' : 'border-blue-500'} p-4 rounded-2xl min-w-[320px] animate-in slide-in-from-right duration-300`}>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{toast.message}</p>
+                <button 
+                  onClick={() => setToast(null)} 
+                  className="ml-4 p-1 hover:bg-bg3 rounded-full focus-visible:outline-2 focus-visible:outline-accent1 focus-visible:outline-offset-2"
+                  aria-label="Close notification"
+                  title="Close notification"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" strokeWidth={2} /></svg>
+                </button>
+              </div>
+            </div>
+          )}
+          {error && (
+            <div className="glass shadow-2xl border-l-4 border-red-500 p-4 rounded-2xl min-w-[320px] animate-in slide-in-from-right duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-red-500 uppercase tracking-widest mb-1">Error</p>
+                  <p className="text-sm font-medium">{error}</p>
+                </div>
+                <button onClick={() => setError(null)} className="ml-4 p-1 hover:bg-bg3 rounded-full">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" strokeWidth={2} /></svg>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

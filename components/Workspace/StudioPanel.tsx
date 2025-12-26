@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import MediaEditor from '@/components/MediaEditor/MediaEditor';
-import MediaLibraryPanel from '@/components/Workspace/MediaLibraryPanel';
 import { useCourseCreation } from '@/contexts/CourseCreationContext';
 import { MediaAsset } from '@/types/courseCreation';
 
@@ -78,9 +77,6 @@ export default function StudioPanel({
           </svg>
         </button>
       </div>
-
-      {/* Media Library Panel */}
-      <MediaLibraryPanel />
 
       {/* Output Tiles */}
       <div className="flex-1 overflow-y-auto p-4">

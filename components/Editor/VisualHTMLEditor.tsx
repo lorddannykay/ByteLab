@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { CourseData, CourseConfig, CourseStage } from '@/types/course';
+import { CourseData, CourseConfig, CourseStage, InteractiveElement } from '@/types/course';
+import { motion, AnimatePresence } from 'framer-motion';
 import ComponentLibrary from './ComponentLibrary';
 import AIContentAssistant from './AIContentAssistant';
 import MediaUpload from './MediaUpload';
 import ImageSearchModal from './ImageSearchModal';
-import { TextBlock, HeadingBlock, ListBlock, QuizBlock, ImageBlock, DragDropBlock, VideoBlock, AudioBlock, CodeBlock, FlashcardBlock, ProgressBlock } from './blocks';
-import { PlusIcon, SparklesIcon, VideoCameraIcon } from '@/components/Icons/AppleIcons';
+import { TextBlock, HeadingBlock, ListBlock, QuizBlock, ImageBlock, DragDropBlock, VideoBlock, AudioBlock, CodeBlock, FlashcardBlock, ProgressBlock, FreeFormBlock, SectionBlock } from './blocks';
+import { PlusIcon, SparklesIcon, VideoCameraIcon, TrashIcon, ArrowUpIcon, ArrowDownIcon } from '@/components/Icons/AppleIcons';
 import { useCourseCreation } from '@/contexts/CourseCreationContext';
 import { MediaAsset } from '@/types/courseCreation';
 import { ImageMetadata } from '@/types/course';
@@ -43,6 +44,18 @@ export default function VisualHTMLEditor({
 
   const currentStage = courseData.course.stages.find(s => s.id === selectedStageId);
 
+  // Ensure content.sections is always an array
+  const content = currentStage?.content ? {
+    ...currentStage.content,
+    sections: Array.isArray(currentStage.content.sections)
+      ? currentStage.content.sections
+      : [],
+  } : {
+    introduction: '',
+    sections: [],
+    summary: '',
+  };
+
   const handleUpdateStage = useCallback((updatedStage: CourseStage) => {
     const updatedStages = courseData.course.stages.map(s =>
       s.id === selectedStageId ? updatedStage : s
@@ -71,22 +84,24 @@ export default function VisualHTMLEditor({
       'progress': 'progress',
     };
 
-    const elementType = typeMap[componentType] || componentType;
+    const elementType = (typeMap[componentType] || componentType) as InteractiveElement['type'];
 
-    const newElement = {
+    const newElement: InteractiveElement = {
       type: elementType,
       data: data || {},
       id: `element-${Date.now()}`,
     };
 
-    const updatedElements = [
-      ...(currentStage.interactiveElements || []),
-      newElement,
+    const allBlocks = [
+      ...(currentStage.blocks || []),
+      ...((!currentStage.blocks && content.sections) ? content.sections.map(s => ({ type: 'section' as const, data: s })) : []),
+      ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
     ];
 
     handleUpdateStage({
       ...currentStage,
-      interactiveElements: updatedElements,
+      blocks: [...allBlocks, newElement],
+      interactiveElements: [], // Clear legacy
     });
 
     setShowComponentLibrary(false);
@@ -114,7 +129,7 @@ export default function VisualHTMLEditor({
           addMediaAsset(mediaAsset);
 
           // Add to stage
-          const newElement = {
+          const newElement: InteractiveElement = {
             type: 'image',
             data: {
               id: mediaAsset.id,
@@ -124,14 +139,16 @@ export default function VisualHTMLEditor({
             },
           };
 
-          const updatedElements = [
-            ...(currentStage.interactiveElements || []),
-            newElement,
+          const allBlocks = [
+            ...(currentStage.blocks || []),
+            ...((!currentStage.blocks && content.sections) ? content.sections.map(s => ({ type: 'section' as const, data: s })) : []),
+            ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
           ];
 
           handleUpdateStage({
             ...currentStage,
-            interactiveElements: updatedElements,
+            blocks: [...allBlocks, newElement],
+            interactiveElements: [],
           });
         };
         img.src = imageData;
@@ -140,8 +157,8 @@ export default function VisualHTMLEditor({
     } else {
       // For video/audio, add directly
       const mediaUrl = url || URL.createObjectURL(file);
-      const newElement = {
-        type: type,
+      const newElement: InteractiveElement = {
+        type: type as any,
         data: {
           id: `media-${Date.now()}`,
           src: mediaUrl,
@@ -150,14 +167,16 @@ export default function VisualHTMLEditor({
         },
       };
 
-      const updatedElements = [
-        ...(currentStage.interactiveElements || []),
-        newElement,
+      const allBlocks: InteractiveElement[] = [
+        ...(currentStage.blocks || []),
+        ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+        ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
       ];
 
       handleUpdateStage({
         ...currentStage,
-        interactiveElements: updatedElements,
+        blocks: [...allBlocks, newElement],
+        interactiveElements: [],
       });
     }
   }, [currentStage, handleUpdateStage, addMediaAsset]);
@@ -165,8 +184,8 @@ export default function VisualHTMLEditor({
   const handleSelectMediaFromLibrary = useCallback((asset: MediaAsset) => {
     if (!currentStage) return;
 
-    const newElement = {
-      type: asset.type === 'image' ? 'image' : 'video',
+    const newElement: InteractiveElement = {
+      type: (asset.type === 'image' ? 'image' : 'video') as any,
       data: {
         id: asset.id,
         src: asset.imageData || asset.thumbnailUrl || '',
@@ -175,14 +194,16 @@ export default function VisualHTMLEditor({
       },
     };
 
-    const updatedElements = [
-      ...(currentStage.interactiveElements || []),
-      newElement,
+    const allBlocks = [
+      ...(currentStage.blocks || []),
+      ...((!currentStage.blocks && content.sections) ? content.sections.map(s => ({ type: 'section' as const, data: s })) : []),
+      ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
     ];
 
     handleUpdateStage({
       ...currentStage,
-      interactiveElements: updatedElements,
+      blocks: [...allBlocks, newElement],
+      interactiveElements: [],
     });
 
     setShowMediaLibrary(false);
@@ -197,8 +218,36 @@ export default function VisualHTMLEditor({
     }
   }, []);
 
-  const handleDragStart = useCallback((type: 'section' | 'element', index: number) => {
-    setDraggedItem({ type, index });
+  const handleMoveBlock = useCallback((index: number, direction: number, allBlocks: InteractiveElement[]) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= allBlocks.length) return;
+
+    const blocks = [...allBlocks];
+    const [moved] = blocks.splice(index, 1);
+    blocks.splice(newIndex, 0, moved);
+
+    const updatedStage = {
+      ...currentStage!,
+      blocks: blocks,
+      interactiveElements: [], // Clear legacy to avoid conflicts
+    };
+
+    handleUpdateStage(updatedStage);
+    
+    // Ensure onUpdate is called to sync with parent
+    onUpdate({
+      ...courseData,
+      course: {
+        ...courseData.course,
+        stages: courseData.course.stages.map(s =>
+          s.id === selectedStageId ? updatedStage : s
+        ),
+      },
+    });
+  }, [handleUpdateStage, currentStage, courseData, selectedStageId, onUpdate]);
+
+  const handleDragStart = useCallback((index: number) => {
+    setDraggedItem({ type: 'element', index }); // unified as 'element' for drag state
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
@@ -210,47 +259,92 @@ export default function VisualHTMLEditor({
     setDragOverIndex(null);
   }, []);
 
+  const handleApplyAIResult = useCallback((newText: string) => {
+    if (!selectedElement || !currentStage) return;
+
+    // 1. Identify where to apply
+    const blockEl = selectedElement.closest('[data-block-id]');
+    const field = selectedElement.closest('[data-field]')?.getAttribute('data-field');
+    const blockId = blockEl?.getAttribute('data-block-id');
+
+    if (blockId && field) {
+      // Get all blocks
+      const allBlocks: InteractiveElement[] = [
+        ...(currentStage.blocks || []),
+        ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+        ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+      ];
+
+      // Find block index
+      let blockIndex = -1;
+      if (blockId.startsWith('block-')) {
+        blockIndex = parseInt(blockId.replace('block-', ''));
+      } else {
+        blockIndex = allBlocks.findIndex(b => b.id === blockId);
+      }
+
+      if (blockIndex !== -1) {
+        // We trigger the state update by using execCommand or input replacement,
+        // which our components (SectionBlock, TextBlock, etc.) handle via onChange.
+        // This is safer than manually updating state here because it preserves selection-based replacement.
+      }
+    }
+
+    // Focus the element
+    selectedElement.focus();
+
+    // Check if it's an input or textarea
+    if (selectedElement instanceof HTMLInputElement || selectedElement instanceof HTMLTextAreaElement) {
+      // For controlled inputs, we try to trigger a change event
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+      const nativeTextAreaValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
+
+      if (selectedElement instanceof HTMLTextAreaElement && nativeTextAreaValueSetter) {
+        nativeTextAreaValueSetter.call(selectedElement, newText);
+      } else if (selectedElement instanceof HTMLInputElement && nativeInputValueSetter) {
+        nativeInputValueSetter.call(selectedElement, newText);
+      } else {
+        selectedElement.value = newText;
+      }
+
+      const event = new Event('input', { bubbles: true });
+      selectedElement.dispatchEvent(event);
+    } else {
+      // For contenteditable or other elements
+      document.execCommand('insertText', false, newText);
+    }
+  }, [selectedElement, currentStage, content]);
+
   const handleDrop = useCallback((e: React.DragEvent, targetIndex: number, type: 'section' | 'element') => {
     e.preventDefault();
     setDragOverIndex(null);
-    
-    if (!draggedItem || draggedItem.type !== type || draggedItem.index === targetIndex) {
+
+    // For unified blocks, we don't strictly need the 'type' check if they are in the same list
+    if (!draggedItem || draggedItem.index === targetIndex) {
       setDraggedItem(null);
       return;
     }
 
     if (!currentStage) return;
 
-    if (type === 'section') {
-      const currentSections = Array.isArray(currentStage.content?.sections) 
-        ? currentStage.content.sections 
-        : [];
-      if (currentSections.length === 0) return;
-      
-      const sections = [...currentSections];
-      const [moved] = sections.splice(draggedItem.index, 1);
-      sections.splice(targetIndex, 0, moved);
-      
-      handleUpdateStage({
-        ...currentStage,
-        content: {
-          ...currentStage.content || { introduction: '', sections: [], summary: '' },
-          sections,
-        },
-      });
-    } else if (type === 'element' && currentStage.interactiveElements) {
-      const elements = [...currentStage.interactiveElements];
-      const [moved] = elements.splice(draggedItem.index, 1);
-      elements.splice(targetIndex, 0, moved);
-      
-      handleUpdateStage({
-        ...currentStage,
-        interactiveElements: elements,
-      });
-    }
+    // Get all blocks
+    const allBlocks = [
+      ...(currentStage.blocks || []),
+      ...((!currentStage.blocks && content.sections) ? content.sections.map(s => ({ type: 'section' as const, data: s })) : []),
+      ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+    ];
+
+    const blocks = [...allBlocks];
+    const [moved] = blocks.splice(draggedItem.index, 1);
+    blocks.splice(targetIndex, 0, moved);
+
+    handleUpdateStage({
+      ...currentStage,
+      blocks: blocks,
+    });
 
     setDraggedItem(null);
-  }, [draggedItem, currentStage, handleUpdateStage]);
+  }, [draggedItem, currentStage, handleUpdateStage, content.sections]);
 
   if (!currentStage) {
     return (
@@ -260,20 +354,9 @@ export default function VisualHTMLEditor({
     );
   }
 
-  // Ensure content.sections is always an array
-  const content = currentStage.content ? {
-    ...currentStage.content,
-    sections: Array.isArray(currentStage.content.sections) 
-      ? currentStage.content.sections 
-      : [],
-  } : {
-    introduction: '',
-    sections: [],
-    summary: '',
-  };
 
   const topLevelStages = courseData.course.stages.filter(s => !s.parentStageId);
-  
+
   const getSubStages = (stageId: number) => {
     return courseData.course.stages.filter(s => s.parentStageId === stageId);
   };
@@ -285,7 +368,7 @@ export default function VisualHTMLEditor({
     const maxSubStageId = courseData.course.stages
       .filter(s => s.parentStageId === parentStageId)
       .reduce((max, s) => Math.max(max, s.id), 0);
-    
+
     const newSubStage: CourseStage = {
       id: maxSubStageId + 1,
       title: `Sub-Stage ${maxSubStageId + 1}`,
@@ -297,7 +380,7 @@ export default function VisualHTMLEditor({
       },
       interactiveElements: [],
       quizQuestions: [],
-      sideCard: null,
+      sideCard: undefined,
       parentStageId: parentStageId,
     };
 
@@ -315,7 +398,7 @@ export default function VisualHTMLEditor({
     const maxStageId = courseData.course.stages
       .filter(s => !s.parentStageId)
       .reduce((max, s) => Math.max(max, s.id), 0);
-    
+
     const newStage: CourseStage = {
       id: maxStageId + 1,
       title: `Stage ${maxStageId + 1}`,
@@ -327,7 +410,7 @@ export default function VisualHTMLEditor({
       },
       interactiveElements: [],
       quizQuestions: [],
-      sideCard: null,
+      sideCard: undefined,
     };
 
     const updatedStages = [...courseData.course.stages, newStage];
@@ -367,88 +450,86 @@ export default function VisualHTMLEditor({
                 </button>
               </div>
             </div>
-          <div className="space-y-2">
-            {topLevelStages.map((stage) => {
-              const hasContent = !!stage.content;
-              const subStages = getSubStages(stage.id);
-              const isExpanded = selectedStageId === stage.id || subStages.some(s => s.id === selectedStageId);
-              
-              return (
-                <div key={stage.id}>
-                  <button
-                    onClick={() => setSelectedStageId(stage.id)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
-                      selectedStageId === stage.id && !stage.parentStageId
+            <div className="space-y-2">
+              {topLevelStages.map((stage) => {
+                const hasContent = !!stage.content;
+                const subStages = getSubStages(stage.id);
+                const isExpanded = selectedStageId === stage.id || subStages.some(s => s.id === selectedStageId);
+
+                return (
+                  <div key={stage.id}>
+                    <button
+                      onClick={() => setSelectedStageId(stage.id)}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${selectedStageId === stage.id && !stage.parentStageId
                         ? 'bg-accent1/20 border-2 border-accent1'
                         : 'bg-bg1 border border-border hover:bg-bg3'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-semibold text-accent1">Stage {stage.id}</span>
-                      {hasContent && (
-                        <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-500 rounded">
-                          ✓
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm font-medium text-text-primary line-clamp-2">{stage.title}</div>
-                  </button>
-                  {subStages.length > 0 && (
-                    <div className="ml-4 mt-2 space-y-1 border-l-2 border-border pl-2">
-                      {subStages.map((subStage) => {
-                        const hasSubContent = !!subStage.content;
-                        return (
-                          <button
-                            key={subStage.id}
-                            onClick={() => setSelectedStageId(subStage.id)}
-                            className={`w-full text-left p-2 rounded-lg transition-colors text-xs ${
-                              selectedStageId === subStage.id
+                        }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-semibold text-accent1">Stage {stage.id}</span>
+                        {hasContent && (
+                          <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-500 rounded">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm font-medium text-text-primary line-clamp-2">{stage.title}</div>
+                    </button>
+                    {subStages.length > 0 && (
+                      <div className="ml-4 mt-2 space-y-1 border-l-2 border-border pl-2">
+                        {subStages.map((subStage) => {
+                          const hasSubContent = !!subStage.content;
+                          return (
+                            <button
+                              key={subStage.id}
+                              onClick={() => setSelectedStageId(subStage.id)}
+                              className={`w-full text-left p-2 rounded-lg transition-colors text-xs ${selectedStageId === subStage.id
                                 ? 'bg-accent1/20 border border-accent1'
                                 : 'bg-bg1 border border-border/50 hover:bg-bg3'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-semibold text-accent1/70">Sub {subStage.id}</span>
-                              {hasSubContent && (
-                                <span className="text-xs px-1.5 py-0.5 bg-green-500/20 text-green-500 rounded text-[10px]">
-                                  ✓
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-xs font-medium text-text-primary line-clamp-1">{subStage.title}</div>
-                          </button>
-                        );
-                      })}
+                                }`}
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-semibold text-accent1/70">Sub {subStage.id}</span>
+                                {hasSubContent && (
+                                  <span className="text-xs px-1.5 py-0.5 bg-green-500/20 text-green-500 rounded text-[10px]">
+                                    ✓
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs font-medium text-text-primary line-clamp-1">{subStage.title}</div>
+                            </button>
+                          );
+                        })}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddSubStage(stage.id);
+                          }}
+                          className="w-full text-left p-2 text-xs text-text-tertiary hover:text-accent1 transition-colors flex items-center gap-1"
+                        >
+                          <PlusIcon className="w-3 h-3" />
+                          Add Sub-Stage
+                        </button>
+                      </div>
+                    )}
+                    {subStages.length === 0 && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleAddSubStage(stage.id);
                         }}
-                        className="w-full text-left p-2 text-xs text-text-tertiary hover:text-accent1 transition-colors flex items-center gap-1"
+                        className="ml-4 mt-1 text-xs text-text-tertiary hover:text-accent1 transition-colors flex items-center gap-1"
                       >
                         <PlusIcon className="w-3 h-3" />
                         Add Sub-Stage
                       </button>
-                    </div>
-                  )}
-                  {subStages.length === 0 && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddSubStage(stage.id);
-                      }}
-                      className="ml-4 mt-1 text-xs text-text-tertiary hover:text-accent1 transition-colors flex items-center gap-1"
-                    >
-                      <PlusIcon className="w-3 h-3" />
-                      Add Sub-Stage
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Show Stages Button (when hidden) */}
@@ -563,281 +644,169 @@ export default function VisualHTMLEditor({
               </div>
             )}
 
-            {/* Sections */}
-            {content.sections.map((section, index) => (
-              <div
-                key={`section-${index}`}
-                draggable
-                onDragStart={(e) => {
-                  handleDragStart('section', index);
-                  e.dataTransfer.effectAllowed = 'move';
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDragOver(e, index);
-                }}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDrop(e, index, 'section');
-                }}
-                className={`mb-6 p-4 bg-bg2 border border-border rounded-lg group cursor-move transition-all ${
-                  dragOverIndex === index && draggedItem?.type === 'section' ? 'border-accent1 bg-accent1/10' : ''
-                } ${draggedItem?.type === 'section' && draggedItem.index === index ? 'opacity-50' : ''}`}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-text-tertiary cursor-move" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-                  </svg>
-                  <span className="text-xs text-text-tertiary">Drag to reorder</span>
-                </div>
-                <HeadingBlock
-                  value={section.heading}
-                  onChange={(value) => {
-                    const updatedSections = [...content.sections];
-                    updatedSections[index] = { ...section, heading: value };
-                    handleUpdateStage({
-                      ...currentStage,
-                      content: {
-                        ...content,
-                        sections: updatedSections,
-                      },
-                    });
-                  }}
-                  level={3}
-                />
-                {/* Section Image */}
-                <div className="mb-4">
-                  {section.image ? (
-                    <div className="relative group">
-                      <img
-                        src={section.image.thumbnailUrl || section.image.url}
-                        alt={section.image.attribution || section.heading}
-                        className="w-full rounded-lg border border-border max-h-64 object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x400?text=Image+Not+Found';
-                        }}
-                      />
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedImageSection({ sectionIndex: index });
-                            setShowImageSearch(true);
-                          }}
-                          className="p-2 bg-bg1/90 rounded hover:bg-bg2 transition-colors"
-                          title="Change image"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => {
-                            const updatedSections = [...content.sections];
-                            updatedSections[index] = { ...section, image: undefined };
-                            handleUpdateStage({
-                              ...currentStage,
-                              content: {
-                                ...content,
-                                sections: updatedSections,
-                              },
-                            });
-                          }}
-                          className="p-2 bg-red-500/90 rounded hover:bg-red-600 transition-colors"
-                          title="Remove image"
-                        >
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="absolute bottom-2 left-2 right-2 bg-black/60 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="truncate">{section.image.attribution}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setSelectedImageSection({ sectionIndex: index });
-                        setShowImageSearch(true);
-                      }}
-                      className="w-full p-6 border-2 border-dashed border-border rounded-lg text-center cursor-pointer hover:border-accent1 transition-colors bg-bg1/50"
-                    >
-                      <svg className="w-8 h-8 mx-auto mb-2 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="text-text-secondary text-sm">Add image to section</p>
-                      <p className="text-text-tertiary text-xs mt-1">Search from Pexels & Unsplash</p>
-                    </button>
-                  )}
-                </div>
-                {section.items && section.items.length > 0 ? (
-                  <ListBlock
-                    items={section.items}
-                    onChange={(items) => {
-                      const updatedSections = [...content.sections];
-                      updatedSections[index] = { ...section, items };
-                      handleUpdateStage({
-                        ...currentStage,
-                        content: {
-                          ...content,
-                          sections: updatedSections,
-                        },
-                      });
-                    }}
-                  />
-                ) : (
-                  <TextBlock
-                    value={section.content || ''}
-                    onChange={(value) => {
-                      const updatedSections = [...content.sections];
-                      updatedSections[index] = { ...section, content: value };
-                      handleUpdateStage({
-                        ...currentStage,
-                        content: {
-                          ...content,
-                          sections: updatedSections,
-                        },
-                      });
-                    }}
-                    placeholder="Section content..."
-                  />
-                )}
-                <button
-                  onClick={() => {
-                    if (confirm('Are you sure you want to delete this section?')) {
-                      const updatedSections = content.sections.filter((_, i) => i !== index);
-                      handleUpdateStage({
-                        ...currentStage,
-                        content: {
-                          ...content,
-                          sections: updatedSections,
-                        },
-                      });
-                    }
-                  }}
-                  className="opacity-0 group-hover:opacity-100 mt-2 text-sm text-red-500 hover:text-red-600 transition-opacity flex items-center gap-1"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  Delete section
-                </button>
-              </div>
-            ))}
-
-            {/* Interactive Elements */}
-            {currentStage.interactiveElements && currentStage.interactiveElements.map((element, index) => {
-              const handleElementChange = (updatedData: any) => {
-                const updatedElements = [...(currentStage.interactiveElements || [])];
-                updatedElements[index] = { ...element, data: updatedData };
-                handleUpdateStage({
-                  ...currentStage,
-                  interactiveElements: updatedElements,
-                });
-              };
-
-              const handleElementDelete = () => {
-                if (confirm('Are you sure you want to delete this component?')) {
-                  const updatedElements = currentStage.interactiveElements?.filter((_, i) => i !== index) || [];
-                  handleUpdateStage({
-                    ...currentStage,
-                    interactiveElements: updatedElements,
-                  });
-                }
-              };
-
-              const renderElement = () => {
-                switch (element.type) {
-                  case 'quiz':
-                    return (
-                      <QuizBlock
-                        quiz={element.data || { question: '', options: [], correctAnswer: '' }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'dragdrop':
-                    return (
-                      <DragDropBlock
-                        data={element.data || { instruction: '', items: [] }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'video':
-                    return (
-                      <VideoBlock
-                        data={element.data || { type: 'url', url: '', title: '' }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'audio':
-                    return (
-                      <AudioBlock
-                        data={element.data || { url: '', title: '' }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'image':
-                    return (
-                      <ImageBlock
-                        src={element.data?.src || element.data?.imageData || ''}
-                        alt={element.data?.alt || element.data?.title || ''}
-                        imageMetadata={element.data?.imageMetadata}
-                        onUpdate={(src, alt, imageMetadata) => handleElementChange({ ...element.data, src, alt, imageMetadata })}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'code':
-                    return (
-                      <CodeBlock
-                        data={element.data || { language: 'javascript', code: '', title: '' }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'flashcard':
-                    return (
-                      <FlashcardBlock
-                        data={element.data || { title: '', cards: [] }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  case 'progress':
-                    return (
-                      <ProgressBlock
-                        data={element.data || { label: '', current: 0, total: 100 }}
-                        onChange={handleElementChange}
-                        onDelete={handleElementDelete}
-                      />
-                    );
-                  default:
-                    return null;
-                }
-              };
+            {/* Unified Blocks */}
+            {(() => {
+              const allBlocks: InteractiveElement[] = [
+                ...(currentStage.blocks || []),
+                ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+                ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+              ];
 
               return (
-                <div
-                  key={index}
-                  draggable
-                  onDragStart={() => handleDragStart('element', index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, index, 'element')}
-                  className={`mb-6 p-4 bg-bg2 border border-border rounded-lg cursor-move transition-all ${
-                    dragOverIndex === index && draggedItem?.type === 'element' ? 'border-accent1 bg-accent1/10' : ''
-                  } ${draggedItem?.type === 'element' && draggedItem.index === index ? 'opacity-50' : ''}`}
-                >
-                  {renderElement()}
-                </div>
+                <AnimatePresence mode="popLayout">
+                  {allBlocks.map((block, index) => {
+                    const handleBlockChange = (updatedData: any) => {
+                      const updatedBlocks = [...allBlocks];
+                      updatedBlocks[index] = { ...block, data: updatedData };
+                      handleUpdateStage({ ...currentStage, blocks: updatedBlocks, interactiveElements: [] });
+                    };
+
+                    const handleBlockDelete = (e?: React.MouseEvent) => {
+                      if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                      if (confirm('Are you sure you want to delete this component?')) {
+                        const updatedBlocks = allBlocks.filter((_, i) => i !== index);
+                        handleUpdateStage({ 
+                          ...currentStage, 
+                          blocks: updatedBlocks,
+                          interactiveElements: [] // Clear legacy to avoid conflicts
+                        });
+                        // Ensure onUpdate is called to sync with parent
+                        onUpdate({
+                          ...courseData,
+                          course: {
+                            ...courseData.course,
+                            stages: courseData.course.stages.map(s =>
+                              s.id === selectedStageId ? { ...currentStage, blocks: updatedBlocks, interactiveElements: [] } : s
+                            ),
+                          },
+                        });
+                      }
+                    };
+
+                const renderBlock = () => {
+                  switch (block.type) {
+                    case 'section':
+                      return (
+                        <div data-block-id={block.id || `block-${index}`} data-field="content">
+                          <SectionBlock
+                            section={block.data}
+                            onChange={handleBlockChange}
+                            onDelete={handleBlockDelete}
+                            onSearchImage={() => {
+                              setSelectedImageSection({ sectionIndex: index });
+                              setShowImageSearch(true);
+                            }}
+                          />
+                        </div>
+                      );
+                    case 'quiz':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="quiz"><QuizBlock quiz={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'dragdrop':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><DragDropBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'video':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><VideoBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'audio':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><AudioBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'image':
+                      return (
+                        <div data-block-id={block.id || `block-${index}`} data-field="data">
+                          <ImageBlock
+                            src={block.data?.src || block.data?.imageData || ''}
+                            alt={block.data?.alt || block.data?.title || ''}
+                            imageMetadata={block.data?.imageMetadata}
+                            onUpdate={(src, alt, imageMetadata) => handleBlockChange({ ...block.data, src, alt, imageMetadata })}
+                            onDelete={handleBlockDelete}
+                          />
+                        </div>
+                      );
+                    case 'code':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><CodeBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'canvas':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><FreeFormBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'flashcard':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><FlashcardBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    case 'progress':
+                      return <div data-block-id={block.id || `block-${index}`} data-field="data"><ProgressBlock data={block.data} onChange={handleBlockChange} onDelete={handleBlockDelete} /></div>;
+                    default:
+                      return null;
+                  }
+                };
+
+                    return (
+                      <motion.div
+                        key={block.id || `block-${index}`}
+                        layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                        transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, index, 'element')}
+                        className={`mb-6 p-4 bg-bg2 border border-border rounded-lg cursor-move transition-all duration-200 ${dragOverIndex === index ? 'border-accent1 bg-accent1/10 scale-[1.02]' : ''
+                          } ${draggedItem?.index === index ? 'opacity-50' : ''}`}
+                      >
+                    <div className="flex items-center justify-between mb-2 pb-2 border-b border-border/50">
+                      <span className="text-xs font-semibold text-text-tertiary uppercase tracking-wider flex items-center gap-2">
+                        <svg className="w-4 h-4 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        {block.type}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation(); 
+                            handleMoveBlock(index, -1, allBlocks); 
+                          }}
+                          disabled={index === 0}
+                          className="p-2.5 hover:bg-accent1/20 hover:text-accent1 rounded-lg text-text-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-110 active:scale-95 border-2 border-transparent hover:border-accent1/30 bg-accent1/5"
+                          title="Move up"
+                          aria-label="Move component up"
+                        >
+                          <ArrowUpIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation(); 
+                            handleMoveBlock(index, 1, allBlocks); 
+                          }}
+                          disabled={index === allBlocks.length - 1}
+                          className="p-2.5 hover:bg-accent1/20 hover:text-accent1 rounded-lg text-text-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-110 active:scale-95 border-2 border-transparent hover:border-accent1/30 bg-accent1/5"
+                          title="Move down"
+                          aria-label="Move component down"
+                        >
+                          <ArrowDownIcon className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-4 bg-border mx-1"></div>
+                        <button
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation(); 
+                            handleBlockDelete(e); 
+                          }}
+                          className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-lg text-text-secondary transition-all hover:scale-110 active:scale-95 border border-transparent hover:border-red-500/20"
+                          title="Delete component"
+                          aria-label="Delete component"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                      </div>
+                      {renderBlock()}
+                    </motion.div>
+                  );
+                })}
+                </AnimatePresence>
               );
-            })}
+            })()}
 
             {/* Summary */}
             {content.summary && (
@@ -859,17 +828,17 @@ export default function VisualHTMLEditor({
               </div>
             )}
 
-            {/* Add Section Button */}
+            {/* Add Section Button (now adds a section block) */}
             <button
               onClick={() => {
-                const currentSections = content.sections || [];
-                const updatedSections = [...currentSections, { heading: 'New Section', content: '', type: 'text' }];
+                const allBlocks: InteractiveElement[] = [
+                  ...(currentStage.blocks || []),
+                  ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+                  ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+                ];
                 handleUpdateStage({
                   ...currentStage,
-                  content: {
-                    ...content,
-                    sections: updatedSections,
-                  },
+                  blocks: [...allBlocks, { type: 'section', data: { heading: 'New Section', content: '' } }]
                 });
               }}
               className="w-full p-4 border-2 border-dashed border-border rounded-lg text-text-secondary hover:border-accent1 hover:text-accent1 transition-colors flex items-center justify-center gap-2"
@@ -891,24 +860,66 @@ export default function VisualHTMLEditor({
           }}
           onSelect={(image: ImageMetadata) => {
             if (selectedImageSection && currentStage) {
-              const updatedSections = [...content.sections];
-              updatedSections[selectedImageSection.sectionIndex] = {
-                ...updatedSections[selectedImageSection.sectionIndex],
-                image,
-              };
+              const allBlocks = [
+                ...(currentStage.blocks || []),
+                ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+                ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+              ];
+
+              const updatedBlocks = [...allBlocks];
+              const block = updatedBlocks[selectedImageSection.sectionIndex];
+
+              if (block && block.type === 'section') {
+                updatedBlocks[selectedImageSection.sectionIndex] = {
+                  ...block,
+                  data: {
+                    ...block.data,
+                    image,
+                  },
+                };
+              }
+
               handleUpdateStage({
                 ...currentStage,
-                content: {
-                  ...content,
-                  sections: updatedSections,
-                },
+                blocks: updatedBlocks,
+                interactiveElements: [],
               });
             }
             setShowImageSearch(false);
             setSelectedImageSection(null);
           }}
-          currentImage={selectedImageSection ? content.sections[selectedImageSection.sectionIndex]?.image : undefined}
-          searchQuery={selectedImageSection ? content.sections[selectedImageSection.sectionIndex]?.heading : ''}
+          currentImage={selectedImageSection && (() => {
+            const allBlocks: InteractiveElement[] = [
+              ...(currentStage.blocks || []),
+              ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+              ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+            ];
+            return allBlocks[selectedImageSection.sectionIndex]?.data?.image;
+          })()}
+          searchQuery={selectedImageSection && (() => {
+            const allBlocks: InteractiveElement[] = [
+              ...(currentStage.blocks || []),
+              ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+              ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+            ];
+            return allBlocks[selectedImageSection.sectionIndex]?.data?.heading;
+          })()}
+          context={selectedImageSection && (() => {
+            const allBlocks: InteractiveElement[] = [
+              ...(currentStage.blocks || []),
+              ...((!currentStage.blocks && content.sections) ? content.sections.map((s, i) => ({ type: 'section' as const, data: s, id: `legacy-section-${i}` })) : []),
+              ...((!currentStage.blocks && currentStage.interactiveElements) ? currentStage.interactiveElements : [])
+            ];
+            const block = allBlocks[selectedImageSection.sectionIndex];
+            if (block && block.type === 'section') {
+              return {
+                heading: block.data.heading,
+                content: block.data.content,
+                topic: courseData.course.title || courseConfig.topic || ''
+              };
+            }
+            return { topic: courseData.course.title || courseConfig.topic || '' };
+          })()}
         />
       )}
 
@@ -933,6 +944,7 @@ export default function VisualHTMLEditor({
                 setSelectedText('');
                 setSelectedElement(null);
               }}
+              onApplyResult={handleApplyAIResult}
             />
           )}
         </div>

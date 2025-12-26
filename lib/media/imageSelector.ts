@@ -67,3 +67,5 @@ export function scoreImageRelevance(
   return keywords.length > 0 ? Math.min(score / keywords.length, 1) : 0.5;
 }
 
+
+

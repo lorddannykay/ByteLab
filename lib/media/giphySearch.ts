@@ -123,3 +123,5 @@ export function getGiphySearch(): GiphySearch {
   return giphySearchInstance;
 }
 
+
+

@@ -44,3 +44,7 @@ next-env.d.ts
 # output folder for courses
 /output
 
+# Large files that exceed GitHub's 100MB limit
+assets/Gumroad Illustrations/Holidays Illustrations/Holidays Illustrations/AI/Holidays.ai
+assets/Gumroad Illustrations/lukasz_adam_illustrations/lukasz_adam_illustrations/00_welcome.mp4
+

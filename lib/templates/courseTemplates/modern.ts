@@ -1,4 +1,5 @@
 import { CourseData, CourseConfig } from '@/types/course';
+import { generateInteractiveElement } from '../helpers';
 
 export function generateModernTemplate(
   courseData: CourseData,
@@ -29,13 +30,13 @@ export function generateModernTemplate(
         </div>
         ${content.introduction ? `<div class="introduction">${escapeHtml(content.introduction)}</div>` : ''}
         ${content.sections?.map(section => {
-          const imageHtml = section.image
-            ? (() => {
-                const mediaType = section.image.mediaType || 'image';
-                const isVideoLoop = mediaType === 'video-loop' || (section.image.loop && section.image.autoplay);
-                
-                if (isVideoLoop) {
-                  return `<div style="margin:20px 0;text-align:center;">
+      const imageHtml = section.image
+        ? (() => {
+          const mediaType = section.image.mediaType || 'image';
+          const isVideoLoop = mediaType === 'video-loop' || (section.image.loop && section.image.autoplay);
+
+          if (isVideoLoop) {
+            return `<div style="margin:20px 0;text-align:center;">
                     <video src="${escapeHtml(section.image.url)}" 
                            alt="${escapeHtml(section.heading || '')}" 
                            style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
@@ -45,8 +46,8 @@ export function generateModernTemplate(
                       ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:${accent1};">View profile</a>` : ''}
                     </p>
                   </div>`;
-                } else {
-                  return `<div style="margin:20px 0;text-align:center;">
+          } else {
+            return `<div style="margin:20px 0;text-align:center;">
                     <img src="${escapeHtml(section.image.url)}" 
                          alt="${escapeHtml(section.heading || '')}" 
                          style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
@@ -56,10 +57,10 @@ export function generateModernTemplate(
                       ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:${accent1};">View profile</a>` : ''}
                     </p>
                   </div>`;
-                }
-              })()
-            : '';
-          return `
+          }
+        })()
+        : '';
+      return `
           <div class="section">
             <h3>${escapeHtml(section.heading)}</h3>
             ${imageHtml}
@@ -67,7 +68,8 @@ export function generateModernTemplate(
             ${section.items ? `<ul>${section.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
           </div>
         `;
-        }).join('') || ''}
+    }).join('') || ''}
+        ${stage.interactiveElements?.map(element => generateInteractiveElement(element, stage.id)).join('') || ''}
         ${content.summary ? `<div class="summary">${escapeHtml(content.summary)}</div>` : ''}
       </section>
     `;

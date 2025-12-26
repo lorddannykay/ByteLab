@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
   QuestionMarkIcon, 
   ArrowPathIcon, 
@@ -103,27 +104,44 @@ export default function ComponentLibrary({ onAddComponent, onClose }: ComponentL
         </button>
       </div>
 
-      <div className="space-y-2">
-        {componentTypes.map((component) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {componentTypes.map((component, index) => {
           const IconComponent = component.Icon;
           return (
-            <button
+            <motion.button
               key={component.id}
               onClick={() => handleAdd(component.id)}
-              className="w-full text-left p-4 glass glass-shadow-light rounded-lg hover:glass-strong transition-all group"
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ 
+                duration: 0.3, 
+                delay: index * 0.05,
+                ease: [0.34, 1.56, 0.64, 1]
+              }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative p-4 glass glass-shadow-light rounded-xl hover:glass-strong transition-all text-left overflow-hidden"
             >
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-bg3/50 group-hover:bg-accent1/10 transition-colors">
-                  <IconComponent className="w-5 h-5 text-text-primary group-hover:text-accent1 transition-colors" />
-                </div>
-                <div className="flex-1">
-                  <div className="font-semibold text-text-primary mb-1 group-hover:text-accent1 transition-colors">
-                    {component.label}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <motion.div 
+                    className="p-3 rounded-xl bg-gradient-to-br from-accent1/10 to-accent2/10 group-hover:from-accent1/20 group-hover:to-accent2/20 transition-all"
+                    whileHover={{ rotate: 5, scale: 1.1 }}
+                  >
+                    <IconComponent className="w-6 h-6 text-accent1" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm text-text-primary group-hover:text-accent1 transition-colors">
+                      {component.label}
+                    </div>
                   </div>
-                  <div className="text-xs text-text-secondary">{component.description}</div>
+                </div>
+                <div className="text-xs text-text-secondary leading-relaxed">
+                  {component.description}
                 </div>
               </div>
-            </button>
+              <div className="absolute inset-0 bg-gradient-to-br from-accent1/0 to-accent2/0 group-hover:from-accent1/5 group-hover:to-accent2/5 transition-all rounded-xl" />
+            </motion.button>
           );
         })}
       </div>

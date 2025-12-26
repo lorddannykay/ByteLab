@@ -126,3 +126,5 @@ export function getGoogleImageSearch(): GoogleImageSearch {
   return googleImageSearchInstance;
 }
 
+
+

@@ -3,47 +3,50 @@ import { globalVectorStore } from '@/lib/rag/vectorStore';
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const { searchParams } = new URL(request.url);
     const fileId = searchParams.get('fileId');
+    const filename = searchParams.get('filename');
 
-    if (!fileId) {
+    if (!fileId && !filename) {
       return NextResponse.json(
-        { error: 'File ID is required' },
+        { error: 'fileId or filename is required' },
         { status: 400 }
       );
     }
 
-    // Get chunks for this file
+    // Find chunks for this file
     const allChunks = globalVectorStore.getAllChunks();
+    // Check both fileId and filename in metadata.source
+    const fileIdLower = fileId ? fileId.toLowerCase() : '';
+    const filenameLower = filename ? filename.toLowerCase() : '';
+
     const fileChunks = allChunks.filter(chunk => {
-      const source = chunk.metadata?.source || '';
-      return source.includes(fileId) || source === fileId;
+      const source = chunk.metadata?.source?.toLowerCase();
+      return (fileIdLower && source === fileIdLower) || (filenameLower && source === filenameLower);
     });
 
     if (fileChunks.length === 0) {
+      console.warn(`[Preview] No chunks found for ${filename} (${fileId})`);
       return NextResponse.json(
-        { error: 'File not found or no content available' },
+        { error: 'File content not found in vector store. Chunks may have been cleared.' },
         { status: 404 }
       );
     }
 
-    // Combine chunks into preview content (first 5000 characters)
-    const previewText = fileChunks
-      .map(chunk => chunk.text)
-      .join('\n\n')
-      .substring(0, 5000);
+    // Sort chunks by index to reconstruct text
+    const sortedChunks = fileChunks.sort((a, b) => a.index - b.index);
+    const fullText = sortedChunks.map(c => c.text).join('\n\n');
 
     return NextResponse.json({
-      content: previewText,
-      totalChunks: fileChunks.length,
-      previewLength: previewText.length,
+      content: fullText,
+      filename: filename || fileChunks[0].metadata?.source,
+      chunks: fileChunks.length,
     });
   } catch (error) {
     console.error('File preview error:', error);
     return NextResponse.json(
-      { error: 'Failed to load preview', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to retrieve file content' },
       { status: 500 }
     );
   }
 }
-

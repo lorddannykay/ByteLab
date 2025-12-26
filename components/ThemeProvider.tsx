@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     // Apply theme to document
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('bytelab-theme', theme);
@@ -40,10 +40,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return <>{children}</>;
-  }
+
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

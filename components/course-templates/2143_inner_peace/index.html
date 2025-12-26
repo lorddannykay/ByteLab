@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Microlearning: Mindfulness & Mental Wellness</title>
+    <link href="style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+<!--
+Tooplate 2143 Inner Peace
+https://www.tooplate.com/view/2143-inner-peace
+Free HTML CSS Template
+-->
+</head>
+<body>
+    <div class="geometric-bg"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="#hero" class="logo">
+                <img src="../../assets/ByteB_black.png" alt="ByteAI Logo" class="logo-img">
+                <span class="logo-text">BYTEAI</span>
+                <span class="course-title">Mindfulness & Mental Wellness</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#hero" class="nav-link">COURSE</a></li>
+                <li><a href="video.html" class="nav-link" target="_blank">VIDEO</a></li>
+                <li><a href="podcast.html" class="nav-link" target="_blank">PODCAST</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Course Navigation -->
+    <div class="course-navigation">
+        <div class="course-nav-container">
+            <button type="button" id="prev-step" class="course-nav-btn" disabled>Previous</button>
+            <div class="course-nav-center">
+                <div class="course-progress-wrapper">
+                    <div class="course-progress-bar">
+                        <div class="course-progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <span class="course-stage-indicator" id="stage-indicator">1/5</span>
+            </div>
+            <button type="button" id="next-step" class="course-nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- Section 1: Hero - Stage 1 -->
+    <section id="hero" class="course-stage active" data-stage="1">
+        <div class="network-bg">
+            <div class="network-line"></div>
+            <div class="network-line"></div>
+            <div class="network-line"></div>
+            <div class="network-line"></div>
+            <div class="network-dot"></div>
+            <div class="network-dot"></div>
+            <div class="network-dot"></div>
+            <div class="network-dot"></div>
+        </div>
+        
+        <div class="peace-bg">
+            <div class="breathing-circle"></div>
+            <div class="breathing-circle"></div>
+            <div class="breathing-circle"></div>
+            <div class="breathing-circle"></div>
+        </div>
+        <div class="floating-elements">
+            <div class="zen-stone"></div>
+            <div class="zen-stone"></div>
+            <div class="zen-stone"></div>
+        </div>
+        <div class="mandala-bg">
+            <div class="mandala-circle"></div>
+            <div class="mandala-circle"></div>
+            <div class="mandala-circle"></div>
+        </div>
+        <div class="hero-content">
+            <h1>Mindfulness & Mental Wellness</h1>
+            <p>Stage 1: Introduction to Mindfulness</p>
+            <p style="max-width: 600px; margin: 30px auto; font-size: 16px; line-height: 1.8; color: var(--dark);">Welcome to this microlearning course on mindfulness and mental wellness. Discover how mindfulness practices can transform your mental health, reduce stress, and enhance your overall well-being through evidence-based techniques.</p>
+        </div>
+    </section>
+
+    <!-- Section 2: About - Stage 2 -->
+    <section id="about" class="course-stage" data-stage="2">
+        <h2 class="section-title">Stage 2: Discover Mindfulness</h2>
+        <p class="section-subtitle">Transform your mind, transform your life</p>
+        
+        <div class="about-floating-cards">
+            <div class="floating-card">
+                <div class="card-icon">
+                    <div class="icon-wrapper">🧠</div>
+                </div>
+                <h3>Rewire Your Brain</h3>
+                <p>Neuroplasticity in action - just 10 minutes daily physically reshapes your brain for better focus and emotional control.</p>
+            </div>
+            
+            <div class="floating-card">
+                <div class="card-icon">
+                    <div class="icon-wrapper">⚡</div>
+                </div>
+                <h3>Instant Calm</h3>
+                <p>Access immediate stress relief through proven breathing techniques that activate your parasympathetic nervous system.</p>
+            </div>
+            
+            <div class="floating-card">
+                <div class="card-icon">
+                    <div class="icon-wrapper">🎯</div>
+                </div>
+                <h3>Peak Performance</h3>
+                <p>Achieve flow states more easily and unlock your full potential in work, creativity, and personal growth.</p>
+            </div>
+        </div>
+
+        <div class="stats-banner">
+            <div class="stat-block">
+                <div class="stat-value">85%</div>
+                <div class="stat-desc">Stress Reduction</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value">3X</div>
+                <div class="stat-desc">Better Focus</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value">10K+</div>
+                <div class="stat-desc">Happy Members</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value">4.9★</div>
+                <div class="stat-desc">User Rating</div>
+            </div>
+        </div>
+
+        <div class="feature-showcase">
+            <div class="showcase-content">
+                <h3>Why Choose Mindfulness?</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span class="feature-check">✓</span>
+                        <span>Science-backed techniques proven by neuroscience</span>
+                    </li>
+                    <li>
+                        <span class="feature-check">✓</span>
+                        <span>Personalized journey adapted to your needs</span>
+                    </li>
+                    <li>
+                        <span class="feature-check">✓</span>
+                        <span>Expert guidance from certified instructors</span>
+                    </li>
+                    <li>
+                        <span class="feature-check">✓</span>
+                        <span>Track your progress with real metrics</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Practices - Stage 3 -->
+    <section id="practices" class="course-stage" data-stage="3">
+        <div class="practices-container">
+            <h2 class="section-title">Stage 3: Mindfulness Practices</h2>
+            <p class="section-subtitle">Master these core practices to build your mindfulness toolkit</p>
+            
+            <div class="practice-layout">
+                <div class="timeline-track">
+                    <div class="timeline-progress"></div>
+                    <div class="timeline-points">
+                        <div class="timeline-point active">
+                            <div class="futuristic-label">
+                                <span class="label-text">Foundation</span>
+                            </div>
+                            <div class="timeline-indicator"></div>
+                        </div>
+                        <div class="timeline-point">
+                            <div class="futuristic-label">
+                                <span class="label-text">Breathing</span>
+                            </div>
+                            <div class="timeline-indicator"></div>
+                        </div>
+                        <div class="timeline-point">
+                            <div class="futuristic-label">
+                                <span class="label-text">Awareness</span>
+                            </div>
+                            <div class="timeline-indicator"></div>
+                        </div>
+                        <div class="timeline-point">
+                            <div class="futuristic-label">
+                                <span class="label-text">Integration</span>
+                            </div>
+                            <div class="timeline-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="practice-content-area">
+                    <div class="practice-card-new">
+                        <div class="practice-header">
+                            <div class="practice-icon-new">🧘</div>
+                            <div class="practice-info">
+                                <h3>Foundation Meditation</h3>
+                                <span class="practice-duration">10-20 minutes daily</span>
+                            </div>
+                        </div>
+                        <p class="practice-description">
+                            Begin your journey with guided meditation sessions designed specifically for beginners. Learn the fundamental techniques of sitting meditation, including proper posture, attention anchoring, and working with wandering thoughts.
+                        </p>
+                        <div class="practice-benefits">
+                            <a href="#" class="benefit-tag">Stress Reduction</a>
+                            <a href="#" class="benefit-tag">Mental Clarity</a>
+                            <a href="#" class="benefit-tag">Emotional Balance</a>
+                            <a href="#" class="benefit-tag">Better Sleep</a>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-new">
+                        <div class="practice-header">
+                            <div class="practice-icon-new">🌬️</div>
+                            <div class="practice-info">
+                                <h3>Conscious Breathing</h3>
+                                <span class="practice-duration">5-10 minutes as needed</span>
+                            </div>
+                        </div>
+                        <p class="practice-description">
+                            Master the art of breath awareness with techniques that instantly calm your nervous system. From box breathing to 4-7-8 patterns, discover how different breathing exercises can energize, relax, or center you throughout your day.
+                        </p>
+                        <div class="practice-benefits">
+                            <a href="#" class="benefit-tag">Instant Calm</a>
+                            <a href="#" class="benefit-tag">Energy Boost</a>
+                            <a href="#" class="benefit-tag">Focus Enhancement</a>
+                            <a href="#" class="benefit-tag">Anxiety Relief</a>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-new">
+                        <div class="practice-header">
+                            <div class="practice-icon-new">📝</div>
+                            <div class="practice-info">
+                                <h3>Mindful Awareness</h3>
+                                <span class="practice-duration">15 minutes daily</span>
+                            </div>
+                        </div>
+                        <p class="practice-description">
+                            Develop meta-awareness through journaling and body scan practices. Learn to observe your thoughts, emotions, and physical sensations without judgment. This practice includes gratitude exercises, emotional check-ins, and reflective writing.
+                        </p>
+                        <div class="practice-benefits">
+                            <a href="#" class="benefit-tag">Self-Discovery</a>
+                            <a href="#" class="benefit-tag">Emotional Intelligence</a>
+                            <a href="#" class="benefit-tag">Pattern Recognition</a>
+                            <a href="#" class="benefit-tag">Gratitude</a>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-new">
+                        <div class="practice-header">
+                            <div class="practice-icon-new">🚶</div>
+                            <div class="practice-info">
+                                <h3>Living Mindfully</h3>
+                                <span class="practice-duration">Throughout the day</span>
+                            </div>
+                        </div>
+                        <p class="practice-description">
+                            Integrate mindfulness into every aspect of your daily life. From mindful eating to walking meditation, learn how to transform routine activities into opportunities for presence. Discover how to maintain awareness during work, conversations, and challenging situations.
+                        </p>
+                        <div class="practice-benefits">
+                            <a href="#" class="benefit-tag">Present Living</a>
+                            <a href="#" class="benefit-tag">Joy in Simple Things</a>
+                            <a href="#" class="benefit-tag">Mindful Communication</a>
+                            <a href="#" class="benefit-tag">Work-Life Balance</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Resources - Stage 4 -->
+    <section id="resources" class="course-stage" data-stage="4">
+        <h2 class="section-title">Stage 4: Resources & Tools</h2>
+        <p class="section-subtitle">Everything you need to support your mindfulness practice</p>
+        
+        <div class="resource-tabs">
+            <button class="tab-btn active" onclick="showTab('meditations')">Meditations</button>
+            <button class="tab-btn" onclick="showTab('courses')">Courses</button>
+            <button class="tab-btn" onclick="showTab('tools')">Tools</button>
+        </div>
+
+        <div id="meditations" class="tab-content active">
+            <div class="resource-list">
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail morning-meditation"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Morning Meditation</h3>
+                        <p>Start your day with clarity and intention through our 15-minute morning practice.</p>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail stress-relief"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Stress Relief Session</h3>
+                        <p>Quick 10-minute guided meditation for immediate stress and anxiety relief.</p>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail sleep-meditation"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Sleep Meditation</h3>
+                        <p>Peaceful bedtime meditation to help you unwind and prepare for restful sleep.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="courses" class="tab-content">
+            <div class="resource-list">
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail mbsr-course"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>8-Week MBSR Program</h3>
+                        <p>Comprehensive Mindfulness-Based Stress Reduction course with certified instructors.</p>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail leadership-course"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Mindful Leadership</h3>
+                        <p>Develop presence and emotional intelligence for effective leadership.</p>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail beginner-course"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Beginner's Journey</h3>
+                        <p>30-day introduction to mindfulness with daily lessons and practices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tools" class="tab-content">
+            <div class="resource-list">
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail timer-tool"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Meditation Timer</h3>
+                        <p>Customizable timer with ambient sounds and interval bells for your practice.</p>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail mood-tracker"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Mood Tracker</h3>
+                        <p>Monitor your emotional patterns and see how mindfulness impacts your well-being.</p>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <div class="resource-thumbnail breathing-tool"></div>
+                    </div>
+                    <div class="resource-body">
+                        <h3>Breathing Exercises</h3>
+                        <p>Interactive breathing patterns for different situations and energy levels.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Quiz - Stage 5 -->
+    <section id="contact" class="course-stage" data-stage="5">
+        <div class="contact-container">
+            <h2 class="section-title">Stage 5: Quiz</h2>
+            
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <h3>Test Your Knowledge</h3>
+                    <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: var(--dark);">Test your understanding of mindfulness and mental wellness. Answer all questions to complete the course.</p>
+                </div>
+
+                <div class="contact-form">
+                    <div class="quiz-container">
+                        <div class="quiz-question" data-qid="q1">
+                            <strong style="display: block; margin-bottom: 15px;">1) What is the primary benefit of daily mindfulness practice?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">Increased screen time</div>
+                                <div class="choice" data-value="B">Neuroplasticity and brain rewiring</div>
+                                <div class="choice" data-value="C">Social media engagement</div>
+                                <div class="choice" data-value="D">Physical exercise</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question" data-qid="q2" style="margin-top: 30px;">
+                            <strong style="display: block; margin-bottom: 15px;">2) Which breathing technique is commonly used for instant stress relief?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">Rapid breathing</div>
+                                <div class="choice" data-value="B">4-7-8 breathing pattern</div>
+                                <div class="choice" data-value="C">Holding breath</div>
+                                <div class="choice" data-value="D">Shallow breathing</div>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question" data-qid="q3" style="margin-top: 30px;">
+                            <strong style="display: block; margin-bottom: 15px;">3) What is meta-awareness in mindfulness practice?</strong>
+                            <div class="quiz-choices">
+                                <div class="choice" data-value="A">Ignoring thoughts and emotions</div>
+                                <div class="choice" data-value="B">Observing thoughts and emotions without judgment</div>
+                                <div class="choice" data-value="C">Suppressing negative thoughts</div>
+                                <div class="choice" data-value="D">Avoiding self-reflection</div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="submit-btn" id="submit-quiz" style="width: 100%; margin-top: 30px;">Submit Quiz</button>
+                        <div id="quiz-result" style="margin-top: 20px; display: none; color: var(--dark);"></div>
+                    </div>
+                    
+                    <div id="certificate-section" style="margin-top: 30px; padding: 30px; border: 2px solid var(--primary); border-radius: 15px; text-align: center; display: none; background: rgba(45, 90, 135, 0.05);">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">🎉 Course Complete!</h3>
+                        <p style="margin-bottom: 15px; color: var(--dark);">Congratulations! You have successfully completed the Mindfulness & Mental Wellness course.</p>
+                        <p id="cert-name" style="margin-bottom: 20px; font-weight: 600; color: var(--dark);">Learner</p>
+                        <button type="button" class="submit-btn" id="download-cert">Download Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="index.html">Main Course</a>
+                <a href="video.html">Video</a>
+                <a href="podcast.html">Podcast</a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 ByteAI — Mindfulness & Mental Wellness Course. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+<script src="script.js"></script>
+</body>
+</html>
+

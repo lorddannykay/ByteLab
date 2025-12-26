@@ -1,0 +1,21 @@
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766507507394,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766507507394,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766507509629,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766507509629,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1952","message":"Body click handler fired","data":{"target":"","isNav":false,"isClose":false,"articleVisible":true},"timestamp":1766507558931,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"dimensionTemplate.ts:1952","message":"Body click handler fired","data":{"target":"","isNav":false,"isClose":false,"articleVisible":true},"timestamp":1766507559108,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"dimensionTemplate.ts:1952","message":"Body click handler fired","data":{"target":"","isNav":false,"isClose":false,"articleVisible":true},"timestamp":1766507559291,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"dimensionTemplate.ts:1952","message":"Body click handler fired","data":{"target":"","isNav":false,"isClose":false,"articleVisible":true},"timestamp":1766507559449,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"dimensionTemplate.ts:1952","message":"Body click handler fired","data":{"target":"","isNav":false,"isClose":false,"articleVisible":true},"timestamp":1766507559639,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766507563306,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766507563307,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766507565023,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766507565024,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766507630041,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766507630041,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766507639250,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766507639251,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766509487880,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766509487880,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1698","message":"Defining $main._show","data":{"mainExists":true},"timestamp":1766512091144,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"dimensionTemplate.ts:1829","message":"Defining $main._hide","data":{"mainExists":true},"timestamp":1766512091145,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}

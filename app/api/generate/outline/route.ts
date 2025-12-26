@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildOutlinePrompt } from '@/lib/prompts/outlinePrompt';
+import { traceOutlineGeneration } from '@/lib/observability/langfuseClient';
 import { retrieveContext, formatContextForPrompt } from '@/lib/rag/retrieval';
 import { globalVectorStore } from '@/lib/rag/vectorStore';
 import { CourseConfig, CourseData } from '@/types/course';
@@ -25,16 +26,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Ensure stageCount has a valid default
+    const validatedConfig = {
+      ...config,
+      stageCount: config.stageCount && config.stageCount > 0 ? config.stageCount : 5,
+    };
+
     // Retrieve relevant context
     let contextText = '';
     if (globalVectorStore.size() > 0) {
-      const query = `${config.topic} ${config.description}`;
+      const query = `${validatedConfig.topic} ${validatedConfig.description}`;
       const results = await retrieveContext(query, globalVectorStore, 5, true);
       contextText = formatContextForPrompt(results, 2000);
     }
 
     // Build prompt
-    const prompt = buildOutlinePrompt(config, contextText);
+    const prompt = buildOutlinePrompt(validatedConfig, contextText);
 
     // Build conversation context from chat history
     const conversationContext = chatHistory.length > 0 
@@ -43,6 +50,10 @@ export async function POST(request: NextRequest) {
           .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
           .join('\n')}\n\nPlease incorporate these requirements and feedback into the course outline.`
       : '';
+
+    // Define system and user prompts for tracing
+    const systemPrompt = 'You are an expert instructional designer. You MUST respond with ONLY valid JSON. Do not include any text before or after the JSON. The response must be a valid JSON object matching the requested structure exactly. Start your response with { and end with }.';
+    const userPrompt = prompt + conversationContext + '\n\nIMPORTANT: Respond with ONLY valid JSON. No explanations, no text before or after. Just the JSON object.';
 
     // Generate outline with retry and validation
     const outline = await retryWithBackoff(async () => {
@@ -64,12 +75,11 @@ export async function POST(request: NextRequest) {
               [
                 {
                   role: 'system',
-                  content:
-                    'You are an expert instructional designer. You MUST respond with ONLY valid JSON. Do not include any text before or after the JSON. The response must be a valid JSON object matching the requested structure exactly. Start your response with { and end with }.',
+                  content: systemPrompt,
                 },
                 {
                   role: 'user',
-                  content: prompt + conversationContext + '\n\nIMPORTANT: Respond with ONLY valid JSON. No explanations, no text before or after. Just the JSON object.',
+                  content: userPrompt,
                 },
               ],
               {
@@ -95,12 +105,11 @@ export async function POST(request: NextRequest) {
           [
             {
               role: 'system',
-              content:
-                'You are an expert instructional designer. You MUST respond with ONLY valid JSON. Do not include any text before or after the JSON. The response must be a valid JSON object matching the requested structure exactly. Start your response with { and end with }.',
+              content: systemPrompt,
             },
             {
               role: 'user',
-              content: prompt + '\n\nIMPORTANT: Respond with ONLY valid JSON. No explanations, no text before or after. Just the JSON object.',
+              content: userPrompt,
             },
           ],
           {
@@ -128,7 +137,7 @@ export async function POST(request: NextRequest) {
 
       // Validate stage count matches requested count
       const generatedStageCount = result.course.stages.length;
-      const requestedStageCount = config.stageCount;
+      const requestedStageCount = validatedConfig.stageCount;
       
       if (generatedStageCount !== requestedStageCount) {
         console.warn(`Stage count mismatch: requested ${requestedStageCount}, got ${generatedStageCount}`);
@@ -176,7 +185,31 @@ export async function POST(request: NextRequest) {
       return result;
     }, 3, 1000);
 
-    return NextResponse.json(outline);
+    // Final validation before returning
+    // outline is { course: CourseData['course'] }
+    if (!outline || !outline.course) {
+      console.error('Outline generation returned invalid structure:', JSON.stringify(outline, null, 2));
+      throw new Error('Invalid outline structure returned from AI');
+    }
+
+    if (!outline.course.stages || !Array.isArray(outline.course.stages) || outline.course.stages.length === 0) {
+      console.error('Outline has no stages:', JSON.stringify(outline, null, 2));
+      throw new Error('Generated outline has no stages');
+    }
+
+    console.log(`Outline generated successfully with ${outline.course.stages.length} stages`);
+
+    // Trace outline generation
+    await traceOutlineGeneration(
+      'outline-generation',
+      validatedConfig,
+      systemPrompt,
+      userPrompt,
+      outline, // outline is already { course: ... }
+      { provider, model: 'unknown' }
+    ).catch(err => console.error('Langfuse tracing error (non-blocking):', err));
+
+    return NextResponse.json(outline); // outline is already { course: ... }
   } catch (error) {
     console.error('Outline generation error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

@@ -39,20 +39,20 @@ export function generateFullCourseHTML(
         <div>
           <h1>foundations</h1>
           ${firstGroup
-            .map(
-              (stage) =>
-                `<a href="#" data-stage="${stage.id}">${escapeHtml(stage.title.toLowerCase())}</a>`
-            )
-            .join('\n          ')}
+        .map(
+          (stage) =>
+            `<a href="#" data-stage="${stage.id}">${escapeHtml(stage.title.toLowerCase())}</a>`
+        )
+        .join('\n          ')}
         </div>
         ${secondGroup.length > 0 ? `<div>
           <h1>application</h1>
           ${secondGroup
-            .map(
-              (stage) =>
-                `<a href="#" data-stage="${stage.id}">${escapeHtml(stage.title.toLowerCase())}</a>`
-            )
-            .join('\n          ')}
+          .map(
+            (stage) =>
+              `<a href="#" data-stage="${stage.id}">${escapeHtml(stage.title.toLowerCase())}</a>`
+          )
+          .join('\n          ')}
         </div>` : ''}
       `;
   };
@@ -69,11 +69,11 @@ export function generateFullCourseHTML(
                 <div class="quiz-question" data-qid="q-${stageId}-${element.data.id || '1'}">
                   <strong>${escapeHtml(element.data.question)}</strong><br>
                   ${options
-                    .map(
-                      (opt: string, idx: number) =>
-                        `<span class="choice" data-value="${String.fromCharCode(65 + idx)}">${escapeHtml(opt)}</span>`
-                    )
-                    .join('\n                  ')}
+              .map(
+                (opt: string, idx: number) =>
+                  `<span class="choice" data-value="${String.fromCharCode(65 + idx)}">${escapeHtml(opt)}</span>`
+              )
+              .join('\n                  ')}
                 </div>`;
         }
         return '';
@@ -86,21 +86,21 @@ export function generateFullCourseHTML(
                   <h4>Match the items:</h4>
                   <div style="margin-bottom:10px;">
                     ${items
-                      .slice(0, Math.ceil(items.length / 2))
-                      .map(
-                        (item: any, idx: number) =>
-                          `<div class="match-item" data-match="${idx}" onclick="selectMatch(this, '${idx}', event)">${escapeHtml(item.label || item)}</div>`
-                      )
-                      .join('\n                    ')}
+              .slice(0, Math.ceil(items.length / 2))
+              .map(
+                (item: any, idx: number) =>
+                  `<div class="match-item" data-match="${idx}" onclick="selectMatch(this, '${idx}', event)">${escapeHtml(item.label || item)}</div>`
+              )
+              .join('\n                    ')}
                   </div>
                   <div>
                     ${items
-                      .slice(Math.ceil(items.length / 2))
-                      .map(
-                        (item: any, idx: number) =>
-                          `<div class="match-item" data-match="${idx}" onclick="matchWith(this, '${idx}', event)">${escapeHtml(item.match || item)}</div>`
-                      )
-                      .join('\n                    ')}
+              .slice(Math.ceil(items.length / 2))
+              .map(
+                (item: any, idx: number) =>
+                  `<div class="match-item" data-match="${idx}" onclick="matchWith(this, '${idx}', event)">${escapeHtml(item.match || item)}</div>`
+              )
+              .join('\n                    ')}
                   </div>
                 </div>`;
         }
@@ -116,10 +116,10 @@ export function generateFullCourseHTML(
                   </div>
                   <div class="expandable-content">
                     ${typeof element.data.content === 'string'
-                      ? `<p>${escapeHtml(element.data.content)}</p>`
-                      : Array.isArray(element.data.content)
-                        ? `<ul>${element.data.content.map((item: string) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
-                        : ''}
+              ? `<p>${escapeHtml(element.data.content)}</p>`
+              : Array.isArray(element.data.content)
+                ? `<ul>${element.data.content.map((item: string) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+                : ''}
                   </div>
                 </div>`;
         }
@@ -134,6 +134,147 @@ export function generateFullCourseHTML(
                     <pre>${escapeHtml(element.data.code)}</pre>
                   </div>
                   ${element.data.explanation ? `<div class="output-box" id="output-${stageId}"></div>` : ''}
+                </div>`;
+        }
+        return '';
+
+      case 'flashcard':
+        if (element.data && element.data.cards) {
+          return `
+            <div class="flashcard-container">
+              ${element.data.cards.map((card: any) => `
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                  <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                      <p>${escapeHtml(card.front)}</p>
+                    </div>
+                    <div class="flashcard-back">
+                      <p>${escapeHtml(card.back)}</p>
+                    </div>
+                  </div>
+                </div>`).join('')}
+            </div>`;
+        }
+        return '';
+
+      case 'dragdrop':
+        if (element.data) {
+          return `
+            <div class="dragdrop-container">
+              <p><strong>${escapeHtml(element.data.instruction || 'Drag items to correct zones')}</strong></p>
+              <div class="dragdrop-items">
+                ${(element.data.items || []).map((item: any) => `<div class="draggable-item">${escapeHtml(item.content || item)}</div>`).join('')}
+              </div>
+              <div class="drop-zones">
+                <div class="drop-zone"><h5>Target Zone</h5></div>
+                <div class="drop-zone"><h5>Drop Here</h5></div>
+              </div>
+            </div>`;
+        }
+        return '';
+
+      case 'progress':
+        if (element.data) {
+          return `
+            <div class="progress-block">
+               <div class="progress-label">
+                  <span>${escapeHtml(element.data.label || 'Progress')}</span>
+                  <span>${element.data.current || 0}/${element.data.total || 100}</span>
+               </div>
+               <div class="progress-track">
+                  <div class="progress-fill" style="width: ${(Number(element.data.current) / Number(element.data.total)) * 100}%"></div>
+               </div>
+            </div>`;
+        }
+        return '';
+
+      case 'video':
+        if (element.data && element.data.url) {
+          return `
+             <div class="media-block">
+                <video src="${escapeHtml(element.data.url)}" controls style="width:100%"></video>
+                ${element.data.title ? `<p class="media-caption">${escapeHtml(element.data.title)}</p>` : ''}
+             </div>`;
+        }
+        return '';
+
+      case 'audio':
+        if (element.data && element.data.url) {
+          return `
+             <div class="media-block">
+                <audio src="${escapeHtml(element.data.url)}" controls style="width:100%"></audio>
+                ${element.data.title ? `<p class="media-caption">${escapeHtml(element.data.title)}</p>` : ''}
+             </div>`;
+        }
+        return '';
+
+      case 'image':
+        if (element.data && (element.data.src || element.data.imageData)) {
+          return `
+             <div class="media-block">
+                <img src="${escapeHtml(element.data.src || element.data.imageData)}" alt="${escapeHtml(element.data.alt || '')}" loading="lazy" style="max-width:100%;height:auto;border-radius:10px;" />
+                ${element.data.title ? `<p class="media-caption">${escapeHtml(element.data.title)}</p>` : ''}
+             </div>`;
+        }
+        return '';
+
+      case 'canvas':
+        if (element.data) {
+          return `<div style="padding:20px;border:1px dashed var(--border);text-align:center;">Canvas Content (Preview not fully supported)</div>`;
+        }
+        return '';
+
+      case 'section':
+        if (element.data) {
+          const section = element.data;
+          const imageHtml = section.image
+            ? (() => {
+              const mediaType = section.image.mediaType || 'image';
+              const isVideoLoop = mediaType === 'video-loop' || (section.image.loop && section.image.autoplay);
+              if (isVideoLoop) {
+                return `<div style="margin:20px 0;text-align:center;">
+                              <video src="${escapeHtml(section.image.url)}" 
+                                     alt="${escapeHtml(section.heading || '')}" 
+                                     style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
+                                     loop autoplay muted playsinline />
+                              <p style="font-size:11px;color:var(--bgInverse);opacity:0.7;margin-top:8px;">
+                                ${escapeHtml(section.image.attribution)}
+                                ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent1);">View profile</a>` : ''}
+                              </p>
+                            </div>`;
+              } else {
+                return `<div style="margin:20px 0;text-align:center;">
+                              <img src="${escapeHtml(section.image.url)}" 
+                                   alt="${escapeHtml(section.heading || '')}" 
+                                   style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
+                                   loading="lazy" />
+                              <p style="font-size:11px;color:var(--bgInverse);opacity:0.7;margin-top:8px;">
+                                ${escapeHtml(section.image.attribution)}
+                                ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent1);">View profile</a>` : ''}
+                              </p>
+                            </div>`;
+              }
+            })()
+            : '';
+          return `
+                    <div class="section-block">
+                      ${section.heading ? `<h4>${escapeHtml(section.heading)}</h4>` : ''}
+                      ${imageHtml}
+                      ${section.content ? `<p>${escapeHtml(section.content)}</p>` : ''}
+                    </div>`;
+        }
+        return '';
+
+      case 'code':
+        if (element.data && element.data.code) {
+          const language = element.data.language || 'javascript';
+          return `
+                <div class="code-block">
+                  <h5>${escapeHtml(element.data.title || 'Code Example')}</h5>
+                  <div class="code-editor">
+                    <pre><code class="language-${escapeHtml(language)}">${escapeHtml(element.data.code)}</code></pre>
+                  </div>
+                  ${element.data.explanation ? `<p class="code-explanation">${escapeHtml(element.data.explanation)}</p>` : ''}
                 </div>`;
         }
         return '';
@@ -159,7 +300,11 @@ export function generateFullCourseHTML(
       };
     }
     const sections = content.sections || [];
-    const interactiveElements = stage.interactiveElements || [];
+    // Support both blocks (new) and interactiveElements (legacy) for backward compatibility
+    // Prioritize blocks over interactiveElements for new content
+    const blocks = stage.blocks || [];
+    const interactiveElements = (!stage.blocks || stage.blocks.length === 0) ? (stage.interactiveElements || []) : [];
+    const allElements = blocks.length > 0 ? blocks : interactiveElements;
 
     return `
           <section class="course-page ${stage.id === 1 ? 'active' : ''}" data-stage="${stage.id}" id="page-${stage.id}">
@@ -169,22 +314,22 @@ export function generateFullCourseHTML(
                 ${content.introduction ? `<p>${escapeHtml(content.introduction)}</p>` : ''}
 
                 ${stage.objective
-                  ? `<div class="progress-checkpoint">
+        ? `<div class="progress-checkpoint">
                       <span class="checkpoint-icon">✓</span>
                       <strong>Learning Objective:</strong> ${escapeHtml(stage.objective)}
                     </div>`
-                  : ''}
+        : ''}
 
                 ${sections
-                  .map((section: any) => {
-                    const imageHtml = section.image
-                      ? (() => {
-                          const mediaType = section.image.mediaType || 'image';
-                          const isVideoLoop = mediaType === 'video-loop' || (section.image.loop && section.image.autoplay);
-                          const isGif = mediaType === 'gif';
-                          
-                          if (isVideoLoop) {
-                            return `<div style="margin:20px 0;text-align:center;">
+        .map((section: any) => {
+          const imageHtml = section.image
+            ? (() => {
+              const mediaType = section.image.mediaType || 'image';
+              const isVideoLoop = mediaType === 'video-loop' || (section.image.loop && section.image.autoplay);
+              const isGif = mediaType === 'gif';
+
+              if (isVideoLoop) {
+                return `<div style="margin:20px 0;text-align:center;">
                               <video src="${escapeHtml(section.image.url)}" 
                                      alt="${escapeHtml(section.heading || '')}" 
                                      style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
@@ -194,8 +339,8 @@ export function generateFullCourseHTML(
                                 ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent1);">View profile</a>` : ''}
                               </p>
                             </div>`;
-                          } else {
-                            return `<div style="margin:20px 0;text-align:center;">
+              } else {
+                return `<div style="margin:20px 0;text-align:center;">
                               <img src="${escapeHtml(section.image.url)}" 
                                    alt="${escapeHtml(section.heading || '')}" 
                                    style="max-width:100%;height:auto;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"
@@ -205,26 +350,26 @@ export function generateFullCourseHTML(
                                 ${section.image.photographerUrl ? ` — <a href="${escapeHtml(section.image.photographerUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent1);">View profile</a>` : ''}
                               </p>
                             </div>`;
-                          }
-                        })()
-                      : '';
+              }
+            })()
+            : '';
 
-                    if (section.type === 'list' && section.items) {
-                      return `
+          if (section.type === 'list' && section.items) {
+            return `
                     <h4>${escapeHtml(section.heading || '')}</h4>
                     ${imageHtml}
                     <ul>
                       ${section.items.map((item: string) => `<li>${escapeHtml(item)}</li>`).join('')}
                     </ul>`;
-                    }
-                    return `
+          }
+          return `
                     <h4>${escapeHtml(section.heading || '')}</h4>
                     ${imageHtml}
                     <p>${escapeHtml(section.content || '')}</p>`;
-                  })
-                  .join('\n                ')}
+        })
+        .join('\n                ')}
 
-                ${interactiveElements.map((el: any) => generateInteractiveElement(el, stage.id)).join('\n                ')}
+                ${allElements.map((el: any) => generateInteractiveElement(el, stage.id)).join('\n                ')}
 
                 ${content.summary ? `<p><strong>Summary:</strong> ${escapeHtml(content.summary)}</p>` : ''}
 
@@ -235,19 +380,19 @@ export function generateFullCourseHTML(
               </div>
 
               ${stage.sideCard
-                ? `<aside class="side-card">
+        ? `<aside class="side-card">
                     <h4>${escapeHtml(stage.sideCard.title || 'Key Points')}</h4>
                     <p>${escapeHtml(stage.sideCard.content || '')}</p>
                     ${stage.sideCard.tips && stage.sideCard.tips.length > 0
-                      ? `<div style="margin-top:15px;padding:10px;background:var(--bg3);border-radius:6px;">
+          ? `<div style="margin-top:15px;padding:10px;background:var(--bg3);border-radius:6px;">
                           <strong style="font-size:11px;">💡 Tips:</strong>
                           <ul style="font-size:11px;margin:5px 0 0 0;padding-left:20px;">
                             ${stage.sideCard.tips.map((tip: string) => `<li>${escapeHtml(tip)}</li>`).join('')}
                           </ul>
                         </div>`
-                      : ''}
+          : ''}
                   </aside>`
-                : ''}
+        : ''}
             </div>
           </section>`;
   };
@@ -273,19 +418,19 @@ export function generateFullCourseHTML(
                 <p>Answer these questions to check your understanding:</p>
 
                 ${allQuizQuestions
-                  .map(
-                    (q, idx) => `
+        .map(
+          (q, idx) => `
                 <div class="quiz-question" data-qid="quiz-${idx}">
                   <strong>${idx + 1})</strong> ${escapeHtml(q.question)}<br>
                   ${(q.options || [])
-                    .map(
-                      (opt: string, optIdx: number) =>
-                        `<span class="choice" data-value="${String.fromCharCode(65 + optIdx)}">${escapeHtml(opt)}</span>`
-                    )
-                    .join('\n                  ')}
+              .map(
+                (opt: string, optIdx: number) =>
+                  `<span class="choice" data-value="${String.fromCharCode(65 + optIdx)}">${escapeHtml(opt)}</span>`
+              )
+              .join('\n                  ')}
                 </div>`
-                  )
-                  .join('\n                ')}
+        )
+        .join('\n                ')}
 
                 <div style="margin-top:20px;">
                   <button type="button" class="btn" id="submit-quiz">Submit Quiz</button>
@@ -543,6 +688,34 @@ body { background-color:var(--bg1);
 .video-modal-actions button:hover { opacity:0.9; }
 .video-modal-actions button.secondary { background:var(--bgInverse);color:var(--bg1); }
 
+/* Flashcards */
+.flashcard-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+.flashcard { background-color: transparent; width: 100%; height: 200px; perspective: 1000px; cursor: pointer; }
+.flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); border-radius: 10px; }
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+.flashcard-front { background-color: var(--bg2); color: var(--bgInverse); border: 1px solid var(--border); }
+.flashcard-back { background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: var(--bg1); transform: rotateY(180deg); }
+
+/* Drag and Drop */
+.dragdrop-container { margin: 20px 0; background: var(--bg2); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+.dragdrop-items { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; min-height: 50px; padding: 10px; background: var(--bg1); border-radius: 6px; border: 1px dashed var(--border); }
+.draggable-item { padding: 8px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; cursor: move; user-select: none; }
+.drop-zones { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.drop-zone { background: var(--bg1); border: 1px solid var(--border); border-radius: 6px; padding: 15px; min-height: 100px; }
+.drop-zone h5 { margin: 0 0 10px 0; font: 800 12px/1 var(--inter); text-transform: uppercase; color: var(--bgInverse); }
+
+/* Progress Bar */
+.progress-block { margin: 20px 0; background: var(--bg2); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+.progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; font: 800 12px/1 var(--inter); text-transform: uppercase; color: var(--bgInverse); }
+.progress-track { width: 100%; height: 10px; background: var(--bg1); border-radius: 5px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(to right, var(--accent1), var(--accent2)); transition: width 0.5s ease-out; }
+
+/* Media Blocks */
+.media-block { margin: 20px 0; text-align: center; }
+.media-block video, .media-block audio { max-width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.media-caption { margin-top: 8px; font: var(--font); color: var(--bgInverse); opacity: 0.8; font-size: 0.9em; }
+
 /* Podcast Modal Styles */
 .podcast-modal { position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);z-index:10001;display:none;width:95vw;max-width:900px;max-height:95vh;overflow:hidden; }
 .podcast-modal.show { display:block;animation:fadeInScale 0.3s ease-out; }
@@ -557,6 +730,14 @@ body { background-color:var(--bg1);
 .podcast-modal-actions button { background:linear-gradient(to right,var(--accent1),var(--accent2));color:var(--bg1);border:none;padding:12px 28px;border-radius:50px;font:800 12px/14px var(--inter);text-transform:uppercase;cursor:pointer;transition:opacity 0.3s; }
 .podcast-modal-actions button:hover { opacity:0.9; }
 .podcast-modal-actions button.secondary { background:var(--bgInverse);color:var(--bg1); }
+
+/* Ensure close buttons work in iframes */
+.video-modal-close, .podcast-modal-close, .glass-popup-content .popup-button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10002 !important;
+}
+
 
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes fadeInScale { from { opacity:0;transform:translate(-50%, -50%) scale(0.9); } to { opacity:1;transform:translate(-50%, -50%) scale(1); } }
@@ -748,7 +929,7 @@ body { background-color:var(--bg1);
     <div id="bot"></div>
   </div>
   
-  <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     (function() {
       'use strict';
@@ -798,6 +979,7 @@ body { background-color:var(--bg1);
           var page = $('#page-' + stage);
           if (page.length) {
             page.addClass('active');
+            page.show(); // Ensure show() is called for jQuery 3.x
           }
           $('#prev-step').prop('disabled', stage <= 1);
           $('#next-step').prop('disabled', stage >= totalStages);
@@ -816,7 +998,7 @@ body { background-color:var(--bg1);
         if (circularProgress && circularText) {
           var circumference = 2 * Math.PI * 16;
           var offset = circumference - (percentage / 100) * circumference;
-          circularProgress.style.strokeDashoffset = offset;
+          circularProgress.style.strokeDashoffset = offset.toString();
           circularText.textContent = percentage + '%';
         }
         
@@ -840,7 +1022,9 @@ body { background-color:var(--bg1);
         }
       }
 
+      // Expose functions globally for inline handlers
       window.toggleExpand = toggleExpand;
+      window.goToStage = goToStage;
 
       $(document).ready(function() {
         var saved = localStorage.getItem('course_stage');
@@ -868,14 +1052,13 @@ body { background-color:var(--bg1);
           }
         });
 
-        for (var i = 1; i <= totalStages; i++) {
-          (function(stage) {
-            $('#stage-link-' + stage).on('click', function(e) {
-              e.preventDefault();
-              goToStage(stage, true);
-            });
-          })(i);
-        }
+        // Event delegation for dynamically added elements
+        $(document).on('click', '[id^="stage-link-"]', function(e) {
+           e.preventDefault();
+           var id = $(this).attr('id');
+           var stage = parseInt(id.replace('stage-link-', ''));
+           goToStage(stage, true);
+        });
 
         $('[data-stage]').on('click', function(e) {
           e.preventDefault();
@@ -989,6 +1172,36 @@ body { background-color:var(--bg1);
         window.closePodcastModal = closePodcastModal;
         ` : ''}
 
+        // PostMessage API for iframe communication
+        window.addEventListener('message', function(event) {
+          // Handle messages from parent window or iframe
+          if (event.data && event.data.action) {
+            switch (event.data.action) {
+              case 'closeModal':
+                // Close any open modals
+                if (typeof closeVideoModal === 'function') closeVideoModal();
+                if (typeof closePodcastModal === 'function') closePodcastModal();
+                $('.glass-popup-overlay').removeClass('show');
+                $('.glass-popup').removeClass('show');
+                break;
+              case 'pause':
+                // Pause any playing media
+                $('video, audio').each(function() {
+                  this.pause();
+                });
+                break;
+            }
+          }
+        });
+
+        // Allow modals to communicate close action to parent
+        function notifyParentToClose() {
+          if (window.parent !== window) {
+            window.parent.postMessage({ action: 'closeModal' }, '*');
+          }
+        }
+        window.notifyParentToClose = notifyParentToClose;
+
         $('#darkmode').on('click', function() {
           $(this).toggleClass('toggled');
           $('body').toggleClass('darkmode');
@@ -1009,12 +1222,12 @@ body { background-color:var(--bg1);
 
   ${config?.includeVideo ? `
   <!-- Video Modal -->
-  <div class="glass-popup-overlay" id="video-modal-overlay"></div>
+  <div class="glass-popup-overlay" id="video-modal-overlay" onclick="closeVideoModal()"></div>
   <div class="video-modal" id="video-modal">
     <div class="video-modal-content">
       <div class="video-modal-header">
         <h3>Video Lesson: ${escapeHtml(course.title)}</h3>
-        <button class="video-modal-close" id="video-modal-close" type="button">×</button>
+        <button class="video-modal-close" id="video-modal-close" type="button" onclick="closeVideoModal()">×</button>
       </div>
       <div class="video-preview">
         <iframe id="video-iframe" src="${courseData.course.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-video.html" style="width:100%;height:calc(100vh - 180px);min-height:600px;border:none;border-radius:10px;display:block;"></iframe>
@@ -1028,12 +1241,12 @@ body { background-color:var(--bg1);
 
   ${config?.includePodcast ? `
   <!-- Podcast Modal -->
-  <div class="glass-popup-overlay" id="podcast-modal-overlay"></div>
+  <div class="glass-popup-overlay" id="podcast-modal-overlay" onclick="closePodcastModal()"></div>
   <div class="podcast-modal" id="podcast-modal">
     <div class="podcast-modal-content">
       <div class="podcast-modal-header">
         <h3>Podcast: ${escapeHtml(course.title)}</h3>
-        <button class="podcast-modal-close" id="podcast-modal-close" type="button">×</button>
+        <button class="podcast-modal-close" id="podcast-modal-close" type="button" onclick="closePodcastModal()">×</button>
       </div>
       <div class="podcast-preview">
         <iframe id="podcast-iframe" src="${courseData.course.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-podcast.html" style="width:100%;height:calc(100vh - 180px);min-height:400px;border:none;border-radius:10px;display:block;" allow="autoplay"></iframe>

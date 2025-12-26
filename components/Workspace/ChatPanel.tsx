@@ -3,6 +3,9 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { ChatMessage } from '@/types/courseCreation';
 import { LightBulbIcon } from '@/components/Icons/AppleIcons';
+import { motion, AnimatePresence } from 'framer-motion';
+import SmartSuggestions from './SmartSuggestions';
+import { generateSmartSuggestions, generateFallbackSuggestions, SmartSuggestion } from '@/lib/suggestions/smartSuggestions';
 
 // Simple markdown-like renderer for chat messages
 function renderFormattedText(text: string): React.ReactNode {
@@ -137,11 +140,24 @@ interface ChatPanelProps {
   hasConfig?: boolean;
   onGenerateCourse?: () => void;
   isGenerating?: boolean;
+  hasOutline?: boolean;
+  hasContent?: boolean;
 }
 
 interface QuickOption {
   text: string;
   action: () => void;
+}
+
+interface OnboardingState {
+  step: number;
+  answers: {
+    topic?: string;
+    audience?: string;
+    objectives?: string;
+    tone?: string;
+    stageCount?: string;
+  };
 }
 
 export default function ChatPanel({
@@ -159,24 +175,143 @@ export default function ChatPanel({
   hasConfig = false,
   onGenerateCourse,
   isGenerating = false,
+  hasOutline = false,
+  hasContent = false,
 }: ChatPanelProps) {
   const title = courseTitle || labTitle;
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [onboarding, setOnboarding] = useState<OnboardingState | null>(
+    // Start onboarding if no sources and minimal conversation
+    sourceCount === 0 && messages.length <= 1 ? { step: 0, answers: {} } : null
+  );
+
+  // Reset onboarding if user provides substantial conversation (more than just answers)
+  useEffect(() => {
+    if (onboarding && messages.length > 2) {
+      // If conversation has progressed beyond simple Q&A, allow free-form conversation
+      // Don't force onboarding - let AI handle it naturally
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && lastMessage.content.length > 200) {
+        // AI provided a substantial response, allow conversation to flow naturally
+        // Keep onboarding state but don't force it
+      }
+    }
+  }, [messages, onboarding]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Calculate smart suggestions for the last assistant message (outside of map to avoid hooks violation)
+  const lastAssistantMessage = useMemo(() => {
+    return messages.filter(m => m.role === 'assistant').pop();
+  }, [messages]);
+
+  const smartSuggestionsForLastMessage = useMemo(() => {
+    if (!lastAssistantMessage || !lastAssistantMessage.content) {
+      return [];
+    }
+    
+    const lastAssistantIndex = messages.findIndex(m => m === lastAssistantMessage);
+    const isLastMessage = lastAssistantIndex === messages.length - 1;
+    
+    if (!isLastMessage) {
+      return [];
+    }
+
+    try {
+      return generateSmartSuggestions(
+        messages,
+        lastAssistantMessage.content,
+        sourceCount > 0,
+        hasOutline || false,
+        hasContent || false
+      );
+    } catch (error) {
+      console.error('Error generating smart suggestions:', error);
+      // Fallback to string-based suggestions if available
+      if (suggestedQuestions && suggestedQuestions.length > 0) {
+        return suggestedQuestions.map((q, i) => ({
+          text: q,
+          type: 'question' as const,
+          priority: 10 - i,
+        }));
+      }
+      return generateFallbackSuggestions(messages, lastAssistantMessage.content);
+    }
+  }, [lastAssistantMessage, messages, sourceCount, hasOutline, hasContent, suggestedQuestions]);
+
+  const onboardingQuestions = [
+    { key: 'topic', question: "What topic would you like to teach? (e.g., 'Introduction to marine life of Bombay', 'JavaScript basics', 'Leadership skills')" },
+    { key: 'audience', question: "Who is your target audience? (e.g., 'Beginners', 'Working professionals', 'Students aged 18-25')" },
+    { key: 'objectives', question: "What learning objectives should learners achieve? (e.g., 'Understand core concepts', 'Apply skills in real scenarios', 'Master advanced techniques')" },
+    { key: 'tone', question: "What tone/style do you prefer? (conversational, formal, technical, or friendly)" },
+    { key: 'stageCount', question: "How many stages should the course have? (e.g., '5', '7', or 'Let AI decide')" },
+  ];
+
+  const handleOnboardingAnswer = (answer: string, shouldAdvance: boolean = true) => {
+    if (!onboarding) return;
+    
+    const currentQuestion = onboardingQuestions[onboarding.step];
+    const updatedAnswers = { ...onboarding.answers, [currentQuestion.key]: answer };
+    
+    // Only advance if explicitly told to, or if we're at the end
+    if (shouldAdvance && onboarding.step < onboardingQuestions.length - 1) {
+      // Move to next question after a delay to let AI respond
+      setTimeout(() => {
+        setOnboarding({ step: onboarding.step + 1, answers: updatedAnswers });
+      }, 1500);
+    } else if (onboarding.step >= onboardingQuestions.length - 1) {
+      // Complete onboarding
+      setOnboarding(null);
+    } else {
+      // Update answers but don't advance - user provided unrelated info
+      setOnboarding({ ...onboarding, answers: updatedAnswers });
+    }
+  };
+
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
-    onSendMessage(input);
+    
+    const userInput = input.trim();
+    
+    // Always send the message - let AI handle it naturally
+    onSendMessage(userInput);
+    
+    // If in onboarding, try to extract answer but don't force advancement
+    if (onboarding && onboarding.step < onboardingQuestions.length) {
+      // Check if the user's input seems to directly answer the current question
+      // If it's very short or seems like a direct answer, advance
+      // Otherwise, let the AI handle it and don't force advancement
+      const currentQuestion = onboardingQuestions[onboarding.step];
+      const isDirectAnswer = userInput.length < 100 && 
+        (userInput.toLowerCase().includes(currentQuestion.key) || 
+         userInput.split(' ').length < 20);
+      
+      // Update answers but only advance if it seems like a direct answer
+      handleOnboardingAnswer(userInput, isDirectAnswer);
+    }
+    
     setInput('');
   };
 
   const handleQuickOption = (option: string) => {
     if (isLoading) return; // Prevent clicking while loading
-    onSendMessage(option);
+    
+    // Check if this is a course generation action
+    const generationKeywords = ['generate course', 'create course', 'build course', 'start building', 'create the full course', 'build my course', 'generate course outline', 'create course structure'];
+    const isGenerationAction = generationKeywords.some(keyword => 
+      option.toLowerCase().includes(keyword)
+    );
+    
+    if (isGenerationAction && onGenerateCourse) {
+      // Trigger course generation directly
+      onGenerateCourse();
+    } else {
+      // Send as regular message
+      onSendMessage(option);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -203,9 +338,9 @@ export default function ChatPanel({
   }
 
   return (
-    <div className="flex-1 bg-bg1 flex flex-col h-full">
+    <div className="flex-1 bg-bg1 flex flex-col h-full overflow-hidden" style={{ position: 'relative' }}>
       {/* Header */}
-      <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className="flex-shrink-0 p-4 border-b border-border flex items-center justify-between">
         <div>
           <h2 className="font-semibold text-text-primary">{title}</h2>
           <p className="text-sm text-text-secondary">{sourceCount} {sourceCount === 1 ? 'source' : 'sources'}</p>
@@ -223,7 +358,7 @@ export default function ChatPanel({
 
       {/* Content Summary */}
       {contentSummary && (
-        <div className="p-4 border-b border-border bg-bg2">
+        <div className="flex-shrink-0 p-4 border-b border-border bg-bg2">
           <div className="prose prose-sm max-w-none text-text-primary">
             <div dangerouslySetInnerHTML={{ __html: contentSummary }} />
           </div>
@@ -266,62 +401,92 @@ export default function ChatPanel({
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px]">
+      <div 
+        className="flex-1 overflow-y-scroll p-4 space-y-4 min-h-0 scrollbar-visible" 
+        style={{ 
+          WebkitOverflowScrolling: 'touch',
+          position: 'relative',
+          zIndex: 1,
+          /* Add extra right padding to account for scrollbar */
+          paddingRight: 'calc(1rem + 20px)',
+          marginRight: '0'
+        }}
+      >
         {messages.length === 0 && !isLoading && (
-          <div className="flex items-center justify-center h-full text-text-secondary text-sm">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-center h-full text-text-secondary text-sm"
+          >
             <p>Start a conversation by typing a message or clicking a suggested question above.</p>
-          </div>
+          </motion.div>
         )}
-        {messages.map((message, index) => {
-          const isLastAssistant = message.role === 'assistant' && index === messages.length - 1;
-          const showQuickOptions = isLastAssistant && suggestedQuestions && suggestedQuestions.length > 0;
-          
-          return (
-            <div key={index} className="space-y-2">
-              <div
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+        <AnimatePresence mode="popLayout">
+          {messages.map((message, index) => {
+            const isLastAssistant = message.role === 'assistant' && index === messages.length - 1;
+            const isLastMessage = index === messages.length - 1;
+            
+            // Use pre-calculated smart suggestions only for the last assistant message
+            const smartSuggestions = isLastAssistant && isLastMessage && message === lastAssistantMessage
+              ? smartSuggestionsForLastMessage
+              : [];
+            
+            const showQuickOptions = isLastAssistant && smartSuggestions.length > 0;
+            
+            return (
+              <motion.div
+                key={message.timestamp || index}
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, x: message.role === 'user' ? 20 : -20 }}
+                transition={{ 
+                  duration: 0.4, 
+                  ease: [0.34, 1.56, 0.64, 1],
+                  delay: index === messages.length - 1 ? 0 : 0
+                }}
+                layout
+                className="space-y-2"
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-4 ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-r from-accent1 to-accent2 text-white'
-                      : 'bg-bg2 text-text-primary'
-                  }`}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {message.role === 'assistant' ? (
-                    renderFormattedText(message.content)
-                  ) : (
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                  )}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                    whileHover={{ scale: 1.02 }}
+                    className={`max-w-[80%] rounded-xl p-4 shadow-sm ${
+                      message.role === 'user'
+                        ? 'bg-gradient-to-r from-accent1 to-accent2 text-white shadow-lg shadow-accent1/20'
+                        : 'bg-bg2 text-text-primary border border-border/50'
+                    }`}
+                  >
+                    {message.role === 'assistant' ? (
+                      renderFormattedText(message.content)
+                    ) : (
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    )}
+                  </motion.div>
                 </div>
-              </div>
               
-              {/* Quick Response Options after assistant messages */}
+              {/* Smart Suggestions after assistant messages */}
               {showQuickOptions && !isLoading && (
-                <div className="flex justify-start pl-2">
-                  <div className="max-w-[80%] space-y-2">
-                    <p className="text-xs text-text-secondary mb-2 font-medium flex items-center gap-1">
-                      <LightBulbIcon className="w-3 h-3" />
-                      Quick responses:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {suggestedQuestions.slice(0, 4).map((option, optIndex) => (
-                        <button
-                          key={optIndex}
-                          onClick={() => handleQuickOption(option)}
-                          disabled={isLoading}
-                          className="px-3 py-2 text-xs bg-bg3 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary text-left shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
+                <div className="flex justify-start pl-2 mb-4">
+                  <div className="max-w-[80%]">
+                    <SmartSuggestions
+                      suggestions={smartSuggestions}
+                      onSelectSuggestion={handleQuickOption}
+                      onCustomInput={onSendMessage}
+                      isLoading={isLoading}
+                      showCustomInput={true}
+                    />
                   </div>
                 </div>
               )}
-            </div>
-          );
-        })}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-bg2 rounded-lg p-4">
@@ -394,25 +559,110 @@ export default function ChatPanel({
         </div>
       )}
 
-      {/* Suggested Questions - Show when no messages or only initial message */}
-      {suggestedQuestions && suggestedQuestions.length > 0 && messages.length <= 1 && (
+      {/* Onboarding Questions */}
+      {onboarding && onboarding.step < onboardingQuestions.length && (
+        <div className="p-4 border-t border-border bg-gradient-to-r from-accent1/10 to-accent2/10">
+          <div className="mb-3">
+            <p className="text-sm font-semibold text-text-primary mb-1">
+              Step {onboarding.step + 1} of {onboardingQuestions.length}
+            </p>
+            <div className="w-full bg-bg3 rounded-full h-1.5">
+              <div 
+                className="bg-gradient-to-r from-accent1 to-accent2 h-1.5 rounded-full transition-all"
+                style={{ width: `${((onboarding.step + 1) / onboardingQuestions.length) * 100}%` }}
+              />
+            </div>
+          </div>
+          <p className="text-sm font-medium text-text-primary mb-2">
+            {onboardingQuestions[onboarding.step].question}
+          </p>
+          <p className="text-xs text-text-tertiary mb-3 italic">
+            💡 You can also share any other information or ask questions - I'll adapt to your needs!
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {onboarding.step === 0 && (
+              <>
+                <button
+                  onClick={() => handleOnboardingAnswer('Introduction to marine life of Bombay')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  Example: Marine life of Bombay
+                </button>
+              </>
+            )}
+            {onboarding.step === 3 && (
+              <>
+                <button
+                  onClick={() => handleOnboardingAnswer('conversational')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  Conversational
+                </button>
+                <button
+                  onClick={() => handleOnboardingAnswer('formal')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  Formal
+                </button>
+                <button
+                  onClick={() => handleOnboardingAnswer('technical')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  Technical
+                </button>
+              </>
+            )}
+            {onboarding.step === 4 && (
+              <>
+                <button
+                  onClick={() => handleOnboardingAnswer('5')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  5 stages
+                </button>
+                <button
+                  onClick={() => handleOnboardingAnswer('7')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  7 stages
+                </button>
+                <button
+                  onClick={() => handleOnboardingAnswer('Let AI decide')}
+                  disabled={isLoading}
+                  className="px-3 py-2 text-xs bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary"
+                >
+                  Let AI decide
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Suggested Questions - Show when no messages or only initial message (and not in onboarding) */}
+      {!onboarding && suggestedQuestions && suggestedQuestions.length > 0 && messages.length <= 1 && (
         <div className="p-4 border-t border-border bg-bg2">
           <p className="text-xs text-text-secondary mb-3 font-medium flex items-center gap-1">
             <LightBulbIcon className="w-3 h-3" />
             Suggested questions to get started:
           </p>
-          <div className="flex flex-wrap gap-2">
-            {suggestedQuestions.map((question, index) => (
-              <button
-                key={index}
-                onClick={() => handleQuickOption(question)}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm bg-bg1 border border-border rounded-lg hover:bg-accent1/10 hover:border-accent1 transition-all text-text-primary text-left shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {question}
-              </button>
-            ))}
-          </div>
+          <SmartSuggestions
+            suggestions={suggestedQuestions.map((q, i) => ({
+              text: q,
+              type: 'question' as const,
+              priority: 10 - i,
+            }))}
+            onSelectSuggestion={handleQuickOption}
+            onCustomInput={onSendMessage}
+            isLoading={isLoading}
+            showCustomInput={true}
+          />
         </div>
       )}
 

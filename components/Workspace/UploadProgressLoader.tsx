@@ -17,6 +17,7 @@ export default function UploadProgressLoader({ files, onComplete, onError }: Upl
   const [displayedText, setDisplayedText] = useState('');
   const [fileContent, setFileContent] = useState<string>('');
   const [processingFile, setProcessingFile] = useState<File | null>(files && files.length > 0 ? files[0] : null);
+  const completedRef = useRef(false);
   const animationRef = useRef<number>();
   const textIndexRef = useRef(0);
 
@@ -38,7 +39,9 @@ export default function UploadProgressLoader({ files, onComplete, onError }: Upl
       textIndexRef.current = 0;
       setCurrentStage('reading');
     } else {
+      if (completedRef.current) return;
       setCurrentStage('complete');
+      completedRef.current = true;
       setTimeout(() => {
         onComplete();
       }, 500);
@@ -49,7 +52,7 @@ export default function UploadProgressLoader({ files, onComplete, onError }: Upl
     const displayText = text.substring(0, 1500);
     const words = displayText.split(/\s+/);
     let wordIndex = 0;
-    
+
     const typeNextWord = () => {
       if (wordIndex < words.length) {
         setDisplayedText(prev => {
@@ -80,16 +83,21 @@ export default function UploadProgressLoader({ files, onComplete, onError }: Upl
       return;
     }
 
+    let isCancelled = false;
+
     const processFile = async () => {
       setCurrentStage('reading');
       await simulateStage('reading', 600);
-      
+      if (isCancelled) return;
+
       setCurrentStage('parsing');
       await simulateStage('parsing', 1000);
-      
+      if (isCancelled) return;
+
       const reader = new FileReader();
-      
+
       reader.onload = async (e) => {
+        if (isCancelled) return;
         const content = e.target?.result as string;
         if (content && content.length > 0) {
           setFileContent(content);
@@ -98,46 +106,60 @@ export default function UploadProgressLoader({ files, onComplete, onError }: Upl
         } else {
           setCurrentStage('analyzing');
           await simulateStage('analyzing', 2000);
+          if (isCancelled) return;
           setCurrentStage('chunking');
           await simulateStage('chunking', 1200);
+          if (isCancelled) return;
           setCurrentStage('indexing');
           await simulateStage('indexing', 1000);
+          if (isCancelled) return;
           handleNextFile();
         }
       };
 
       reader.onerror = () => {
+        if (isCancelled) return;
         setCurrentStage('analyzing');
         setTimeout(() => {
+          if (isCancelled) return;
           setCurrentStage('chunking');
           setTimeout(() => {
+            if (isCancelled) return;
             setCurrentStage('indexing');
             setTimeout(() => {
+              if (isCancelled) return;
               handleNextFile();
             }, 1000);
           }, 1200);
         }, 2000);
       };
 
-      const isTextFile = processingFile.type.startsWith('text/') || 
-                        processingFile.name.endsWith('.txt') || 
-                        processingFile.name.endsWith('.md');
-      
+      const isTextFile = processingFile.type.startsWith('text/') ||
+        processingFile.name.endsWith('.txt') ||
+        processingFile.name.endsWith('.md');
+
       if (isTextFile) {
         reader.readAsText(processingFile);
       } else {
         setFileContent(`Extracting text from ${processingFile.name}...\n\nProcessing document structure...\n\nAnalyzing content...`);
         setCurrentStage('analyzing');
         await simulateStage('analyzing', 2500);
+        if (isCancelled) return;
         setCurrentStage('chunking');
         await simulateStage('chunking', 1500);
+        if (isCancelled) return;
         setCurrentStage('indexing');
         await simulateStage('indexing', 1200);
+        if (isCancelled) return;
         handleNextFile();
       }
     };
 
     processFile();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [processingFile, onComplete, startTypingAnimation, handleNextFile, simulateStage]);
 
   useEffect(() => {
@@ -290,13 +312,12 @@ export default function UploadProgressLoader({ files, onComplete, onError }: Upl
             {files.map((file, index) => (
               <div
                 key={index}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  index < currentFileIndex
-                    ? 'bg-green-500/20 text-green-500'
-                    : index === currentFileIndex
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${index < currentFileIndex
+                  ? 'bg-green-500/20 text-green-500'
+                  : index === currentFileIndex
                     ? 'bg-accent1/20 text-accent1 animate-pulse'
                     : 'bg-bg3 text-text-secondary'
-                }`}
+                  }`}
               >
                 {index < currentFileIndex ? '✓ ' : ''}
                 {file.name}

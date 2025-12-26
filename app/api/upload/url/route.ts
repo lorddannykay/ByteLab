@@ -39,9 +39,12 @@ export async function POST(request: NextRequest) {
     }
 
     const html = await fetchResponse.text();
-    
+
+    // Extract title from HTML if possible
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const pageTitle = titleMatch ? titleMatch[1].trim() : '';
+
     // Extract text content from HTML (simple extraction)
-    // In production, you might want to use a library like cheerio or jsdom
     const textContent = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
@@ -62,9 +65,17 @@ export async function POST(request: NextRequest) {
     // Add chunks to vector store
     await globalVectorStore.addChunks(chunks);
 
-    // Extract filename from URL
-    const filename = urlObj.pathname.split('/').pop() || 'webpage.txt';
-    const safeFilename = filename.replace(/[^a-z0-9.-]/gi, '-');
+    // Extract filename from URL or title
+    let generatedFilename = pageTitle
+      ? `${pageTitle.substring(0, 30)}.html`
+      : (urlObj.pathname.split('/').pop() || `${urlObj.hostname}.html`);
+
+    if (generatedFilename.length < 5 || generatedFilename === 'index.html') {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      generatedFilename = `${urlObj.hostname}-${timestamp}.html`;
+    }
+
+    const safeFilename = generatedFilename.replace(/[^a-z0-9.-]/gi, '-');
 
     return NextResponse.json({
       success: true,

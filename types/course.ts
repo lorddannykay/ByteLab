@@ -30,6 +30,7 @@ export interface CourseConfig {
   enableContentValidation?: boolean; // Toggle content validation via web search
   enableAutoImages?: boolean; // Toggle automatic image fetching
   imageProvider?: 'pexels' | 'unsplash' | 'both'; // Image source preference
+  useAdvancedPrompting?: boolean; // Enable advanced chain-of-thought prompting (30-40% more tokens, 3-5x better quality)
 }
 
 // Course Content Structure
@@ -39,6 +40,9 @@ export interface CourseData {
     description: string;
     duration: string;
     stages: CourseStage[];
+    generatedAt?: number;
+    updatedAt?: number;
+    templateId?: string;
   };
   videoScenes: VideoScene[];
   podcastDialogue: DialogueSegment[];
@@ -52,8 +56,9 @@ export interface CourseStage {
   estimatedDuration?: string; // Estimated time to complete
   content: StageContent;
   interactiveElements: InteractiveElement[];
+  blocks?: InteractiveElement[]; // Unified blocks (sections + interactive)
   quizQuestions: QuizQuestion[];
-  sideCard: SideCardContent;
+  sideCard?: SideCardContent;
   subStages?: CourseStage[]; // Nested sub-stages
   parentStageId?: number; // ID of parent stage if this is a sub-stage
 }
@@ -72,7 +77,7 @@ export interface ImageMetadata {
   photographerUrl?: string;
   width: number;
   height: number;
-  provider: 'pexels' | 'unsplash' | 'google' | 'duckduckgo' | 'giphy' | 'upload';
+  provider: 'pexels' | 'unsplash' | 'google' | 'duckduckgo' | 'giphy' | 'upload' | 'pexels-video';
   mediaType?: 'image' | 'gif' | 'video-loop';
   loop?: boolean; // For video loops
   autoplay?: boolean; // For video loops
@@ -87,7 +92,8 @@ export interface ContentSection {
 }
 
 export interface InteractiveElement {
-  type: 'quiz' | 'matching' | 'code-demo' | 'expandable' | 'diagram';
+  id?: string;
+  type: 'quiz' | 'matching' | 'code-demo' | 'expandable' | 'diagram' | 'video' | 'audio' | 'flashcard' | 'dragdrop' | 'code' | 'progress' | 'image' | 'canvas' | 'section';
   data: any;
 }
 

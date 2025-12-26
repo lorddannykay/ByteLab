@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Microlearning: Ocean Exploration Fundamentals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.7.2.js"></script>
+<!--
+Tooplate 2138 Aqua Nova
+https://www.tooplate.com/view/2138-aqua-nova
+Free HTML CSS Template
+-->
+</head>
+<body>
+    <div id="underwater-bg"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-container">
+                <img src="../../assets/ByteB_white.png" alt="ByteAI Logo" class="logo-img">
+                <span class="logo-text">BYTEAI</span>
+                <span class="course-title">Ocean Exploration Fundamentals</span>
+            </a>
+            
+            <div class="mobile-menu-toggle" id="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul>
+                    <li><a href="#home" class="nav-link">COURSE</a></li>
+                    <li><a href="video.html" class="nav-link" target="_blank">VIDEO</a></li>
+                    <li><a href="podcast.html" class="nav-link" target="_blank">PODCAST</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Navigation -->
+    <div class="course-navigation">
+        <div class="course-nav-container">
+            <button type="button" id="prev-step" class="course-nav-btn" disabled>Previous</button>
+            <div class="course-nav-center">
+                <div class="course-progress-wrapper">
+                    <div class="course-progress-bar">
+                        <div class="course-progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <span class="course-stage-indicator" id="stage-indicator">1/5</span>
+            </div>
+            <button type="button" id="next-step" class="course-nav-btn">Next</button>
+        </div>
+    </div>
+
+    <!-- Section 1: Hero - Stage 1 -->
+    <section id="home" class="hero course-stage active" data-stage="1">
+        <div class="hero-content">
+            <h1 class="ocean-title">Ocean Exploration Fundamentals</h1>
+            <p class="subtitle">Stage 1: Introduction to Ocean Science</p>
+            <p style="max-width: 600px; margin: 30px auto; font-size: 16px; line-height: 1.8; color: rgba(248, 250, 252, 0.9);">Welcome to this microlearning course on ocean exploration. Discover the mysteries of the deep sea, learn about marine ecosystems, and understand the tools and techniques used in oceanographic research.</p>
+        </div>
+        <a href="#about" class="scroll-btn" style="display: none;">
+            <div class="scroll-btn-inner">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+                </svg>
+            </div>
+        </a>
+    </section>
+
+    <!-- Section 2: About - Stage 2 -->
+    <section id="about" class="fade-in course-stage" data-stage="2">
+        <h2 class="section-title">Stage 2: Ocean Explorer Foundations</h2>
+        <div class="about-section">
+            <div class="about-hero">
+                <h3>Diving Deep Into Ocean Mysteries</h3>
+                <p class="about-description">
+                    Ocean exploration is a multidisciplinary field that combines marine biology, oceanography, geology, and technology to understand our planet's most vast and least explored environment. This stage introduces you to the fundamental concepts of ocean science, from the surface waters to the deepest trenches.
+                </p>
+            </div>
+            
+            <div class="about-grid">
+                <div class="about-card">
+                    <span class="about-card-icon">🐠</span>
+                    <h4>Marine Biodiversity</h4>
+                    <p>Understanding the incredible diversity of marine life across all ocean depths, from microscopic plankton to massive whale species, and their role in global ecosystems.</p>
+                </div>
+                
+                <div class="about-card">
+                    <span class="about-card-icon">🪸</span>
+                    <h4>Coral Reef Research</h4>
+                    <p>Learning about coral reef ecosystems, their importance to marine biodiversity, and the challenges they face from climate change and human activities.</p>
+                </div>
+                
+                <div class="about-card">
+                    <span class="about-card-icon">🌊</span>
+                    <h4>Deep Sea Exploration</h4>
+                    <p>Exploring the deepest parts of Earth's oceans using advanced submersibles and ROVs to discover new species and understand extreme environments.</p>
+                </div>
+            </div>
+            
+            <div class="achievements-grid">
+                <div class="achievement-item">
+                    <div class="achievement-number">70%</div>
+                    <div class="achievement-label">Ocean Unexplored</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">200,000+</div>
+                    <div class="achievement-label">Marine Species</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">11,000m</div>
+                    <div class="achievement-label">Deepest Point</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-number">361M</div>
+                    <div class="achievement-label">Square Kilometers</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Research - Stage 3 -->
+    <section id="research" class="research-section fade-in course-stage" data-stage="3">
+        <div class="research-container">
+            <div class="research-sidebar">
+                <button class="research-tab active" data-tab="coral-reefs">Coral Reef Restoration</button>
+                <button class="research-tab" data-tab="deep-ocean">Deep Ocean Mapping</button>
+                <button class="research-tab" data-tab="marine-life">Marine Life Conservation</button>
+                <button class="research-tab" data-tab="climate-change">Climate Impact Research</button>
+            </div>
+            
+            <div class="research-content-area">
+                <h2 class="section-title" style="text-align: left; margin-bottom: 30px;">Stage 3: Ocean Research Applications</h2>
+                
+                <div class="research-content active" id="coral-reefs">
+                    <h3>Coral Reef Restoration</h3>
+                    <p>Leading global initiatives to restore damaged coral reef ecosystems through innovative techniques including coral farming, assisted gene flow, and microfragmentation. Our work focuses on building climate-resilient reefs that can withstand warming ocean temperatures and increasing acidification.</p>
+                    
+                    <div class="research-stats">
+                        <div class="stat-item">
+                            <span class="number">15</span>
+                            <span class="label">Active Sites</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">89%</span>
+                            <span class="label">Success Rate</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">2.3M</span>
+                            <span class="label">Corals Planted</span>
+                        </div>
+                    </div>
+
+                    <div class="research-details">
+                        <div class="detail-card">
+                            <h4>Microfragmentation</h4>
+                            <p>Revolutionary technique that accelerates coral growth by 25-50x through controlled fragmentation and fusion processes.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Genetic Rescue</h4>
+                            <p>Introducing heat-tolerant coral genotypes to enhance reef resilience against rising ocean temperatures.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Probiotics Treatment</h4>
+                            <p>Developing beneficial bacterial treatments to boost coral immune systems and resistance to bleaching.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="research-content" id="deep-ocean">
+                    <h3>Deep Ocean Mapping</h3>
+                    <p>Comprehensive mapping and exploration of deep-sea environments using advanced sonar systems, ROVs, and autonomous underwater vehicles. Our research reveals previously unknown ecosystems and helps establish marine protected areas in critical deep-sea habitats.</p>
+                    
+                    <div class="research-stats">
+                        <div class="stat-item">
+                            <span class="number">12,500</span>
+                            <span class="label">km² Mapped</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">847</span>
+                            <span class="label">Dive Hours</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">34</span>
+                            <span class="label">New Species</span>
+                        </div>
+                    </div>
+
+                    <div class="research-details">
+                        <div class="detail-card">
+                            <h4>Mariana Trench</h4>
+                            <p>Exploring the deepest parts of Earth's oceans, documenting extremophile communities and their unique adaptations.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Hydrothermal Vents</h4>
+                            <p>Studying chemosynthetic ecosystems around underwater volcanic vents and their role in ocean chemistry.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Seamount Surveys</h4>
+                            <p>Mapping underwater mountains and their endemic species, crucial for deep-sea conservation efforts.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="research-content" id="marine-life">
+                    <h3>Marine Life Conservation</h3>
+                    <p>Protecting endangered marine species through habitat restoration, breeding programs, and policy advocacy. Our work spans from microscopic plankton to large marine mammals, ensuring biodiversity preservation across all ocean levels.</p>
+                    
+                    <div class="research-stats">
+                        <div class="stat-item">
+                            <span class="number">127</span>
+                            <span class="label">Species Protected</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">45</span>
+                            <span class="label">Breeding Programs</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">8</span>
+                            <span class="label">Sanctuaries Created</span>
+                        </div>
+                    </div>
+
+                    <div class="research-details">
+                        <div class="detail-card">
+                            <h4>Sea Turtle Recovery</h4>
+                            <p>Comprehensive protection programs for endangered sea turtle species including nesting site protection and migration tracking.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Whale Migration</h4>
+                            <p>Studying and protecting critical migration corridors for humpback, blue, and gray whales across ocean basins.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Shark Conservation</h4>
+                            <p>Protecting apex predators through fishing regulations, sanctuary establishment, and public education campaigns.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="research-content" id="climate-change">
+                    <h3>Climate Impact Research</h3>
+                    <p>Investigating how climate change affects ocean ecosystems, from acidification and warming to sea level rise. Our research provides critical data for climate models and informs global policy decisions on ocean conservation.</p>
+                    
+                    <div class="research-stats">
+                        <div class="stat-item">
+                            <span class="number">156</span>
+                            <span class="label">Monitoring Sites</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">7.2°C</span>
+                            <span class="label">Max Temp Rise</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">-0.4</span>
+                            <span class="label">pH Change</span>
+                        </div>
+                    </div>
+
+                    <div class="research-details">
+                        <div class="detail-card">
+                            <h4>Ocean Acidification</h4>
+                            <p>Monitoring pH changes and their effects on calcifying organisms like corals, mollusks, and marine plankton.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Thermal Stress</h4>
+                            <p>Studying how rising temperatures affect marine metabolism, reproduction, and species distribution patterns.</p>
+                        </div>
+                        <div class="detail-card">
+                            <h4>Sea Level Impact</h4>
+                            <p>Assessing coastal ecosystem changes and adaptation strategies for rising sea levels and increased storm intensity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Equipment - Stage 4 -->
+    <section id="equipment" class="fade-in course-stage" data-stage="4">
+        <h2 class="section-title">Stage 4: Research Equipment & Tools</h2>
+        <div class="equipment-section">
+            <div class="equipment-categories">
+                <div class="equipment-category">
+                    <span class="category-icon">🚁</span>
+                    <h3>Underwater Vehicles</h3>
+                    <p>Advanced submersibles and remote operated vehicles for deep-sea exploration and research operations.</p>
+                    <ul class="equipment-list">
+                        <li>
+                            <span>Deep Sea Submersible</span>
+                            <span class="equipment-spec">6000m depth</span>
+                        </li>
+                        <li>
+                            <span>ROV Systems</span>
+                            <span class="equipment-spec">4K imaging</span>
+                        </li>
+                        <li>
+                            <span>Autonomous Underwater Vehicle</span>
+                            <span class="equipment-spec">72hr endurance</span>
+                        </li>
+                        <li>
+                            <span>Benthic Lander</span>
+                            <span class="equipment-spec">Long-term monitoring</span>
+                        </li>
+                    </ul>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="number">8</span>
+                            <span class="label">Vehicles</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="number">2,450</span>
+                            <span class="label">Dive Hours</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equipment-category">
+                    <span class="category-icon">📷</span>
+                    <h3>Imaging & Documentation</h3>
+                    <p>Professional underwater photography and videography equipment for scientific documentation and research.</p>
+                    <ul class="equipment-list">
+                        <li>
+                            <span>Underwater Camera Systems</span>
+                            <span class="equipment-spec">8K resolution</span>
+                        </li>
+                        <li>
+                            <span>Macro Photography Rig</span>
+                            <span class="equipment-spec">Species detail</span>
+                        </li>
+                        <li>
+                            <span>360° Underwater Cameras</span>
+                            <span class="equipment-spec">VR research</span>
+                        </li>
+                        <li>
+                            <span>Underwater Lighting</span>
+                            <span class="equipment-spec">LED arrays</span>
+                        </li>
+                    </ul>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="number">24</span>
+                            <span class="label">Camera Units</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="number">89,000</span>
+                            <span class="label">Images Captured</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equipment-category">
+                    <span class="category-icon">🧪</span>
+                    <h3>Laboratory Analysis</h3>
+                    <p>State-of-the-art laboratory equipment for marine sample analysis, DNA sequencing, and water chemistry testing.</p>
+                    <ul class="equipment-list">
+                        <li>
+                            <span>DNA Sequencer</span>
+                            <span class="equipment-spec">Species identification</span>
+                        </li>
+                        <li>
+                            <span>Mass Spectrometer</span>
+                            <span class="equipment-spec">Chemical analysis</span>
+                        </li>
+                        <li>
+                            <span>Microscopy Suite</span>
+                            <span class="equipment-spec">Electron & confocal</span>
+                        </li>
+                        <li>
+                            <span>Water Quality Analyzers</span>
+                            <span class="equipment-spec">Real-time monitoring</span>
+                        </li>
+                    </ul>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="number">156</span>
+                            <span class="label">Instruments</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="number">45,000</span>
+                            <span class="label">Samples Processed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equipment-category">
+                    <span class="category-icon">📡</span>
+                    <h3>Monitoring & Sensors</h3>
+                    <p>Advanced sensor networks and monitoring systems for long-term ocean data collection and environmental tracking.</p>
+                    <ul class="equipment-list">
+                        <li>
+                            <span>Oceanographic Buoys</span>
+                            <span class="equipment-spec">Multi-parameter</span>
+                        </li>
+                        <li>
+                            <span>Acoustic Tracking</span>
+                            <span class="equipment-spec">Marine animal tags</span>
+                        </li>
+                        <li>
+                            <span>CTD Profilers</span>
+                            <span class="equipment-spec">Conductivity/Temp/Depth</span>
+                        </li>
+                        <li>
+                            <span>Hydrophone Arrays</span>
+                            <span class="equipment-spec">Whale song recording</span>
+                        </li>
+                    </ul>
+                    <div class="category-stats">
+                        <div class="category-stat">
+                            <span class="number">234</span>
+                            <span class="label">Sensors</span>
+                        </div>
+                        <div class="category-stat">
+                            <span class="number">24/7</span>
+                            <span class="label">Monitoring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Quiz - Stage 5 -->
+    <section id="contact" class="fade-in course-stage" data-stage="5">
+        <h2 class="section-title">Stage 5: Quiz</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Test Your Knowledge</h3>
+                <p style="margin-top: 20px; font-size: 16px; line-height: 1.6; color: rgba(248, 250, 252, 0.9);">Test your understanding of ocean exploration fundamentals. Answer all questions to complete the course.</p>
+            </div>
+            
+            <div class="contact-form" style="background: rgba(6, 182, 212, 0.1);">
+                <div class="quiz-container">
+                    <div class="quiz-question" data-qid="q1">
+                        <strong style="color: var(--pearl-white); display: block; margin-bottom: 15px;">1) What percentage of the ocean remains unexplored?</strong>
+                        <div class="quiz-choices">
+                            <div class="choice" data-value="A">30%</div>
+                            <div class="choice" data-value="B">50%</div>
+                            <div class="choice" data-value="C">70%</div>
+                            <div class="choice" data-value="D">90%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-question" data-qid="q2" style="margin-top: 30px;">
+                        <strong style="color: var(--pearl-white); display: block; margin-bottom: 15px;">2) What is the primary purpose of ROVs in ocean exploration?</strong>
+                        <div class="quiz-choices">
+                            <div class="choice" data-value="A">Surface water sampling</div>
+                            <div class="choice" data-value="B">Deep-sea exploration and research</div>
+                            <div class="choice" data-value="C">Coastal monitoring</div>
+                            <div class="choice" data-value="D">Fishing operations</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-question" data-qid="q3" style="margin-top: 30px;">
+                        <strong style="color: var(--pearl-white); display: block; margin-bottom: 15px;">3) What is ocean acidification primarily caused by?</strong>
+                        <div class="quiz-choices">
+                            <div class="choice" data-value="A">Increased ocean temperatures</div>
+                            <div class="choice" data-value="B">Absorption of CO2 from the atmosphere</div>
+                            <div class="choice" data-value="C">Marine pollution</div>
+                            <div class="choice" data-value="D">Overfishing</div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="dive-btn" id="submit-quiz" style="margin-top: 30px; width: 100%;">Submit Quiz</button>
+                    <div id="quiz-result" style="margin-top: 20px; display: none; color: var(--pearl-white);"></div>
+                </div>
+                
+                <div id="certificate-section" style="margin-top: 30px; padding: 30px; border: 2px solid var(--ocean-surface); border-radius: 15px; text-align: center; display: none; background: rgba(6, 182, 212, 0.1);">
+                    <h3 style="margin-bottom: 15px; color: var(--ocean-surface);">🎉 Course Complete!</h3>
+                    <p style="margin-bottom: 15px; color: rgba(248, 250, 252, 0.9);">Congratulations! You have successfully completed the Ocean Exploration Fundamentals course.</p>
+                    <p id="cert-name" style="margin-bottom: 20px; font-weight: 600; color: var(--pearl-white);">Learner</p>
+                    <button type="button" class="dive-btn" id="download-cert">Download Certificate</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-main">
+                <div class="logo-footer">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 50 Q30 30 50 50 T90 50" stroke="#06b6d4" stroke-width="3" fill="none" opacity="0.8">
+                            <animate attributeName="d" dur="4s" repeatCount="indefinite" 
+                                    values="M10 50 Q30 30 50 50 T90 50;M10 50 Q30 70 50 50 T90 50;M10 50 Q30 30 50 50 T90 50"/>
+                        </path>
+                        <path d="M10 60 Q30 40 50 60 T90 60" stroke="#10b981" stroke-width="2" fill="none" opacity="0.6">
+                            <animate attributeName="d" dur="3s" repeatCount="indefinite" 
+                                    values="M10 60 Q30 40 50 60 T90 60;M10 60 Q30 80 50 60 T90 60;M10 60 Q30 40 50 60 T90 60"/>
+                        </path>
+                        <circle cx="50" cy="20" r="8" fill="#f97316" opacity="0.8"/>
+                        <circle cx="30" cy="75" r="4" fill="#06b6d4"/>
+                        <circle cx="70" cy="80" r="3" fill="#10b981"/>
+                    </svg>
+                    <span class="logo-text">BYTEAI</span>
+                </div>
+                
+                <p class="footer-description">
+                    Dedicated to exploring and protecting our ocean's mysteries. Through cutting-edge research, 
+                    conservation efforts, and global collaboration, we're working to ensure healthy marine 
+                    ecosystems for future generations.
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>🌊 &copy; 2025 ByteAI — Ocean Exploration Fundamentals Course. 
+            Protecting our oceans, one dive at a time. 🌊</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

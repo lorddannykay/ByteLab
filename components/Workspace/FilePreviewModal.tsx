@@ -30,15 +30,15 @@ export default function FilePreviewModal({ file, isOpen, onClose }: FilePreviewM
         const isUrl = file.id.startsWith('url-');
         const isText = file.id.startsWith('text-');
         const isPdf = file.name.toLowerCase().endsWith('.pdf');
-        const isTextFile = file.name.toLowerCase().endsWith('.txt') || 
-                          file.name.toLowerCase().endsWith('.md');
+        const isTextFile = file.name.toLowerCase().endsWith('.txt') ||
+          file.name.toLowerCase().endsWith('.md');
 
         if (isUrl) {
           // For URLs, show metadata
           setPreviewContent(`URL: ${file.name}\n\nThis is a web page that has been indexed. The content has been extracted and is available for course generation.`);
         } else if (isText || isTextFile) {
           // For text files, fetch content
-          const response = await fetch(`/api/files/preview?fileId=${file.id}`);
+          const response = await fetch(`/api/files/preview?fileId=${file.id}&filename=${encodeURIComponent(file.name)}`);
           if (response.ok) {
             const data = await response.json();
             setPreviewContent(data.content || 'No content available');
@@ -66,7 +66,7 @@ export default function FilePreviewModal({ file, isOpen, onClose }: FilePreviewM
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div 
+      <div
         className="bg-bg1 border border-border rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col glass glass-panel shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >

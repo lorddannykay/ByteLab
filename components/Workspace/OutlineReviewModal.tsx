@@ -23,7 +23,7 @@ export default function OutlineReviewModal({
   isContinuing = false,
 }: OutlineReviewModalProps) {
   const [editingStage, setEditingStage] = useState<number | null>(null);
-  const [editedStages, setEditedStages] = useState(outline.stages);
+  const [editedStages, setEditedStages] = useState(outline.stages || []);
 
   const handleEditStage = (stageId: number, field: 'title' | 'objective', value: string) => {
     setEditedStages(prev =>
@@ -72,14 +72,14 @@ export default function OutlineReviewModal({
 
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-text-primary">Stages ({editedStages.length})</h3>
-              {expectedStageCount !== undefined && expectedStageCount !== editedStages.length && (
+              <h3 className="font-semibold text-text-primary">Stages ({editedStages?.length || 0})</h3>
+              {expectedStageCount !== undefined && expectedStageCount !== (editedStages?.length || 0) && (
                 <span className="text-xs text-yellow-500 font-medium">
-                  Expected {expectedStageCount}, got {editedStages.length}
+                  Expected {expectedStageCount}, got {editedStages?.length || 0}
                 </span>
               )}
             </div>
-            {editedStages.map((stage, index) => (
+            {(editedStages || []).map((stage, index) => (
               <div
                 key={stage.id}
                 className="p-4 bg-bg2 border border-border rounded-lg"

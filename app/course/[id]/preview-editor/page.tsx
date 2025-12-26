@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCourses } from '@/contexts/CourseContext';
@@ -8,6 +8,8 @@ import { CourseData, CourseConfig } from '@/types/course';
 import VisualHTMLEditor from '@/components/Editor/VisualHTMLEditor';
 import LivePreviewPanel from '@/components/Editor/LivePreviewPanel';
 import HTMLPreview from '@/components/Editor/HTMLPreview';
+import TemplateSelector from '@/components/Templates/TemplateSelector';
+import { TemplateId, TEMPLATES } from '@/lib/templates/templateSelector';
 
 export default function PreviewEditorPage() {
   const params = useParams();
@@ -21,6 +23,11 @@ export default function PreviewEditorPage() {
   const [courseConfig, setCourseConfig] = useState<CourseConfig | null>(null);
   const [previewMode, setPreviewMode] = useState<'editor' | 'html' | 'live'>('editor');
   const [previewKey, setPreviewKey] = useState(0); // Force refresh key
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const courseDataRef = useRef<CourseData | null>(null);
+  const courseConfigRef = useRef<CourseConfig | null>(null);
 
   // Load course data
   useEffect(() => {
@@ -39,7 +46,13 @@ export default function PreviewEditorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
-  // Auto-save and refresh preview
+  // Keep refs in sync
+  useEffect(() => {
+    courseDataRef.current = courseData;
+    courseConfigRef.current = courseConfig;
+  }, [courseData, courseConfig]);
+
+  // Auto-save and refresh preview (debounced)
   useEffect(() => {
     if (!courseData || !courseId || loading) return;
 
@@ -47,8 +60,8 @@ export default function PreviewEditorPage() {
       updateCourse(courseId, {
         state: {
           ...course?.state,
-          courseData,
-          courseConfig,
+          courseData: courseDataRef.current,
+          courseConfig: courseConfigRef.current,
         },
       });
       // Force preview refresh after save
@@ -58,19 +71,78 @@ export default function PreviewEditorPage() {
     return () => clearTimeout(timeoutId);
   }, [courseData, courseConfig, courseId, loading, course]);
 
-  // Refresh preview when course data changes
+  // Refresh preview when course data changes (especially for images/media)
   useEffect(() => {
     if (previewMode !== 'editor' && courseData) {
+      // Force preview refresh to show updated images/media
       setPreviewKey(prev => prev + 1);
     }
   }, [courseData, courseConfig, previewMode]);
 
   const handleUpdateCourseData = (updated: CourseData) => {
     setCourseData(updated);
+    // Immediately refresh preview if not in editor mode
+    if (previewMode !== 'editor') {
+      setPreviewKey(prev => prev + 1);
+    }
   };
 
   const handleUpdateConfig = (updated: CourseConfig) => {
     setCourseConfig(updated);
+    // Immediately refresh preview if not in editor mode
+    if (previewMode !== 'editor') {
+      setPreviewKey(prev => prev + 1);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!courseData || !courseConfig || !courseId) return;
+    
+    setIsSaving(true);
+    setSaveStatus('saving');
+    
+    try {
+      updateCourse(courseId, {
+        state: {
+          ...course?.state,
+          courseData,
+          courseConfig,
+        },
+      });
+      
+      // Force preview refresh after save
+      setPreviewKey(prev => prev + 1);
+      
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Save error:', error);
+      setSaveStatus('idle');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTemplateChange = (templateId: TemplateId) => {
+    if (!courseConfig) return;
+    
+    const updatedConfig: CourseConfig = {
+      ...courseConfig,
+      templateId,
+    };
+    
+    setCourseConfig(updatedConfig);
+    handleUpdateConfig(updatedConfig);
+    
+    // Save immediately when template changes
+    if (courseId) {
+      updateCourse(courseId, {
+        state: {
+          ...course?.state,
+          courseConfig: updatedConfig,
+        },
+      });
+    }
   };
 
   // Keyboard shortcuts
@@ -98,14 +170,7 @@ export default function PreviewEditorPage() {
       // Ctrl/Cmd + S: Save
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
-        updateCourse(courseId, {
-          state: {
-            ...course?.state,
-            courseData,
-            courseConfig,
-          },
-        });
-        setPreviewKey(prev => prev + 1);
+        handleSave();
       }
     };
 
@@ -181,6 +246,18 @@ export default function PreviewEditorPage() {
               Live Preview
             </button>
           </div>
+          
+          {/* Template Selector */}
+          <button
+            onClick={() => setShowTemplateSelector(true)}
+            className="px-3 py-1.5 text-sm bg-bg2 border border-border rounded-lg hover:bg-bg3 transition-colors flex items-center gap-2"
+            title="Change template"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            Template
+          </button>
           {previewMode !== 'editor' && (
             <button
               onClick={() => setPreviewKey(prev => prev + 1)}
@@ -194,19 +271,26 @@ export default function PreviewEditorPage() {
             </button>
           )}
           <button
-            onClick={() => {
-              updateCourse(courseId, {
-                state: {
-                  ...course?.state,
-                  courseData,
-                  courseConfig,
-                },
-              });
-              setPreviewKey(prev => prev + 1);
-            }}
-            className="px-4 py-2 text-sm bg-gradient-to-r from-accent1 to-accent2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-4 py-2 text-sm bg-gradient-to-r from-accent1 to-accent2 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            title="Save changes (Ctrl/Cmd + S)"
           >
-            Save
+            {saveStatus === 'saving' ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : saveStatus === 'saved' ? (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Saved
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
       </header>
@@ -245,13 +329,33 @@ export default function PreviewEditorPage() {
             <LivePreviewPanel
               courseData={courseData}
               config={courseConfig}
-              templateId={courseConfig.templateId as any}
+              templateId={(courseConfig.templateId as TemplateId) || 'birb-classic'}
               onClose={() => setPreviewMode('editor')}
               key={previewKey}
             />
           </div>
         )}
       </div>
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && courseConfig && (
+        <TemplateSelector
+          selectedTemplate={(courseConfig.templateId as TemplateId) || 'birb-classic'}
+          onSelectTemplate={(templateId) => {
+            // Preview template change
+            const updatedConfig: CourseConfig = {
+              ...courseConfig,
+              templateId,
+            };
+            setCourseConfig(updatedConfig);
+          }}
+          onApply={(templateId) => {
+            handleTemplateChange(templateId);
+            setShowTemplateSelector(false);
+          }}
+          onClose={() => setShowTemplateSelector(false)}
+        />
+      )}
     </div>
   );
 }

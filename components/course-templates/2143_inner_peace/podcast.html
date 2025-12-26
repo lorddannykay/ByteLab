@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByteAI — Mindfulness & Mental Wellness — Podcast</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="geometric-bg"></div>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="../../assets/ByteB_black.png" alt="ByteAI Logo" class="logo-img">
+                <span class="logo-text">BYTEAI</span>
+                <span class="course-title">Mindfulness & Mental Wellness</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">COURSE</a></li>
+                <li><a href="video.html" class="nav-link">VIDEO</a></li>
+                <li><a href="podcast.html" class="nav-link active">PODCAST</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section id="hero" style="margin-top: 80px; min-height: calc(100vh - 80px);">
+        <div class="hero-content" style="max-width: 800px; width: 100%; padding: 40px;">
+            <h1 style="font-size: 3rem; margin-bottom: 30px;">Mindfulness & Mental Wellness</h1>
+            <p style="margin-bottom: 40px; font-size: 1.2rem;">Audio Podcast</p>
+            <div style="background: rgba(45, 90, 135, 0.05); border-radius: 15px; padding: 50px; border: 2px solid rgba(45, 90, 135, 0.2); margin-bottom: 30px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="width: 200px; height: 200px; margin: 0 auto 30px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 60px rgba(45, 90, 135, 0.3);">
+                        <span style="font-size: 4rem;">🧘</span>
+                    </div>
+                </div>
+                <audio id="podcast-audio" controls style="width: 100%; margin-bottom: 30px;">
+                    <source src="../../api-course/audio/podcast.mp3" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <div style="text-align: center;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px;">Episode: Mindfulness & Mental Wellness</h3>
+                    <p style="color: var(--dark); line-height: 1.8;">Listen to the complete course content on mindfulness practices, meditation techniques, and mental wellness strategies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="index.html">Main Course</a>
+                <a href="video.html">Video</a>
+                <a href="podcast.html">Podcast</a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 ByteAI — Mindfulness & Mental Wellness Course.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
+

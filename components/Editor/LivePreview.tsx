@@ -39,8 +39,13 @@ export default function LivePreview({ courseData, config, onClose }: LivePreview
               Download HTML
             </button>
             <button
-              onClick={onClose}
-              className="p-2 hover:bg-bg2 rounded transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
+              className="p-2 hover:bg-bg2 rounded transition-colors z-50 relative"
+              style={{ pointerEvents: 'auto' }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -49,14 +54,40 @@ export default function LivePreview({ courseData, config, onClose }: LivePreview
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden bg-bg2 p-8 flex items-center justify-center">
           {html ? (
-            <iframe
-              srcDoc={html}
-              className="w-full h-full border-0"
-              title="Course Preview"
-              sandbox="allow-scripts allow-same-origin"
-            />
+            <div className="relative w-full max-w-4xl" style={{ aspectRatio: '16/9' }}>
+              {/* Device Mockup Frame */}
+              <div className="absolute inset-0 bg-gradient-to-br from-sf-gray-100 to-sf-gray-200 rounded-[2.5rem] p-2 shadow-2xl" style={{ 
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.1)'
+              }}>
+                {/* Screen Bezel */}
+                <div className="w-full h-full bg-black rounded-[2rem] p-1">
+                  {/* Notch (for mobile) */}
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl z-10" />
+                  {/* Screen Content */}
+                  <div className="w-full h-full bg-white rounded-[1.75rem] overflow-hidden">
+                    <iframe
+                      srcDoc={html}
+                      className="w-full h-full border-0"
+                      title="Course Preview"
+                      sandbox="allow-scripts allow-same-origin"
+                      onLoad={(e) => {
+                        // Listen for postMessage from iframe to handle close requests
+                        const iframe = e.target as HTMLIFrameElement;
+                        if (iframe?.contentWindow) {
+                          window.addEventListener('message', (event) => {
+                            if (event.data === 'closePreview' || event.data?.type === 'closePreview') {
+                              onClose();
+                            }
+                          });
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
